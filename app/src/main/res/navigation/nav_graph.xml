@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mainActivityFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.drokka.emu.symicon.generateicon.ui.main.MainFragment"
+        android:label="main_fragment"
+        tools:layout="@layout/main_fragment" >
+        <action
+            android:id="@+id/action_mainFragment_to_wrapListFragment"
+            app:destination="@id/wrapListFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_imageIconFragment"
+            app:destination="@id/imageIconFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/wrapListFragment"
+        android:name="com.drokka.emu.symicon.generateicon.ui.main.WrapListFragment"
+        android:label="fragment_wrap_list"
+        tools:layout="@layout/wrap_sym_icon_list" >
+        <action
+            android:id="@+id/action_wrapListFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageIconFragment"
+        android:name="com.drokka.emu.symicon.generateicon.ui.main.ImageIconFragment"
+        android:label="image_icon_fragment"
+        tools:layout="@layout/image_icon_fragment" >
+        <action
+            android:id="@+id/action_imageIconFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainActivityFragment"
+        android:name="com.drokka.emu.symicon.generateicon.ui.main.MainActivityFragment"
+        android:label="fragment_main_activity"
+        tools:layout="@layout/fragment_main_activity" >
+        <action
+            android:id="@+id/action_mainActivityFragment_to_wrapListFragment"
+            app:destination="@id/wrapListFragment" />
+        <action
+            android:id="@+id/action_mainActivityFragment_to_editSymiFragment"
+            app:destination="@id/editSymiFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editSymiFragment"
+        android:name="com.drokka.emu.symicon.generateicon.ui.main.EditSymiFragment"
+        android:label="EditSymiFragment" />
+</navigation>

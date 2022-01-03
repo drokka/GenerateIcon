@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/list_of_symis"
+    android:name="com.drokka.emu.symicon.generateicon.ui.main.SymIconListFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    tools:context=".ui.main.SymIconListFragment"
+    tools:listitem="@layout/fragment_sym_icon_list" />

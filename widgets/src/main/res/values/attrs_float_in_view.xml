@@ -1,0 +1,13 @@
+<resources>
+    <declare-styleable name="FloatInView">
+        <attr name="parameterName" format="string" />
+        <attr name="exampleString" format="string" />
+        <attr name="exampleDimension" format="dimension" />
+        <attr name="exampleColor" format="color" />
+        <attr name="exampleDrawable" format="color|reference" />
+        <attr name="min" format="float"/>
+        <attr name="max" format="float"/>
+        <attr name="numberSegments" format="float"/>
+        <attr name="zoomFactor" format="float"/>
+    </declare-styleable>
+</resources>
