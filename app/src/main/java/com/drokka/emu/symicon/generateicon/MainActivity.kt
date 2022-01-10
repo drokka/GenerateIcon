@@ -59,8 +59,10 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         ***********/
         //Make sure the TINY icon got saved before navigating to the bigger image display
       //  viewModel.saveSymi()
-        findNavController(R.id.fragmentContainerView).navigate(R.id.action_mainFragment_to_imageIconFragment)
-
+        val navvy = findNavController(R.id.fragmentContainerView)
+        if(navvy.currentDestination?.id == R.id.mainFragment) {
+            navvy.navigate(R.id.action_mainFragment_to_imageIconFragment)
+        }
     }
 
     /**********************************************************************
@@ -78,10 +80,14 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         }***************************************************************************/
 
             //Save the TINY image first, before navigating to generated Icon fragment.
-            if(viewModel.generatedTinyIAD == null){
-              deferredJob =   viewModel.runSymiExample(context, TINY, QUICK_LOOK)
+            if(viewModel.generatedTinyIAD == null) {
+                deferredJob = viewModel.runSymiExample(context, TINY, QUICK_LOOK)
+
                 deferredJob.invokeOnCompletion { viewModel.saveTinySymi() }
+            }else{
+                viewModel.saveTinySymi()
             }
+
             deferredJob =     viewModel.runSymiExample(context, MEDIUM, GO_GO)
         return deferredJob
     }
@@ -248,12 +254,16 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     override fun onSymIconItemSelected(generatedImageAndImageData: GeneratedIconWithAllImageData) {
-Log.i("MainActivity ", "onSymIconItemSelected called")
-        if(mainFragment == null) {
-            mainFragment = MainFragment.newInstance()
+        Log.i("MainActivity ", "onSymIconItemSelected called")
+       // if(mainFragment == null) {
+         //   mainFragment = MainFragment.newInstance()
+       // }
+        if(imageIconFragment == null){
+            imageIconFragment = ImageIconFragment.newInstance()
         }
-        findNavController(R.id.fragmentContainerView).navigate(R.id.action_wrapListFragment_to_mainFragment)
 
+       // findNavController(R.id.fragmentContainerView).navigate(R.id.action_wrapListFragment_to_mainFragment)
+        findNavController(R.id.fragmentContainerView).navigate(R.id.action_wrapListFragment_to_imageIconFragment)
         if (generatedImageAndImageData != null) {
             viewModel.isLoadingFromData = true
             viewModel.setSymiData(generatedImageAndImageData)

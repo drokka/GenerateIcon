@@ -4,6 +4,8 @@ package com.drokka.emu.symicon.generateicon.data
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.room.*
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import java.io.Serializable
 import java.util.*
 
@@ -72,7 +74,7 @@ data class GeneratedIcon(
     @PrimaryKey var id: UUID = UUID.randomUUID(),
    // @Embedded var definition: GeneratorDef,
     var gen_def_id: UUID,
-    var generatedData:String,
+    var generatedData:String?,
     var generatedDataFileName: String
 ):Serializable
 
@@ -126,7 +128,8 @@ data class GeneratedImageData(
         "SymIcon.label,"+
         "GeneratorDef.width, GeneratorDef.height, GeneratorDef.iterations,"+
         " GeneratedIcon.generatedData, GeneratedIcon.generatedDataFileName,"+
-        " GeneratedImageData.gid_id as generatedImageDataId, GeneratedImageData.iconImageFileName, GeneratedImageData.byteArray, GeneratedImageData.len"+
+        " GeneratedImageData.gid_id as generatedImageDataId, GeneratedImageData.iconImageFileName, "
+        +"GeneratedImageData.byteArray, GeneratedImageData.len"+
         " from IconDef inner join SymIcon on IconDef.icon_def_id = SymIcon.icon_def_id "+
     "inner join GeneratorDef on GeneratorDef.sym_icon_id = SymIcon.sym_icon_id" +
         " inner join GeneratedIcon on GeneratedIcon.gen_def_id = GeneratorDef.gen_def_id"+
@@ -155,8 +158,16 @@ data class GeneratedIconWithAllImageData
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
     var byteArray: ByteArray?,
     var len: Int
-)
+){
+    /*************
+    init {
+        byteArray = null
 
+
+            byteArray
+        }
+    *****************************/
+    }
 
 //@Entity
 @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)

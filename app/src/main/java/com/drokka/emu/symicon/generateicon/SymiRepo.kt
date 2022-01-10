@@ -72,7 +72,7 @@ class SymiRepo   private constructor(context: Context) {
         }
     }
 
-    fun getAllSymIconData():LiveData<List<GeneratedIconAndImageData>>{
+    fun getAllSymIconData():List<GeneratedIconAndImageData>?{
         return symiDao.getAllSymIconData()
     }
 /******************************************************
@@ -87,6 +87,10 @@ class SymiRepo   private constructor(context: Context) {
   //  fun getSymIconDataList(size:Int): LiveData<List<GeneratedIconAndImageData>> {
         //TODO return symiDao.getSymIconData(size)
  //   }
+
+    fun getSymiSizedData(iconDefId:UUID, size:Int):GeneratedIconAndImageData{
+        return symiDao.getSymIconSizedData(iconDefId,size)
+    }
 
     /*********
     fun getTinyImage(label: String):Bitmap?{

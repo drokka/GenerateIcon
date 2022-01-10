@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.ui.main.MainViewModel
 import org.junit.Assert
@@ -70,15 +72,129 @@ interface SymiDao {
    //         " where width = (:size) and len >0")
   //  fun getSymIconData( size: Int):LiveData<List<GeneratedIconAndImageData>>
 
-    //@RewriteQueriesToDropUnusedColumns
-    @Transaction
-    @Query("select * from GeneratedIcon inner join GeneratedImageData "  +
-            "on (GeneratedIcon.id = GeneratedImageData.gen_icon_id)")
-    fun getAllSymIconData():LiveData<List<GeneratedIconAndImageData>>
+    @Query("select gi.id, gi.gen_def_id , gi.generatedDataFileName, giddy.gid_id, giddy.gen_icon_id, giddy.iconImageFileName, "+
+            " giddy.len "+
+            " from GeneratedIcon gi inner join GeneratedImageData giddy "  +
+                     "on (gi.id = giddy.gen_icon_id)")
+   fun getAllSymIconDataMinusByteArray():List<GeneratedIconAndImageData>
 
-//    @Query("select byteArray from GeneratedIconAndImageData" +
-  //          " where label=(:ll) and width = (:size) and len >0")
-   // fun getImage(ll: String, size: Int):ByteArray?
+    @Transaction
+     fun getAllSymIconData(): List<GeneratedIconAndImageData>?{
+        val listyVal = getAllSymIconDataMinusByteArray()
+        if (listyVal != null) {
+            for(item in listyVal){
+                item.generatedImageData?.let {
+                    it.byteArray = getImage(it.gid_id, it.len)
+                }
+                item.generatedIcon?.let {
+                    it.generatedData = getGeneratedData(it.id)
+                }
+            }
+        }
+
+        return listyVal
+    }
+
+// query getting all symis for an icon def, minus the blobs (the actual data)
+    @Query("select gi.id, gi.gen_def_id , gi.generatedDataFileName, giddy.gid_id, giddy.gen_icon_id, giddy.iconImageFileName, "+
+            " giddy.len "+
+            " from GeneratedIcon gi inner join GeneratedImageData giddy "  +
+            "on (gi.id = giddy.gen_icon_id)"+
+            "inner join GeneratorDef gd on (gi.gen_def_id = gd.gen_def_id)"+
+            "inner join SymIcon si on (gd.sym_icon_id = si.sym_icon_id)"+
+            "inner join IconDef def on (si.icon_def_id = def.icon_def_id)"+
+            "where def.icon_def_id = (:iconDefId)")
+    fun getSymIconDataMinusByteArray(iconDefId:UUID):List<GeneratedIconAndImageData>
+
+    // get the data blobs to complete above GeneratedIconAndImageData using raw query
+    @Transaction
+    fun getSymIconData(iconDefId:UUID): List<GeneratedIconAndImageData>{
+        val listyVal = getSymIconDataMinusByteArray(iconDefId)
+        if (listyVal != null) {
+            for(item in listyVal){
+                item.generatedImageData?.let {
+                    it.byteArray = getImage(it.gid_id, it.len)
+                }
+                item.generatedIcon?.let {
+                    it.generatedData = getGeneratedData(it.id)
+                }
+            }
+        }
+
+        return listyVal
+    }
+
+    // query specific SIZE symis for an icon def, minus the blobs (the actual data)
+    @Query("select gi.id, gi.gen_def_id , gi.generatedDataFileName, giddy.gid_id, giddy.gen_icon_id, giddy.iconImageFileName, "+
+            " giddy.len "+
+            " from GeneratedIcon gi inner join GeneratedImageData giddy "  +
+            "on (gi.id = giddy.gen_icon_id)"+
+            "inner join GeneratorDef gd on (gi.gen_def_id = gd.gen_def_id)"+
+            "inner join SymIcon si on (gd.sym_icon_id = si.sym_icon_id)"+
+            "inner join IconDef def on (si.icon_def_id = def.icon_def_id)"+
+            "where def.icon_def_id = (:iconDefId)"+
+            "and gd.width = (:sz)")
+    fun getSymIconDataSizedMinusByteArray(iconDefId:UUID, sz:Int):GeneratedIconAndImageData
+
+    // get the data blobs to complete above GeneratedIconAndImageData using raw query
+    @Transaction
+    fun getSymIconSizedData(iconDefId:UUID, sz:Int): GeneratedIconAndImageData{
+        val symi = getSymIconDataSizedMinusByteArray(iconDefId, sz)
+        if (symi != null) {
+            symi.generatedImageData?.let {
+                it.byteArray = getImage(it.gid_id, it.len)
+            }
+            symi.generatedIcon?.let {
+                it.generatedData = getGeneratedData(it.id)
+            }
+        }
+        return symi
+    }
+    @RawQuery
+    fun getImageSubstr(query: SupportSQLiteQuery ):ByteArray?
+
+    fun getImageSubstrQuery(gidId:UUID,start:Int, size: Int):String{
+        return "select substr(byteArray," +start.toString() +"," + size.toString() +") from GeneratedImageData" +
+                " where gid_id = \'"+ gidId.toString() +"\'"
+    }
+
+   fun getImage(gidId: UUID, len:Int): ByteArray? {
+       var byteArray:ByteArray = ByteArray(0)
+       var count=0
+       while(count <len){
+          val query = SimpleSQLiteQuery(getImageSubstrQuery(gidId,count+1,500000))
+           val nextBytes = getImageSubstr(query)
+           if(nextBytes != null) {
+              byteArray =  byteArray.plus(nextBytes)
+           }
+           count+=500000
+       }
+       return  byteArray
+   }
+    @RawQuery
+    fun getGeneratedDataSubstr(query: SupportSQLiteQuery):String?
+
+    fun getGeneratedDataSubstrQuery(id: UUID, start: Int,size: Int):String{
+        return "select substr(generatedData," +start.toString() +"," + size.toString() +") from GeneratedIcon " +
+                " where id = \'" + id.toString() +"\'"
+    }
+
+    fun getGeneratedData(id: UUID):String{
+        var str:String = ""
+        var count=0
+        while(true){
+            val query = SimpleSQLiteQuery(getGeneratedDataSubstrQuery(id,count+1,500000))
+            val nextBytes = getGeneratedDataSubstr(query)
+
+            if( nextBytes.isNullOrEmpty()) {
+                return str
+            }
+            str =  str.plus(nextBytes)
+
+            count+=500000
+        }
+        return str
+    }
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun addIconDef(iconDef: IconDef)

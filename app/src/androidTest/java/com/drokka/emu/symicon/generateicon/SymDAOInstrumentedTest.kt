@@ -7,6 +7,7 @@ import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 import com.drokka.emu.symicon.generateicon.data.*
+import com.drokka.emu.symicon.generateicon.database.SymiDao
 import com.drokka.emu.symicon.generateicon.database.SymiDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -40,11 +41,14 @@ class SymDAOInstrumentedTest {
         assertEquals("com.drokka.emu.symicon.generateicon", appContext.packageName)
     }
 
+    private lateinit var dao:SymiDao
+
     @Before
     fun initDB(){
         // val context = ApplicationProvider.getApplicationContext<Context>()
 
         symiDatabase = Room.inMemoryDatabaseBuilder(appContext, SymiDatabase::class.java).build()
+        dao = symiDatabase.symiDao()
     }
 
 
@@ -124,13 +128,13 @@ lateinit var  iconDefId3:UUID
             10000
         )
         filename = "filename"
-        byteArray1 = ByteArray(5) { i -> 1 }
+        byteArray1 = ByteArray(5000011) { i -> 1 }
          len1 = byteArray1.size
          byteArray2 = ByteArray(5) { i -> 2 }
 
 
         generatedIcon = GeneratedIcon(
-            UUID.randomUUID(), def1.gen_def_id, "generated data string",
+            UUID.randomUUID(), def1.gen_def_id, String(byteArray1),
             "generated data file name"
         )
         generatedIcon2 = GeneratedIcon(
@@ -159,7 +163,6 @@ lateinit var  iconDefId3:UUID
     }
     @Test
     fun insertSymi(){
-        val dao = symiDatabase.symiDao()
         dao.addIconDef(iconDef1)
 
         dao.addSymIcon(symi1)
@@ -184,7 +187,6 @@ lateinit var  iconDefId3:UUID
 
     @Test
     fun insertSymiAndData(){
-        val dao = symiDatabase.symiDao()
         dao.addIconDef(iconDef1)
 
         dao.addSymIcon(symi1)
@@ -198,8 +200,8 @@ lateinit var  iconDefId3:UUID
         Log.i("test", "after added")
 
 
-        val listS: LiveData<List<GeneratedIconAndImageData>> = dao.getAllSymIconData()
-        val listSvalue = listS.getWrappedValue()
+        val listS: List<GeneratedIconAndImageData>? = dao.getAllSymIconData()
+        val listSvalue = listS //.getWrappedValue()
 
         var listGenIm : LiveData<List<GeneratedImageData>> = dao.getGeneratedImageDataList()
         var listGenImVal = listGenIm.getWrappedValue()
@@ -217,8 +219,6 @@ lateinit var  iconDefId3:UUID
         assertEquals(1, listIcoVal?.size )
 
         assertEquals("gen im icon def id",generatedIcon.id, listGenImVal?.get(0)?.gen_icon_id )
-
-
         assertEquals(1, listGenImVal?.size )
 
         assertEquals(1, listSvalue?.size )
@@ -230,8 +230,8 @@ lateinit var  iconDefId3:UUID
         //INSERT symData2
         dao.addGeneratedIconAndImageData(iconDef1, symi1, def1, symData2)
 
-        val listS1: LiveData<List<GeneratedIconAndImageData>> = dao.getAllSymIconData()
-        val listSvalue1 = listS1.getWrappedValue()
+        val listS1: List<GeneratedIconAndImageData>? = dao.getAllSymIconData()
+        val listSvalue1 = listS1 //.getWrappedValue()
 
 //        assertEquals(2, listSvalue1?.size )
       //  assertEquals("Symi label correct",label1, listSvalue1?.get(1)?.generatedIcon?.definition?.symIcon?.label )
@@ -261,9 +261,42 @@ lateinit var  iconDefId3:UUID
 
         val listSymiVal3 = listSymi3.getWrappedValue()
         assertEquals("two entry in SymIcon table", 2, listSymiVal3?.size)
+    }
 
+    @Test
+    fun byteArrays(){
+        dao.addIconDef(iconDef1)
+
+        dao.addSymIcon(symi1)
+        dao.addGeneratorDef(def1)
+
+        dao.addGeneratedIcon(generatedIcon)
+        assertNotNull(symData1.generatedImageData)
+        //INSERT symData1 **********
+        dao.addGeneratedIconAndImageData(iconDef1, symi1, def1, symData1)
+        val listS1: List<GeneratedIconAndImageData> = dao.getAllSymIconDataMinusByteArray()
+        val listSvalue1 = listS1 //.getWrappedValue()
+        assertNotNull(listSvalue1)
+        assert(!listSvalue1!!.isEmpty())
+        Log.i("byteArrays","listS1 size is " + listSvalue1.size)
+
+        val fullList = dao.getAllSymIconData()
+        assertNotNull(fullList)
+        assertEquals(byteArray1.size, fullList?.get(0)?.generatedImageData?.byteArray?.size )
+        assertEquals(byteArray1.size, fullList?.get(0)?.generatedIcon?.generatedData?.length )
+        val list2 = dao.getSymIconData(iconDefID1)
+        assert(list2.isNotEmpty())
+
+        assertEquals(byteArray1.size, list2?.get(0)?.generatedImageData?.byteArray?.size )
+        assertEquals(byteArray1.size, list2?.get(0)?.generatedIcon?.generatedData?.length )
+
+        val symi = dao.getSymIconSizedData(iconDefID1, def1.height)
+        assertNotNull(symi)
+        assertEquals(byteArray1.size, symi.generatedImageData?.byteArray?.size )
+        assertEquals(byteArray1.size, symi.generatedIcon?.generatedData?.length )
 
     }
+
 
     // Add extension function to LiveData<T> USING androidx.lifecycle.Observer NOT java
     @Throws(InterruptedException::class)

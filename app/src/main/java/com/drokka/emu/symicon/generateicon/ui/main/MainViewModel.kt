@@ -46,7 +46,7 @@ class MainViewModel() : ViewModel() {
 
 //}
 
-    var liveList:List<GeneratedIconAndImageDataMerged?>? = null
+ //   var liveList:List<GeneratedIconAndImageDataMerged?>? = null
 
     val symImageListAll:LiveData<List<GeneratedIconWithAllImageData>> = symiRepo.getAllGeneratedIconWithAllImageData()
     var saveSymiData = false
@@ -54,6 +54,8 @@ class MainViewModel() : ViewModel() {
         get() = field
     fun clearGeneratedImage(){
         genIAD = null
+        generatedMedIAD = null
+        generatedTinyIAD = null
     }
 
     var generatedTinyIAD:GeneratedIconAndImageData? = null
@@ -144,7 +146,7 @@ class MainViewModel() : ViewModel() {
     }
 
     fun resetSymiDef(data:SymImageDefinition){
-
+    clearGeneratedImage()
         iconDef = IconDef(
             alpha = data.alpha,
                     beta = data.beta,
@@ -212,9 +214,17 @@ class MainViewModel() : ViewModel() {
             MEDIUM -> {
                         generatedMedImage = generatedImage
                     generatedMedIAD = genIAD
-                Log.d("setSymiData", "adding TINY width = " + symi.width.toString())
+                Log.d("setSymiData", "adding MEDIUM width = " + symi.width.toString())
         }
         }
+        // Actually with current view sql will always be TINY that has loaded. So load MEDIUM.
+        val symiMed = symiRepo.getSymiSizedData(allImageData.iconDefId, MEDIUM)
+        generatedMedImage = symiMed.generatedImageData?.let {
+            GeneratedImage(
+                symiMed.generatedIcon, it.byteArray, it.len, it.iconImageFileName
+            )
+        }
+
         isLoading = false
     }
 
@@ -244,7 +254,7 @@ class MainViewModel() : ViewModel() {
                 symi.iterations = count
             }
         //TODO If no image already continue to generate new data
-     //   clearGeneratedImage()
+       // clearGeneratedImage()
             generatedIcon.generatedDataFileName = "symdata" + date + ".txt"
             // val file = File(dirPath, "test" + LocalDateTime.now().second.toString() + ".txt")
             //________  Native call here to generate symi  -----------

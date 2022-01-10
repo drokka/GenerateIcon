@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_wrapListFragment_to_mainFragment"
             app:destination="@id/mainFragment" />
+        <action
+            android:id="@+id/action_wrapListFragment_to_imageIconFragment"
+            app:destination="@id/imageIconFragment" />
     </fragment>
     <fragment
         android:id="@+id/imageIconFragment"
