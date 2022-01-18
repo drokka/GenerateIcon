@@ -49,6 +49,7 @@ class MainViewModel() : ViewModel() {
  //   var liveList:List<GeneratedIconAndImageDataMerged?>? = null
 
     val symImageListAll:LiveData<List<GeneratedIconWithAllImageData>> = symiRepo.getAllGeneratedIconWithAllImageData()
+//val symImageListAll:LiveData<List<GeneratedIconAndImageData>> = symiRepo.getAllSymIconData()
     var saveSymiData = false
     private   var genIAD:GeneratedIconAndImageData? = null
         get() = field
@@ -82,6 +83,11 @@ class MainViewModel() : ViewModel() {
         var generatedImage = GeneratedImage(generatedIcon, null, 0, "symimage")
 
     var companion = Companion
+
+    //utility to get image bitmap from DB
+    fun getIconBitmap(gidId:UUID):ByteArray?{
+        return symiRepo.getImageByteArray(gidId)
+    }
 
      fun setIconType(iconType:String) {
         when (iconType.substring(0,1)) {
@@ -192,21 +198,35 @@ class MainViewModel() : ViewModel() {
         // Do need to manage isdirty
 
         resetSymiDef(fromGeneratedIconWithAllImageData( allImageData))
+        // Get the actual generated data!
+        val symiDataBytes = symiRepo.getSymIconData(allImageData.iconDefId)
 
-        generatedIcon = GeneratedIcon(
-        generatedData = allImageData.generatedData,
-        generatedDataFileName = allImageData.generatedDataFileName,
-            gen_def_id = symi.gen_def_id
-        )
+        if(symiDataBytes.isNullOrEmpty()){
+            Log.e("setSymiData", "Error getting bitmap data")
+            // and do what?
+            return
+        }
 
-        generatedImage = GeneratedImage(generatedIcon,allImageData.byteArray,
-            allImageData.len,allImageData.iconImageFileName)
+        iconDef.icon_def_id = allImageData.iconDefId  //Only correctly set ID. Queries using this and size.
+        symIcon.icon_def_id = allImageData.iconDefId
 
-        val generatedImageData = GeneratedImageData(allImageData.generatedImageDataId,generatedIcon.id,
-            generatedImage.iconImageFileName,generatedImage.byteArray,generatedImage.len )
+        symiDataBytes.find { it.generatedImageData?.gid_id == allImageData.generatedImageDataId }?.let {
 
-        genIAD = GeneratedIconAndImageData( generatedIcon, generatedImageData)
 
+            generatedIcon = it.generatedIcon
+
+            generatedImage =  GeneratedImage(
+                generatedIcon, it.generatedImageData?.byteArray,
+                it.generatedImageData?.len!!, it.generatedImageData.iconImageFileName
+            )
+
+         //   val generatedImageData = GeneratedImageData(
+           //     allImageData.generatedImageDataId, generatedIcon.id,
+             //   generatedImage.iconImageFileName, generatedImage.byteArray, generatedImage.len
+            //)
+
+            genIAD = GeneratedIconAndImageData(generatedIcon, it.generatedImageData)
+        }
         when(allImageData.width){
             TINY -> {generatedTinyImage = generatedImage
                         generatedTinyIAD = genIAD
@@ -229,7 +249,21 @@ class MainViewModel() : ViewModel() {
     }
 
     fun imageExists(sz:Int):Boolean{
-        return (symi.width == sz )&& generatedImage.len >0
+        var haveImage = (symi.width == sz )&& generatedImage.len >0
+        if(!haveImage){
+            //check DB
+            val symiSizedData = symiRepo.getSymiSizedData(iconDef.icon_def_id,sz)
+            if(symiSizedData!= null && symiSizedData.generatedImageData != null && symiSizedData.generatedImageData.len >0){
+                genIAD = symiSizedData
+                genIAD!!.generatedImageData?.let {
+                    generatedImage = GeneratedImage(
+                        genIAD!!.generatedIcon, it.byteArray, it.len, it.iconImageFileName
+                    )
+                    haveImage = true
+                }
+            }
+        }
+        return haveImage
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -239,7 +273,7 @@ class MainViewModel() : ViewModel() {
         val TAG = "runSymiExample"
         val i1 = Log.i(TAG, "before scoped launch")
         val runRequired = !imageExists(size)
-  //      Log.i(TAG , "runRequired is " + runRequired + "number of DB entries is " + symImageListAll.value?.size)
+        Log.i(TAG , "runRequired is " + runRequired + "number of DB entries is " + symImageListAll.value?.size)
        if (!runRequired) return CoroutineScope(Dispatchers.Main).async{/* do nothing*/}
         /*viewModelScope.launch(Dispatchers.Unconfined) ***/
             val imagesDirPath = File(context.getFilesDir(), "images")

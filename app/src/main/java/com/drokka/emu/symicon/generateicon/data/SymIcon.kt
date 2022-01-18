@@ -127,9 +127,10 @@ data class GeneratedImageData(
         "IconDef.omega, IconDef.ma, IconDef.quiltType,"+
         "SymIcon.label,"+
         "GeneratorDef.width, GeneratorDef.height, GeneratorDef.iterations,"+
-        " GeneratedIcon.generatedData, GeneratedIcon.generatedDataFileName,"+
+                                        // " GeneratedIcon.generatedData, GeneratedIcon.generatedDataFileName,"+
         " GeneratedImageData.gid_id as generatedImageDataId, GeneratedImageData.iconImageFileName, "
-        +"GeneratedImageData.byteArray, GeneratedImageData.len"+
+        +     //"GeneratedImageData.byteArray, "+
+        " GeneratedImageData.len"+
         " from IconDef inner join SymIcon on IconDef.icon_def_id = SymIcon.icon_def_id "+
     "inner join GeneratorDef on GeneratorDef.sym_icon_id = SymIcon.sym_icon_id" +
         " inner join GeneratedIcon on GeneratedIcon.gen_def_id = GeneratorDef.gen_def_id"+
@@ -151,12 +152,12 @@ data class GeneratedIconWithAllImageData
     var width: Int,
     var height: Int,
     var iterations: Int,
-    var generatedData:String,
-    var generatedDataFileName: String,
+   // var generatedData:String,
+   // var generatedDataFileName: String,
     var generatedImageDataId:UUID,
     val iconImageFileName: String,
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    var byteArray: ByteArray?,
+ //   @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+  //  var byteArray: ByteArray?,
     var len: Int
 ){
     /*************

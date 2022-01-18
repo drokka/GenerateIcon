@@ -50,7 +50,8 @@ class SymIconRecyclerViewAdapter(
                     //   holder.idView.text = position.toString()   //item.generatedIcon.generatedDataFileName   //symIcon.label
                     holder.contentView.text =
                         item.label // .iterations.toString()
-                    val byteArray = item.byteArray
+
+                    val byteArray = viewModel.getIconBitmap( item.generatedImageDataId )  //item.byteArray
                     val len = byteArray?.size
                     if ((byteArray != null) && (len == item.len)) {
                         len?.let {

@@ -2,10 +2,12 @@ package com.drokka.emu.symicon.generateicon
 
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
@@ -31,13 +33,13 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         init {
             System.loadLibrary("emutil")
         }
-
     }
     var mainActivityFragment:MainActivityFragment? = null
     var mainFragment: MainFragment? = null
     var symiListFragment: SymIconListFragment? = null
     var wrapListFragment:WrapListFragment? = null
     var imageIconFragment:ImageIconFragment? = null
+    var bigImageFragment:BigImageFragment? = null
   //  val blankTag = "blankFragment"
     lateinit var viewModel: MainViewModel
  //   lateinit var recyclerViewModel: SymIconListViewModel
@@ -92,6 +94,31 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         return deferredJob
     }
 
+    override fun generateLargeIcon(context: Context):Deferred<Unit> {
+        var deferredJob = viewModel.runSymiExample(context, LARGE, GO_GO_GO)
+        return deferredJob
+    }
+
+    override fun showBigImage() {
+        if(bigImageFragment == null){
+            bigImageFragment = BigImageFragment.newInstance()
+        }
+      //  if(viewModel.imageExists(LARGE)){
+        //Save the big image
+            viewModel.saveSymi()
+        //Now show it.
+            viewModel.generatedImage.getBitmap()?.let {
+
+               // bigImageFragment?.bigImageView?.setImageBitmap(it)  // bigImageView null, OnCreateView not finished?
+                bigImageFragment?.view?.findViewById<ImageView>(R.id.bigImageView)?.setImageBitmap(it)
+                bigImageFragment?.view?.invalidate()
+                val navvy = findNavController(R.id.fragmentContainerView)
+                if(navvy.currentDestination?.id == R.id.imageIconFragment) {
+                    navvy.navigate(R.id.action_imageIconFragment_to_bigImageFragment)
+                          }
+        }
+    }
+
     override fun doQuickDraw(context: Context): Job? {
         var  generateJob =  viewModel.runSymiExample(context, TINY, QUICK_LOOK)
 
@@ -104,14 +131,31 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
        val imageUri = FileProvider.getUriForFile(context,
             "com.drokka.emu.symicon",
            imFile)
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = imageUri   //context.getFileStreamPath(generatedImage.iconImageFileName).toUri()
+/*****************************************************************
+        val intent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+          //  data = imageUri
+          //  putExtra(Intent.ACTION_ATTACH_DATA, imageUri)
+            putExtra(Intent.EXTRA_STREAM, imageUri)
+
+          //        flags += FLAG_GRANT_READ_URI_PERMISSION
+            type = "image/png"
+        }
+        startActivity(Intent.createChooser(intent, null))
+**********************************************************************************/
+//NOT working at all.
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            data = imageUri   //context.getFileStreamPath(generatedImage.iconImageFileName).toUri()*/
+            type = "image/png"
         }
         val activityComponent = intent.resolveActivity(packageManager)
         if ( activityComponent != null) {
-            grantUriPermission(activityComponent.packageName,intent.data,Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            grantUriPermission(activityComponent.packageName,intent.data, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             startActivity(intent)
+        }else{
+            Log.i("onViewImageButtonSelected","activityComponent is NULL from resolveActivity")
         }
+
 
     }
 

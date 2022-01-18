@@ -37,6 +37,9 @@
         <action
             android:id="@+id/action_imageIconFragment_to_mainFragment"
             app:destination="@id/mainFragment" />
+        <action
+            android:id="@+id/action_imageIconFragment_to_bigImageFragment"
+            app:destination="@id/bigImageFragment" />
     </fragment>
     <fragment
         android:id="@+id/mainActivityFragment"
@@ -54,4 +57,9 @@
         android:id="@+id/editSymiFragment"
         android:name="com.drokka.emu.symicon.generateicon.ui.main.EditSymiFragment"
         android:label="EditSymiFragment" />
+    <fragment
+        android:id="@+id/bigImageFragment"
+        android:name="com.drokka.emu.symicon.generateicon.ui.main.BigImageFragment"
+        android:label="fragment_big_image"
+        tools:layout="@layout/fragment_big_image" />
 </navigation>

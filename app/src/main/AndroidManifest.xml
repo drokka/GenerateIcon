@@ -49,5 +49,12 @@
         </provider>
         <uses-library android:name="android.test.runner"/>
     </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme = "png"/>
+            <category android:name="android.intent.category.APP_FILES" />
+        </intent>
+    </queries>
 
 </manifest>

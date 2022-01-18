@@ -75,6 +75,14 @@ class SymiRepo   private constructor(context: Context) {
     fun getAllSymIconData():List<GeneratedIconAndImageData>?{
         return symiDao.getAllSymIconData()
     }
+
+    fun getSymIconData(genDefId:UUID):List<GeneratedIconAndImageData>?{
+        return symiDao.getSymIconData(genDefId)
+    }
+
+    fun getImageByteArray(gidId:UUID): ByteArray? {
+        return symiDao.getImageBitmap(gidId)
+    }
 /******************************************************
     fun getMergedDataFromIconAndImageData(generatedIconAndImageData: GeneratedIconAndImageData): GeneratedIconAndImageDataMerged? {
         return symiDao.mergedDataFromIconAndImageData(generatedIconAndImageData)

@@ -1,26 +1,18 @@
 package com.drokka.emu.symicon.generateicon.ui.main
 
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.ImageView
-import androidx.compose.ui.graphics.Color
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.viewModelScope
-import com.drokka.emu.symicon.generateicon.MainActivity
 import com.drokka.emu.symicon.generateicon.R
 import com.drokka.emu.symicon.generateicon.SymiRepo
-import com.drokka.emu.symicon.generateicon.data.GeneratedIcon
 import com.drokka.emu.symicon.generateicon.data.GeneratedImage
-import com.drokka.emu.symicon.generateicon.data.GeneratorDef
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Deferred
 
 class ImageIconFragment() : Fragment() {
 
@@ -46,6 +38,8 @@ class ImageIconFragment() : Fragment() {
     interface Callbacks {
         fun onViewImageButtonSelected(generatedImage: GeneratedImage, context: Context)
         fun onSaveImageDataButtonSelected(button: Button)
+        fun generateLargeIcon(requireContext: Context):Deferred<Unit>
+        abstract fun showBigImage()
     }
     private var callbacks: Callbacks? = null
 
@@ -66,16 +60,17 @@ class ImageIconFragment() : Fragment() {
 private lateinit var viewImage:Button
 
     private lateinit var saveImageDataButton: Button
+    private lateinit var goBigButton:Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.image_icon_fragment, container, false)
-        displayImageIconView = view?.findViewById(R.id.displayImageIconView)!!
-        viewImage = view?.findViewById(R.id.viewImageButton)
-        saveImageDataButton = view?.findViewById(R.id.saveImageDataButton)
-
+        displayImageIconView = view.findViewById(R.id.displayImageIconView)!!
+        viewImage = view.findViewById(R.id.viewImageButton)
+        saveImageDataButton = view.findViewById(R.id.saveImageDataButton)
+        goBigButton = view.findViewById(R.id.goBigButton)
         return view
     }
 
@@ -104,6 +99,15 @@ private lateinit var viewImage:Button
                 callbacks?.onSaveImageDataButtonSelected(it as Button)
 
         }
+        //Generate LARGE symi for the definition
+        goBigButton.setOnClickListener {
+            //Do wait UI
+            val job = callbacks?.generateLargeIcon(requireContext())
+
+            job?.invokeOnCompletion {
+                callbacks?.showBigImage()
+            }
+        }
         }
 
      private fun viewImageFun(generatedImage: GeneratedImage, context: Context?) {
@@ -111,6 +115,8 @@ private lateinit var viewImage:Button
             callbacks?.onViewImageButtonSelected(generatedImage,context)
         }
     }
+
+
 /***
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

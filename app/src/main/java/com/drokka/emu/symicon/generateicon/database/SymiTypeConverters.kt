@@ -56,10 +56,10 @@ class SymiTypeConverters {
             iterations = allImageData.iterations,
 
             label = allImageData.label,
-            generatedData = "",
-            generatedDataFileName = "",
+         //   generatedData = "",
+         //   generatedDataFileName = "",
             iconImageFileName = "",
-            byteArray = null,
+         //   byteArray = null,
             len = 0,
             generatedImageDataId = UUID.randomUUID()
         )

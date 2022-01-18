@@ -68,6 +68,9 @@ interface SymiDao {
     @Query("select gid_id from GeneratedImageData where gen_icon_id = (:genIconId)")
     fun getGeneratedImageDataId(genIconId:UUID):UUID
 
+    @Query("select byteArray from GeneratedImageData where gid_id = (:gidId)")
+    fun getImageBitmap(gidId: UUID):ByteArray?
+
    // @Query("select * from GeneratedIconAndImageData"+
    //         " where width = (:size) and len >0")
   //  fun getSymIconData( size: Int):LiveData<List<GeneratedIconAndImageData>>
