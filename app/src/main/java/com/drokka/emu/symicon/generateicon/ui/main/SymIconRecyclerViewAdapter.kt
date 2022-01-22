@@ -1,5 +1,6 @@
 package com.drokka.emu.symicon.generateicon.ui.main
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drokka.emu.symicon.generateicon.data.GeneratedIconWithAllImageData
 import com.drokka.emu.symicon.generateicon.data.SymIcon
 import com.drokka.emu.symicon.generateicon.databinding.FragmentSymIconListBinding
+import com.drokka.emu.symicon.generateicon.getBitmap
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -51,19 +53,22 @@ class SymIconRecyclerViewAdapter(
                     holder.contentView.text =
                         item.label // .iterations.toString()
 
-                    val byteArray = viewModel.getIconBitmap( item.generatedImageDataId )  //item.byteArray
-                    val len = byteArray?.size
-                    if ((byteArray != null) && (len == item.len)) {
-                        len?.let {
-                            holder.bitMap = BitmapFactory.decodeByteArray(byteArray, 0, it)
+                    val genIcon = viewModel.getGeneratedIcon(it)
+                    val genImData = viewModel.getGeneratedImage(genIcon,it)
+
+            //        val byteArray = viewModel.getIconBitmap( holder.context ,item.generatedImageDataId )  //item.byteArray
+            //        val len = byteArray?.size
+             //       if ((byteArray != null) && (len == item.len)) {
+            //            len?.let {
+                            holder.bitMap = genImData.getBitmap(holder.context)        //BitmapFactory.decodeByteArray(byteArray, 0, it)
                             Log.d("onBindViewHolder SymIcon recycler view adapter", "got bitMap")
                             holder.iconImageView.setImageBitmap(holder.bitMap)
-                        }
+                  //      }
                         Log.d(
                             "onBindViewHolder SymIcon recycler view adapter",
                             "After len?let block"
                         )
-                    }
+                 //   }
                 }
             }
         }
@@ -74,6 +79,7 @@ class SymIconRecyclerViewAdapter(
     inner class ViewHolder(binding: FragmentSymIconListBinding) :
         RecyclerView.ViewHolder(binding.root) , View.OnClickListener {
        // val idView: TextView = binding. itemNumber
+        val context: Context = binding.root.context
         val contentView: TextView = binding.content
         var iconImageView:ImageView = binding.iconImageView
         var bitMap: Bitmap? = null

@@ -11,6 +11,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import com.drokka.emu.symicon.generateicon.R
 import com.drokka.emu.symicon.generateicon.data.*
+import com.drokka.emu.symicon.generateicon.getBitmap
 import com.drokka.emu.widgets.FloatInView
 import kotlinx.coroutines.*
 
@@ -182,7 +183,9 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         var generateJob:Job? = null
         context?.let { it1 -> generateJob = callbacks!!.doQuickDraw(it1) }
         generateJob?.invokeOnCompletion {
-            quickDrawImageButton.setImageBitmap(viewModel.generatedTinyImage?.getBitmap()) }
+            quickDrawImageButton.setImageBitmap(context?.let { it1 ->
+                viewModel.tinyIm
+            }) }
     }
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         viewModel.setIconType(parent?.getItemAtPosition(position).toString())

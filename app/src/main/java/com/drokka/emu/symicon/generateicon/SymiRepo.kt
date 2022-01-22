@@ -9,11 +9,38 @@ import androidx.room.Room
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.database.SymiDatabase
 import com.drokka.emu.symicon.generateicon.database.SymiTypeConverters
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
+import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 private val DB_NAME = "SYMI_DATABASE"
+
+// extension to GeneratedImage for convenience
+fun GeneratedImage.getBitmap(context: Context):Bitmap?{
+    try {
+        val imagesDirPath = File(context.filesDir, "images")
+
+        val imFile = File(imagesDirPath, iconImageFileName)
+
+        val inputStream = FileInputStream(imFile.path)
+
+    var byteArray = ByteArray(len)
+    inputStream.read(byteArray,0,len)
+    var bitmapImage:Bitmap? = null
+    if (byteArray != null) {
+        bitmapImage = BitmapFactory.decodeByteArray(byteArray, 0, len)
+    }
+    return bitmapImage
+    }catch ( xx:Exception){
+        Log.e("getImagesByteArray", "ERROR msg is: " + xx.message)
+
+        return null
+    }
+}
 
 class SymiRepo   private constructor(context: Context) {
 
@@ -71,7 +98,7 @@ class SymiRepo   private constructor(context: Context) {
             symiDao.updateSymIcon(symIcon)
         }
     }
-
+/**********************************************************************************
     fun getAllSymIconData():List<GeneratedIconAndImageData>?{
         return symiDao.getAllSymIconData()
     }
@@ -79,11 +106,33 @@ class SymiRepo   private constructor(context: Context) {
     fun getSymIconData(genDefId:UUID):List<GeneratedIconAndImageData>?{
         return symiDao.getSymIconData(genDefId)
     }
+******************************************************************************************/
+/*********************
+    fun getImageByteArray(context: Context, gidId:UUID): ByteArray? {
+    try {
 
-    fun getImageByteArray(gidId:UUID): ByteArray? {
-        return symiDao.getImageBitmap(gidId)
+        val fname = getSymiImageFileName(gidId)
+        if (fname.isNullOrEmpty()) return null
+        val imagesDirPath = File(context.getFilesDir(), "images")
+
+        val imFile = File(imagesDirPath, fname)
+
+        val inputStream = FileInputStream(imFile.path)   //context.openFileInput(imFile.path)
+        val byteArray = inputStream.readBytes()
+        return byteArray
+    }catch (xx:Exception) {
+        Log.e("getImagesByteArray", "ERROR msg is: " + xx.message)
+        return null
     }
-/******************************************************
+    }
+*************************************************************************/
+
+
+    private fun getSymiImageFileName(gidId: UUID): String? {
+       return symiDao.getSymiImageFileName(gidId)
+    }
+
+    /******************************************************
     fun getMergedDataFromIconAndImageData(generatedIconAndImageData: GeneratedIconAndImageData): GeneratedIconAndImageDataMerged? {
         return symiDao.mergedDataFromIconAndImageData(generatedIconAndImageData)
     } **********************************************************************************/
@@ -92,13 +141,17 @@ class SymiRepo   private constructor(context: Context) {
         return symiDao.getAllGeneratedIconWithAllImageData()
     }
 
+    fun getGeneratedIconWithAllImageDataSize(iconDefId:UUID, size:Int):List<GeneratedIconWithAllImageData>{
+        return symiDao.getGeneratedIconWithAllImageDataSize(iconDefId, size)
+    }
+
   //  fun getSymIconDataList(size:Int): LiveData<List<GeneratedIconAndImageData>> {
         //TODO return symiDao.getSymIconData(size)
  //   }
 
-    fun getSymiSizedData(iconDefId:UUID, size:Int):GeneratedIconAndImageData{
-        return symiDao.getSymIconSizedData(iconDefId,size)
-    }
+  //  fun getSymiSizedData(iconDefId:UUID, size:Int):GeneratedIconAndImageData{
+  //      return symiDao.getSymIconSizedData(iconDefId,size)
+   // }
 
     /*********
     fun getTinyImage(label: String):Bitmap?{

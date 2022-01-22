@@ -74,7 +74,7 @@ data class GeneratedIcon(
     @PrimaryKey var id: UUID = UUID.randomUUID(),
    // @Embedded var definition: GeneratorDef,
     var gen_def_id: UUID,
-    var generatedData:String?,
+ //   var generatedData:String?,
     var generatedDataFileName: String
 ):Serializable
 
@@ -88,8 +88,8 @@ data class GeneratedImageData(
     @PrimaryKey var gid_id:UUID,
     var gen_icon_id: UUID,
     val iconImageFileName: String,
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    var byteArray: ByteArray?,
+//    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+//    var byteArray: ByteArray?,
     var len: Int
 ) {
     override fun equals(other: Any?): Boolean {
@@ -101,10 +101,7 @@ data class GeneratedImageData(
         if (gid_id != other.gid_id) return false
         if (gen_icon_id != other.gen_icon_id) return false
         if (iconImageFileName != other.iconImageFileName) return false
-        if (byteArray != null) {
-            if (other.byteArray == null) return false
-            if (!byteArray.contentEquals(other.byteArray)) return false
-        } else if (other.byteArray != null) return false
+
         if (len != other.len) return false
 
         return true
@@ -114,7 +111,6 @@ data class GeneratedImageData(
         var result = gid_id.hashCode()
         result = 31 * result + gen_icon_id.hashCode()
         result = 31 * result + iconImageFileName.hashCode()
-        result = 31 * result + (byteArray?.contentHashCode() ?: 0)
         result = 31 * result + len
         return result
     }
@@ -126,16 +122,17 @@ data class GeneratedImageData(
     "IconDef.lambda, IconDef.alpha, IconDef.beta, IconDef.gamma,"+
         "IconDef.omega, IconDef.ma, IconDef.quiltType,"+
         "SymIcon.label,"+
-        "GeneratorDef.width, GeneratorDef.height, GeneratorDef.iterations,"+
-                                        // " GeneratedIcon.generatedData, GeneratedIcon.generatedDataFileName,"+
+        " GeneratorDef.gen_def_id, GeneratorDef.width, GeneratorDef.height, GeneratorDef.iterations,"+
+        " GeneratedIcon.id as genIconId, "+
+                                        /* " GeneratedIcon.generatedData,*/ " GeneratedIcon.generatedDataFileName,"+
         " GeneratedImageData.gid_id as generatedImageDataId, GeneratedImageData.iconImageFileName, "
         +     //"GeneratedImageData.byteArray, "+
         " GeneratedImageData.len"+
         " from IconDef inner join SymIcon on IconDef.icon_def_id = SymIcon.icon_def_id "+
     "inner join GeneratorDef on GeneratorDef.sym_icon_id = SymIcon.sym_icon_id" +
         " inner join GeneratedIcon on GeneratedIcon.gen_def_id = GeneratorDef.gen_def_id"+
-        " inner join GeneratedImageData on GeneratedImageData.gen_icon_id = GeneratedIcon.id" +
-    " where GeneratorDef.width ="+ TINY.toString()
+        " inner join GeneratedImageData on GeneratedImageData.gen_icon_id = GeneratedIcon.id"  // +
+ //   " where GeneratorDef.width ="+ TINY.toString()
 
 )
 data class GeneratedIconWithAllImageData
@@ -149,11 +146,13 @@ data class GeneratedIconWithAllImageData
     var ma: Double ,
     var quiltType: QuiltType,
     val label:String,
+    val gen_def_id: UUID,
     var width: Int,
     var height: Int,
     var iterations: Int,
+    var genIconId:UUID,
    // var generatedData:String,
-   // var generatedDataFileName: String,
+    var generatedDataFileName: String,
     var generatedImageDataId:UUID,
     val iconImageFileName: String,
  //   @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
@@ -183,11 +182,13 @@ data class GeneratedIconAndImageData(
 
 data class GeneratedImage(
     var generatedIcon: GeneratedIcon,
-    var byteArray: ByteArray?,
+ //   var byteArray: ByteArray?,
     var len: Int,
   //  var bitmapImage: Bitmap?,
     var iconImageFileName: String
 ):Serializable{
+
+    /***************
     fun getBitmap(): Bitmap? {
      //   if (bitmapImage == null) {
             if (byteArray != null) {
@@ -197,6 +198,7 @@ data class GeneratedImage(
       //  }
         return null
     }
+    ******************************************************/
 }
 
 class GeneratedIconAndImageDataMerged(
@@ -214,8 +216,8 @@ class GeneratedIconAndImageDataMerged(
 "GeneratorDef.width, GeneratorDef.height, GeneratorDef.iterations"+
 " from IconDef inner join SymIcon on IconDef.icon_def_id = SymIcon.icon_def_id "+
 "inner join GeneratorDef on GeneratorDef.sym_icon_id = SymIcon.sym_icon_id" +
-" inner join GeneratedIcon on GeneratedIcon.gen_def_id = GeneratorDef.gen_def_id"+
-" inner join GeneratedImageData on GeneratedImageData.gen_icon_id = GeneratedIcon.id"
+" inner join GeneratedIcon on GeneratedIcon.gen_def_id = GeneratorDef.gen_def_id" // +
+//" inner join GeneratedImageData on GeneratedImageData.gen_icon_id = GeneratedIcon.id"
 )
 data class SymImageDefinition
     (

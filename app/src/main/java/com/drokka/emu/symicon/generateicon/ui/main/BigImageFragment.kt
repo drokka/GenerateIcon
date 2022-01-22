@@ -7,7 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModel
 import com.drokka.emu.symicon.generateicon.R
+import com.drokka.emu.symicon.generateicon.ui.main.MainViewModel
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -23,6 +26,9 @@ class BigImageFragment : Fragment() {
 
 
     lateinit var bigImageView: ImageView
+
+    val viewModel:MainViewModel by activityViewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -44,8 +50,8 @@ class BigImageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-  //      bigImageView.setImageBitmap(bigIconImageBitmap)
-  //      view.isDirty
+        bigImageView.setImageBitmap(viewModel.largeIm)
+        view.isDirty
     }
 
     companion object {

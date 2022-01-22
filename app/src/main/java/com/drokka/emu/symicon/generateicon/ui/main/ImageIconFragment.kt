@@ -11,7 +11,9 @@ import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
 import com.drokka.emu.symicon.generateicon.R
 import com.drokka.emu.symicon.generateicon.SymiRepo
+
 import com.drokka.emu.symicon.generateicon.data.GeneratedImage
+import com.drokka.emu.symicon.generateicon.getBitmap
 import kotlinx.coroutines.Deferred
 
 class ImageIconFragment() : Fragment() {
@@ -39,7 +41,7 @@ class ImageIconFragment() : Fragment() {
         fun onViewImageButtonSelected(generatedImage: GeneratedImage, context: Context)
         fun onSaveImageDataButtonSelected(button: Button)
         fun generateLargeIcon(requireContext: Context):Deferred<Unit>
-        abstract fun showBigImage()
+        fun showBigImage()
     }
     private var callbacks: Callbacks? = null
 
@@ -76,7 +78,7 @@ private lateinit var viewImage:Button
 
     override fun onViewCreated(view:View,savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        context?.let { SymiRepo.initialize(it) }
+      //  context?.let { SymiRepo.initialize(it) }
 
        // var genDef = arguments?.getSerializable("myIconDef") as GeneratorDef
         //val dataFile = arguments?.getSerializable("myDataFileName") as String
@@ -89,7 +91,10 @@ private lateinit var viewImage:Button
          //   val generatedImage =
         //        arguments?.getSerializable("myGeneratedImage") as GeneratedImage?
         //NEED to ensure MainViewModel generatedImage is current
-        val bitmap = viewModel.generatedMedImage?.getBitmap()
+        var bitmap = viewModel.medIm
+        if(bitmap== null){
+            bitmap = context?.let { viewModel.generatedMedImage?.getBitmap(it) }
+        }
             if (bitmap != null) {
                 displayImageIconView.setImageBitmap(bitmap)
                 viewImage.setOnClickListener { viewImageFun(viewModel.generatedMedImage!!, context) }

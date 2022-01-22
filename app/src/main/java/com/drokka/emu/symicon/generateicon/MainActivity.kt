@@ -3,6 +3,7 @@ package com.drokka.emu.symicon.generateicon
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
@@ -107,16 +108,17 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         //Save the big image
             viewModel.saveSymi()
         //Now show it.
-            viewModel.generatedImage.getBitmap()?.let {
+        //    viewModel.getIconBitmap(applicationContext, viewModel.genIAD?.generatedImageData!!.gid_id)?.let {
 
+         //     val  bitMap = BitmapFactory.decodeByteArray(it, 0, viewModel.genIAD?.generatedImageData!!.len)
                // bigImageFragment?.bigImageView?.setImageBitmap(it)  // bigImageView null, OnCreateView not finished?
-                bigImageFragment?.view?.findViewById<ImageView>(R.id.bigImageView)?.setImageBitmap(it)
+                bigImageFragment?.view?.findViewById<ImageView>(R.id.bigImageView)?.setImageBitmap(viewModel.largeIm)
                 bigImageFragment?.view?.invalidate()
                 val navvy = findNavController(R.id.fragmentContainerView)
                 if(navvy.currentDestination?.id == R.id.imageIconFragment) {
                     navvy.navigate(R.id.action_imageIconFragment_to_bigImageFragment)
                           }
-        }
+       // }
     }
 
     override fun doQuickDraw(context: Context): Job? {
@@ -308,10 +310,11 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
        // findNavController(R.id.fragmentContainerView).navigate(R.id.action_wrapListFragment_to_mainFragment)
         findNavController(R.id.fragmentContainerView).navigate(R.id.action_wrapListFragment_to_imageIconFragment)
-        if (generatedImageAndImageData != null) {
+        // always reset symi data....
+    //    if (generatedImageAndImageData != null) {
             viewModel.isLoadingFromData = true
-            viewModel.setSymiData(generatedImageAndImageData)
-        }
+            viewModel.setSymiData(applicationContext, generatedImageAndImageData)
+     //   }
 
          /***********
         supportFragmentManager.beginTransaction().replace(id.container, mainFragment!!)

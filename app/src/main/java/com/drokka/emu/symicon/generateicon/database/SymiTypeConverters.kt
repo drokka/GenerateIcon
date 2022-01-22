@@ -51,13 +51,15 @@ class SymiTypeConverters {
             omega = allImageData.omega,
             quiltType = allImageData.quiltType,
 
+            gen_def_id = UUID.randomUUID(),
             height = allImageData.height,
             width = allImageData.width,
             iterations = allImageData.iterations,
 
+            genIconId = UUID.randomUUID(),
             label = allImageData.label,
          //   generatedData = "",
-         //   generatedDataFileName = "",
+            generatedDataFileName = "",
             iconImageFileName = "",
          //   byteArray = null,
             len = 0,

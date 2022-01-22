@@ -52,9 +52,11 @@ interface SymiDao {
     @Query("select id from GeneratedIcon where gen_def_id = (:genDefId)")
     fun getGeneratedIconId(genDefId:UUID):UUID
 
-    @Query("select * from GeneratedIconWithAllImageData")
+    @Query("select * from GeneratedIconWithAllImageData where width = " + TINY)
     fun getAllGeneratedIconWithAllImageData():LiveData<List<GeneratedIconWithAllImageData>>
 
+    @Query("select * from GeneratedIconWithAllImageData where iconDefId = (:defId) and width = (:sz)")
+    fun  getGeneratedIconWithAllImageDataSize(defId:UUID, sz:Int):List<GeneratedIconWithAllImageData>
 
   //  @Query("select count(*) from GeneratedIcon where ")
   //  fun existsGeneratedIcon()
@@ -68,13 +70,13 @@ interface SymiDao {
     @Query("select gid_id from GeneratedImageData where gen_icon_id = (:genIconId)")
     fun getGeneratedImageDataId(genIconId:UUID):UUID
 
-    @Query("select byteArray from GeneratedImageData where gid_id = (:gidId)")
-    fun getImageBitmap(gidId: UUID):ByteArray?
+  //  @Query("select byteArray from GeneratedImageData where gid_id = (:gidId)")
+  //  fun getImageBitmap(gidId: UUID):ByteArray?
 
    // @Query("select * from GeneratedIconAndImageData"+
    //         " where width = (:size) and len >0")
   //  fun getSymIconData( size: Int):LiveData<List<GeneratedIconAndImageData>>
-
+/***********************************************************************************************************************
     @Query("select gi.id, gi.gen_def_id , gi.generatedDataFileName, giddy.gid_id, giddy.gen_icon_id, giddy.iconImageFileName, "+
             " giddy.len "+
             " from GeneratedIcon gi inner join GeneratedImageData giddy "  +
@@ -198,6 +200,7 @@ interface SymiDao {
         }
         return str
     }
+***********************************************************************************************/ //stop fighting SQLite size restrictions!!
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun addIconDef(iconDef: IconDef)
@@ -348,5 +351,8 @@ interface SymiDao {
 
     @Query("select * from GeneratorDef where gen_def_id = (:id)")
     fun getGenDef(id: UUID):GeneratorDef
+
+    @Query("select iconImageFileName from GeneratedImageData where gid_id = (:gidId)")
+    fun getSymiImageFileName(gidId: UUID): String?
 
 }

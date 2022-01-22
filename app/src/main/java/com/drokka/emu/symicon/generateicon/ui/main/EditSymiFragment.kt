@@ -45,7 +45,7 @@ class EditSymiFragment : Fragment() {
         context?.let { it1 -> generateJob = callbacks!!.doQuickDraw(it1) }
         generateJob?.invokeOnCompletion {
            // quickDrawImageButton.setImageBitmap(viewModel.generatedTinyImage?.getBitmap())
-            viewModel.tinyImageBitmap?.value =  viewModel.generatedTinyImage?.getBitmap()
+          //  viewModel.tinyImageBitmap?.value = viewModel.getIconBitmap(applicationContext, viewModel.generatedTinyImage? )
         }
     }
 

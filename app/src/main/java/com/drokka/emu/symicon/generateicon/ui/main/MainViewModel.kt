@@ -2,11 +2,13 @@ package com.drokka.emu.symicon.generateicon.ui.main
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.drokka.emu.symicon.generateicon.SymiRepo
 import com.drokka.emu.symicon.generateicon.data.*
+import com.drokka.emu.symicon.generateicon.getBitmap
 import com.drokka.emu.symicon.generateicon.nativewrap.SymiNativeWrapper
 import kotlinx.coroutines.*
 import java.io.File
@@ -51,16 +53,24 @@ class MainViewModel() : ViewModel() {
     val symImageListAll:LiveData<List<GeneratedIconWithAllImageData>> = symiRepo.getAllGeneratedIconWithAllImageData()
 //val symImageListAll:LiveData<List<GeneratedIconAndImageData>> = symiRepo.getAllSymIconData()
     var saveSymiData = false
-    private   var genIAD:GeneratedIconAndImageData? = null
+    var genIAD:GeneratedIconAndImageData? = null
         get() = field
+
     fun clearGeneratedImage(){
         genIAD = null
         generatedMedIAD = null
         generatedTinyIAD = null
+        tinyIm = null
+        medIm = null
+        largeIm = null
     }
 
     var generatedTinyIAD:GeneratedIconAndImageData? = null
     var generatedTinyImage:GeneratedImage? = null
+    var tinyIm:Bitmap? = null
+    var medIm:Bitmap? = null
+    var largeIm:Bitmap? = null
+
     var generatedMedIAD:GeneratedIconAndImageData? = null
     var generatedMedImage:GeneratedImage? = null
     var isLoading:Boolean = false   //flag to not keep updating while loading symi data
@@ -77,17 +87,17 @@ class MainViewModel() : ViewModel() {
        var symiTiny = GeneratorDef(sym_icon_id = symIcon.sym_icon_id,width = TINY,
                         height = TINY, iterations = QUICK_LOOK)
 
-        var generatedIcon = GeneratedIcon(gen_def_id = symi.sym_icon_id, generatedData = "",
+        var generatedIcon = GeneratedIcon(gen_def_id = symi.sym_icon_id,
             generatedDataFileName = "symdata"
         )
-        var generatedImage = GeneratedImage(generatedIcon, null, 0, "symimage")
+        var generatedImage = GeneratedImage(generatedIcon, 0,  "symimage")
 
     var companion = Companion
 
     //utility to get image bitmap from DB
-    fun getIconBitmap(gidId:UUID):ByteArray?{
-        return symiRepo.getImageByteArray(gidId)
-    }
+ //   fun getIconBitmap(context: Context,gidId:UUID):ByteArray?{
+  //      return symiRepo.getImageByteArray(context, gidId)
+  //  }
 
      fun setIconType(iconType:String) {
         when (iconType.substring(0,1)) {
@@ -191,7 +201,22 @@ class MainViewModel() : ViewModel() {
             label = allImageData.label
         )
     }
-    fun setSymiData(allImageData: GeneratedIconWithAllImageData){
+
+    fun getGeneratedIcon(allImageData: GeneratedIconWithAllImageData):GeneratedIcon{
+        return GeneratedIcon(allImageData.genIconId,allImageData.gen_def_id,allImageData.generatedDataFileName)
+    }
+    fun getGeneratedImage(genIcon:GeneratedIcon, allImageData: GeneratedIconWithAllImageData):GeneratedImage{
+        return GeneratedImage(genIcon, allImageData.len, allImageData.iconImageFileName)
+
+    }
+
+    fun getGeneratedIconAndImageData(generatedIcon: GeneratedIcon,
+                                     generatedImageData: GeneratedImageData): GeneratedIconAndImageData{
+        return GeneratedIconAndImageData(generatedIcon, generatedImageData )
+
+     }
+
+    fun setSymiData(context: Context, allImageData: GeneratedIconWithAllImageData){
         isLoading = true
         //Assume it's already been added to the database. This only called from an item view
         // of DB list of symis. So no need to set ids etc!
@@ -199,6 +224,7 @@ class MainViewModel() : ViewModel() {
 
         resetSymiDef(fromGeneratedIconWithAllImageData( allImageData))
         // Get the actual generated data!
+        /**************
         val symiDataBytes = symiRepo.getSymIconData(allImageData.iconDefId)
 
         if(symiDataBytes.isNullOrEmpty()){
@@ -206,61 +232,93 @@ class MainViewModel() : ViewModel() {
             // and do what?
             return
         }
-
+********************************************************************/
         iconDef.icon_def_id = allImageData.iconDefId  //Only correctly set ID. Queries using this and size.
         symIcon.icon_def_id = allImageData.iconDefId
 
-        symiDataBytes.find { it.generatedImageData?.gid_id == allImageData.generatedImageDataId }?.let {
+   //     symiDataBytes.find { it.generatedImageData?.gid_id == allImageData.generatedImageDataId }?.let {
 
 
-            generatedIcon = it.generatedIcon
+            generatedIcon = GeneratedIcon(allImageData.genIconId,allImageData.gen_def_id,allImageData.generatedDataFileName)   //it.generatedIcon
 
             generatedImage =  GeneratedImage(
-                generatedIcon, it.generatedImageData?.byteArray,
-                it.generatedImageData?.len!!, it.generatedImageData.iconImageFileName
+                generatedIcon,
+                allImageData.len, allImageData.iconImageFileName
             )
 
-         //   val generatedImageData = GeneratedImageData(
-           //     allImageData.generatedImageDataId, generatedIcon.id,
-             //   generatedImage.iconImageFileName, generatedImage.byteArray, generatedImage.len
-            //)
+            val generatedImageData = GeneratedImageData(
+                allImageData.generatedImageDataId, generatedIcon.id,
+               generatedImage.iconImageFileName,  generatedImage.len
+            )
 
-            genIAD = GeneratedIconAndImageData(generatedIcon, it.generatedImageData)
-        }
+            genIAD = GeneratedIconAndImageData(generatedIcon, generatedImageData)
+     //   }
         when(allImageData.width){
             TINY -> {generatedTinyImage = generatedImage
                         generatedTinyIAD = genIAD
+                tinyIm = generatedImage.getBitmap(context)
                     Log.d("setSymiData", "adding TINY width = " + symi.width.toString())}
             MEDIUM -> {
                         generatedMedImage = generatedImage
                     generatedMedIAD = genIAD
+                medIm = generatedImage.getBitmap(context)
                 Log.d("setSymiData", "adding MEDIUM width = " + symi.width.toString())
         }
+
         }
         // Actually with current view sql will always be TINY that has loaded. So load MEDIUM.
-        val symiMed = symiRepo.getSymiSizedData(allImageData.iconDefId, MEDIUM)
-        generatedMedImage = symiMed.generatedImageData?.let {
-            GeneratedImage(
-                symiMed.generatedIcon, it.byteArray, it.len, it.iconImageFileName
+        val symiMedList = symiRepo.getGeneratedIconWithAllImageDataSize(allImageData.iconDefId, MEDIUM)
+        if(symiMedList.size > 0){
+            if(symiMedList.size >1){
+                Log.i("setSymiData", "There is more than one MEDIUM image!! Number is: "+symiMedList.size.toString())
+            }
+            val generatedMedIcon = GeneratedIcon(symiMedList[0].genIconId,symiMedList[0].gen_def_id,symiMedList[0].generatedDataFileName)   //it.generatedIcon
+
+            generatedMedImage =  GeneratedImage( generatedMedIcon, symiMedList[0].len, symiMedList[0].iconImageFileName)
+            val generatedMedImageData = GeneratedImageData(
+                symiMedList[0].generatedImageDataId, generatedMedIcon.id,
+                symiMedList[0].iconImageFileName,  symiMedList[0].len
             )
-        }
+            generatedMedIAD = GeneratedIconAndImageData(generatedMedIcon, generatedMedImageData)
+         //   medIm = getIconBitmap(context = generatedMedIcon.id)
+            }
 
         isLoading = false
     }
 
-    fun imageExists(sz:Int):Boolean{
+    fun imageExists(context: Context, sz:Int):Boolean{
         var haveImage = (symi.width == sz )&& generatedImage.len >0
         if(!haveImage){
             //check DB
-            val symiSizedData = symiRepo.getSymiSizedData(iconDef.icon_def_id,sz)
-            if(symiSizedData!= null && symiSizedData.generatedImageData != null && symiSizedData.generatedImageData.len >0){
-                genIAD = symiSizedData
-                genIAD!!.generatedImageData?.let {
-                    generatedImage = GeneratedImage(
-                        genIAD!!.generatedIcon, it.byteArray, it.len, it.iconImageFileName
-                    )
-                    haveImage = true
+            val symiSizedDataList = symiRepo.getGeneratedIconWithAllImageDataSize(iconDef.icon_def_id,sz)
+            if(symiSizedDataList.isNotEmpty()){
+                generatedIcon = getGeneratedIcon(symiSizedDataList[0])
+                generatedImage = getGeneratedImage(generatedIcon, symiSizedDataList[0])
+
+                genIAD = getGeneratedIconAndImageData(generatedIcon, GeneratedImageData(
+                    symiSizedDataList[0].generatedImageDataId, generatedIcon.id,
+                    symiSizedDataList[0].iconImageFileName,  symiSizedDataList[0].len
+                ))
+
+                when(symiSizedDataList[0].width){
+                    TINY -> {generatedTinyImage = generatedImage
+                        generatedTinyIAD = genIAD
+                        Log.d("setSymiData", "adding TINY width = " + symi.width.toString())
+                        tinyIm = generatedImage.getBitmap(context)
+                    }
+                    MEDIUM -> {
+                        generatedMedImage = generatedImage
+                        generatedMedIAD = genIAD
+
+                        medIm = generatedImage.getBitmap(context)
+                        Log.d("setSymiData", "adding MEDIUM width = " + symi.width.toString())
+                    }
+                    LARGE -> {
+                        largeIm = generatedImage.getBitmap(context)
+                    }
                 }
+
+                    haveImage = true
             }
         }
         return haveImage
@@ -272,7 +330,7 @@ class MainViewModel() : ViewModel() {
   //      if(!(genIAD == null)) return
         val TAG = "runSymiExample"
         val i1 = Log.i(TAG, "before scoped launch")
-        val runRequired = !imageExists(size)
+        val runRequired = !imageExists(context, size)
         Log.i(TAG , "runRequired is " + runRequired + "number of DB entries is " + symImageListAll.value?.size)
        if (!runRequired) return CoroutineScope(Dispatchers.Main).async{/* do nothing*/}
         /*viewModelScope.launch(Dispatchers.Unconfined) ***/
@@ -325,16 +383,16 @@ class MainViewModel() : ViewModel() {
 
 
            if (outputData!!.savedData.length > 0) {
-               generatedIcon.generatedData = outputData!!.savedData
+             //  generatedIcon.generatedData = outputData!!.savedData
 
                val oStream =
                    context.openFileOutput(generatedIcon.generatedDataFileName, Context.MODE_APPEND)
-               oStream.bufferedWriter(Charsets.UTF_8).write(generatedIcon.generatedData)
+               oStream.bufferedWriter(Charsets.UTF_8).write(outputData.savedData)
                oStream.flush(); oStream.close()
 
                if (outputData!!.pngBufferLen > 0) {
-                   generatedImage.byteArray =
-                       ByteArray(outputData!!.pngBufferLen) { i: Int -> (outputData!!.pngBuffer[i]) }
+                //   generatedImage.byteArray =
+                 //      ByteArray(outputData!!.pngBufferLen) { i: Int -> (outputData!!.pngBuffer[i]) }
                    generatedImage.len = outputData!!.pngBufferLen
                    generatedImage.iconImageFileName = "symimage" + date + ".png"
                    try {
@@ -345,12 +403,18 @@ class MainViewModel() : ViewModel() {
                         //   Context.MODE_APPEND
                        //)
 
-                       val image = generatedImage.getBitmap()
+                       val image = BitmapFactory.decodeByteArray(outputData.pngBuffer, 0, outputData.pngBufferLen) // generatedImage.getBitmap()
                        image?.compress(
                            Bitmap.CompressFormat.PNG,
                            100,
                            pngStream
-                       )
+                       ).also {
+                           when(size){
+                               TINY -> tinyIm = image
+                               MEDIUM -> medIm = image
+                               LARGE -> largeIm = image
+                           }
+                       }
                        //   pngStream.write(pngBuf,0,outputData.pngBufferLen)
                        // pngStream.write(bbb, 0, 3)
                        pngStream.flush()
@@ -365,7 +429,7 @@ class MainViewModel() : ViewModel() {
 
                Log.i("runSymiExample", "completed JNI call seeemingly OK width = " +symi.width)
                val generatedImageData = GeneratedImageData(UUID.randomUUID(),generatedIcon.id,
-                   generatedImage.iconImageFileName,generatedImage.byteArray,generatedImage.len )
+                   generatedImage.iconImageFileName,generatedImage.len )
                genIAD = GeneratedIconAndImageData( generatedIcon, generatedImageData)
                when(symi.width ){
                  TINY ->  {Log.i("runSymiExample","assigning TINYs")
