@@ -87,7 +87,7 @@ data class GeneratedIcon(
 data class GeneratedImageData(
     @PrimaryKey var gid_id:UUID,
     var gen_icon_id: UUID,
-    val iconImageFileName: String,
+    var iconImageFileName: String,
 //    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
 //    var byteArray: ByteArray?,
     var len: Int
@@ -116,7 +116,7 @@ data class GeneratedImageData(
     }
 }
 //-----------
-// Get all the TINY images. Every symi should have at least a TINY entry
+// Get all the  images data. Every symi should have at least a TINY entry
 //__________________-----------------___________________________________
 @DatabaseView("Select IconDef.icon_def_id As iconDefId, "+
     "IconDef.lambda, IconDef.alpha, IconDef.beta, IconDef.gamma,"+

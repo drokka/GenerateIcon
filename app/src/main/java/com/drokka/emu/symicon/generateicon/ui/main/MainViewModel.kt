@@ -58,8 +58,14 @@ class MainViewModel() : ViewModel() {
 
     fun clearGeneratedImage(){
         genIAD = null
+      //  generatedImage.clear()
+     //   generatedIcon.clear()
         generatedMedIAD = null
+     //   generatedMedImage?.clear()
+
         generatedTinyIAD = null
+    //    generatedTinyImage?.clear()
+
         tinyIm = null
         medIm = null
         largeIm = null
@@ -132,32 +138,39 @@ class MainViewModel() : ViewModel() {
     fun setLambda(sz: Double){
         try {
             iconDef.lambda = sz.toDouble()
+            clearGeneratedImage()
         }catch(x:Exception){}
 
     }
     fun setAlpha(sz: Double){
         try {
             iconDef.alpha = sz.toDouble()
+            clearGeneratedImage()
         }catch(x:Exception){}
     }
     fun setBeta(sz: Double){
         try {
             iconDef.beta = sz.toDouble()
+            clearGeneratedImage()
+
         }catch(x:Exception){}
     }
     fun setGamma(sz: Double){
         try{
         iconDef.gamma = sz.toDouble()
+            clearGeneratedImage()
         }catch (x:Exception){}
     }
     fun setOmega(sz: Double){
         try{
         iconDef.omega = sz.toDouble()
+            clearGeneratedImage()
         }catch (x:Exception){}
     }
     fun setMa(sz: Double){
         try{
         iconDef.ma = sz.toDouble()
+            clearGeneratedImage()
         }catch (x:Exception){}
     }
 
@@ -267,7 +280,15 @@ class MainViewModel() : ViewModel() {
 
         }
         // Actually with current view sql will always be TINY that has loaded. So load MEDIUM.
-        val symiMedList = symiRepo.getGeneratedIconWithAllImageDataSize(allImageData.iconDefId, MEDIUM)
+        val tempIconDef = IconDef(    UUID.randomUUID(), allImageData.lambda,
+            allImageData.alpha,
+            allImageData.beta,
+            allImageData.gamma,
+            allImageData.omega,
+            allImageData.ma,
+            allImageData.quiltType
+        )
+        val symiMedList = symiRepo.getGeneratedIconWithAllImageDataSize(tempIconDef, MEDIUM)
         if(symiMedList.size > 0){
             if(symiMedList.size >1){
                 Log.i("setSymiData", "There is more than one MEDIUM image!! Number is: "+symiMedList.size.toString())
@@ -287,10 +308,15 @@ class MainViewModel() : ViewModel() {
     }
 
     fun imageExists(context: Context, sz:Int):Boolean{
-        var haveImage = (symi.width == sz )&& generatedImage.len >0
+        var haveImage:Boolean = when(sz){
+            TINY -> tinyIm != null
+            MEDIUM -> medIm != null
+            LARGE -> largeIm != null
+          else -> (symi.width == sz )&& generatedImage.len >0
+        }
         if(!haveImage){
             //check DB
-            val symiSizedDataList = symiRepo.getGeneratedIconWithAllImageDataSize(iconDef.icon_def_id,sz)
+            val symiSizedDataList = symiRepo.getGeneratedIconWithAllImageDataSize(iconDef,sz)
             if(symiSizedDataList.isNotEmpty()){
                 generatedIcon = getGeneratedIcon(symiSizedDataList[0])
                 generatedImage = getGeneratedImage(generatedIcon, symiSizedDataList[0])
@@ -329,7 +355,6 @@ class MainViewModel() : ViewModel() {
        // if(isLoading ) return
   //      if(!(genIAD == null)) return
         val TAG = "runSymiExample"
-        val i1 = Log.i(TAG, "before scoped launch")
         val runRequired = !imageExists(context, size)
         Log.i(TAG , "runRequired is " + runRequired + "number of DB entries is " + symImageListAll.value?.size)
        if (!runRequired) return CoroutineScope(Dispatchers.Main).async{/* do nothing*/}
@@ -453,7 +478,8 @@ class MainViewModel() : ViewModel() {
 
 
           symiRepo.addGeneratedIconAndData(iconDef, symIcon, symiTiny, generatedTinyIAD!!)
-Log.d(tag, "done repo add")
+Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (generatedTinyIAD!!.generatedImageData?.len
+    ?: 0))
             return "TINY_SAVED"
         }
         else return "TINY_FAIL"
@@ -463,7 +489,10 @@ Log.d(tag, "done repo add")
   //      generatedTinyIAD?.let{
     //        symiRepo.addGeneratedIconAndData(iconDef, symIcon, symiTiny!!, it)
       //  }
-        genIAD?.let { symiRepo.addGeneratedIconAndData(iconDef, symIcon, symi, it) }
+        genIAD?.let { symiRepo.addGeneratedIconAndData(iconDef, symIcon, symi, it)
+            Log.d("save symi", "done repo add. Width is "+ symi.width + " length is " + (it.generatedImageData?.len
+                ?: 0))
+        }
 
         }
 

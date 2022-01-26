@@ -55,8 +55,22 @@ interface SymiDao {
     @Query("select * from GeneratedIconWithAllImageData where width = " + TINY)
     fun getAllGeneratedIconWithAllImageData():LiveData<List<GeneratedIconWithAllImageData>>
 
-    @Query("select * from GeneratedIconWithAllImageData where iconDefId = (:defId) and width = (:sz)")
-    fun  getGeneratedIconWithAllImageDataSize(defId:UUID, sz:Int):List<GeneratedIconWithAllImageData>
+    @Query("select * from GeneratedIconWithAllImageData where ma = (:ma) " +
+            "and alpha = (:alpha)" +
+            "and beta = (:beta)" +
+            "and lambda = (:lambda)" +
+            "and omega = (:omega)" +
+            "and gamma = (:gamma)" +
+            "and quiltType = (:quiltType)" +
+            "and width = (:sz)")
+    fun  getGeneratedIconWithAllImageDataSize(ma:Double,
+                                              alpha:Double,
+    beta:Double,
+    lambda:Double,
+    omega:Double,
+    gamma:Double,
+    quiltType:QuiltType,
+                                              sz:Int):List<GeneratedIconWithAllImageData>
 
   //  @Query("select count(*) from GeneratedIcon where ")
   //  fun existsGeneratedIcon()

@@ -187,6 +187,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
                 viewModel.tinyIm
             }) }
     }
+
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         viewModel.setIconType(parent?.getItemAtPosition(position).toString())
     }

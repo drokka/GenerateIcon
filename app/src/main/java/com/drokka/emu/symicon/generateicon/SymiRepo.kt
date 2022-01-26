@@ -42,6 +42,23 @@ fun GeneratedImage.getBitmap(context: Context):Bitmap?{
     }
 }
 
+fun GeneratedImage.clear(){
+    iconImageFileName =""
+    len = 0
+}
+
+fun GeneratedIcon.clear(){
+    generatedDataFileName = ""
+}
+fun GeneratedImageData.clear(){
+    iconImageFileName = ""
+    len = 0
+}
+fun GeneratedIconAndImageData.clear(){
+    generatedIcon.clear()
+    generatedImageData?.clear()
+}
+
 class SymiRepo   private constructor(context: Context) {
 
     private val executor = Executors.newSingleThreadExecutor()
@@ -141,8 +158,15 @@ class SymiRepo   private constructor(context: Context) {
         return symiDao.getAllGeneratedIconWithAllImageData()
     }
 
-    fun getGeneratedIconWithAllImageDataSize(iconDefId:UUID, size:Int):List<GeneratedIconWithAllImageData>{
-        return symiDao.getGeneratedIconWithAllImageDataSize(iconDefId, size)
+    fun getGeneratedIconWithAllImageDataSize(iconDef: IconDef, size:Int):List<GeneratedIconWithAllImageData>{
+        return symiDao.getGeneratedIconWithAllImageDataSize(iconDef.ma,
+            iconDef.alpha,
+            iconDef.beta,
+            iconDef.lambda,
+            iconDef.omega,
+            iconDef.gamma,
+            iconDef.quiltType,
+            size)
     }
 
   //  fun getSymIconDataList(size:Int): LiveData<List<GeneratedIconAndImageData>> {
