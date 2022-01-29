@@ -359,7 +359,8 @@ class MainViewModel() : ViewModel() {
         Log.i(TAG , "runRequired is " + runRequired + "number of DB entries is " + symImageListAll.value?.size)
        if (!runRequired) return CoroutineScope(Dispatchers.Main).async{/* do nothing*/}
         /*viewModelScope.launch(Dispatchers.Unconfined) ***/
-            val imagesDirPath = File(context.getFilesDir(), "images")
+
+           val imagesDirPath = File(context.getFilesDir(), "images")
             Log.i(TAG, "dirPath is:" + imagesDirPath.toString())
             imagesDirPath.mkdirs()
             val date = Date().time.toString()
