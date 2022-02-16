@@ -11,7 +11,6 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import com.drokka.emu.symicon.generateicon.R
 import com.drokka.emu.symicon.generateicon.data.*
-import com.drokka.emu.symicon.generateicon.getBitmap
 import com.drokka.emu.widgets.FloatInView
 import kotlinx.coroutines.*
 
@@ -44,6 +43,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
     private lateinit var gammaText: FloatInView
     private lateinit var omegaText: FloatInView
     private lateinit var maText: FloatInView
+    private lateinit var degSymText: EditText
 
     private lateinit var quickDrawImageButton: ImageButton
     private lateinit var busyBar: ProgressBar
@@ -99,6 +99,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         omegaText = view.findViewById(R.id.editTextOmega)
         maText = view.findViewById(R.id.editTextMa)
 
+        degSymText = view.findViewById(R.id.editTextDegSym)
         quickDrawImageButton = view.findViewById(R.id.imageButtonQuickDraw)
         busyBar = view.findViewById(R.id.progressBar)
       //  greyOverlay = view.findViewById(R.id.waitOverlay)
@@ -172,7 +173,9 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         omegaText.onSelectedValueChanged = {oldie,newie -> viewModel.setOmega(newie);doQuickDraw()}
         maText.onSelectedValueChanged = {oldie,newie -> viewModel.setMa(newie);doQuickDraw()}
 
-      //  retainInstance = true
+        degSymText.doAfterTextChanged { viewModel.setDegSym(degSymText.text);doQuickDraw()}
+
+        //  retainInstance = true
       //  restoreState(savedInstanceState)
         //imageButton.setImageDrawable(drawable)
     }
@@ -190,6 +193,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         viewModel.setIconType(parent?.getItemAtPosition(position).toString())
+        doQuickDraw()
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -216,6 +220,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         outState.putDouble("gamma", viewModel.iconDef.gamma)
         outState.putDouble("lambda", viewModel.iconDef.lambda)
         outState.putDouble("ma", viewModel.iconDef.ma)
+        outState.putInt("degreeSym", viewModel.iconDef.degreeSym)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -254,6 +259,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
             QuiltType.FRACTAL -> selectTypeSpinner.setSelection(2)
             else -> selectTypeSpinner.setSelection(0)
         }
+        degSymText.setText( ""+viewModel.iconDef.degreeSym)
     }
 
     fun setBusy(boolean: Boolean){
@@ -281,6 +287,8 @@ fun restoreState(savedInstanceState: Bundle?) {
         maText.selectedValue = savedVal.toDouble()
         savedVal = savedInstanceState?.getDouble("beta")?.toFloat()
         betaText.selectedValue = savedVal.toDouble()
+        var savedIntVal = savedInstanceState.getInt("degreeSym",3)
+        degSymText.setText(savedIntVal)
     }
 }
     }

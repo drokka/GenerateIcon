@@ -29,7 +29,7 @@ class SymiTypeConverters {
             lambda = allImageData.lambda,
             omega = allImageData.omega,
             quiltType = allImageData.quiltType,
-
+            degreeSym = allImageData.degreeSym,
             height = allImageData.height,
             width = allImageData.width,
             iterations = allImageData.iterations,
@@ -50,7 +50,7 @@ class SymiTypeConverters {
             lambda = allImageData.lambda,
             omega = allImageData.omega,
             quiltType = allImageData.quiltType,
-
+            degreeSym = allImageData.degreeSym,
             gen_def_id = UUID.randomUUID(),
             height = allImageData.height,
             width = allImageData.width,

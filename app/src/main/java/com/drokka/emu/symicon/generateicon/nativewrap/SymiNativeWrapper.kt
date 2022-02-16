@@ -25,7 +25,8 @@ class SymiNativeWrapper {
         val intArgs: IntArray = intArrayOf(
             generatorDef.iterations,
             generatorDef.width,
-            generatorDef.height
+            generatorDef.height,
+            iconDef.degreeSym
         )
         return coroutineScope {
             async {

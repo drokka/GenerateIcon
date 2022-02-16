@@ -49,14 +49,7 @@
         <action
             android:id="@+id/action_mainActivityFragment_to_wrapListFragment"
             app:destination="@id/wrapListFragment" />
-        <action
-            android:id="@+id/action_mainActivityFragment_to_editSymiFragment"
-            app:destination="@id/editSymiFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/editSymiFragment"
-        android:name="com.drokka.emu.symicon.generateicon.ui.main.EditSymiFragment"
-        android:label="EditSymiFragment" />
     <fragment
         android:id="@+id/bigImageFragment"
         android:name="com.drokka.emu.symicon.generateicon.ui.main.BigImageFragment"

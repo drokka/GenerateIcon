@@ -13,16 +13,16 @@ enum class QuiltType(val label: String) {
     SQUARE("S"), HEX("H"), FRACTAL("F")
 }
 // width / height constants in pixels - odd since (0,0) is in the middle and centre of symmetry
-const val TINY = 121
+const val TINY = 201
 const val SMALL = 381  /* 385 is  0.75 of max Google Play icon size (512), which is recommended to accommodate rounding etc. But is it dp not px? */
 const val MEDIUM = 941
-const val LARGE = 1281
+const val LARGE = 1081
 const val XLARGE =2001
 
-const val QUICK_LOOK = 20000
+const val QUICK_LOOK = 40000
 const val GO        = 100000
-const val GO_GO     = 2000000
-const val GO_GO_GO  = 10000000
+const val GO_GO     = 1000000
+const val GO_GO_GO  = 5000000
 
 //@Entity(primaryKeys = ["lambda","alpha","beta","gamma","omega","ma","quiltType"])
 @Entity
@@ -34,7 +34,8 @@ data class IconDef(
     var gamma: Double = 0.4,
     var omega: Double = 0.2,
     var ma: Double = 0.3,
-    var quiltType: QuiltType = QuiltType.SQUARE
+    var quiltType: QuiltType = QuiltType.SQUARE,
+    var degreeSym:Int =3
 ):Serializable
 
 //@Entity(primaryKeys = ["lambda","alpha","beta","gamma","omega","ma","quiltType"])
@@ -120,7 +121,7 @@ data class GeneratedImageData(
 //__________________-----------------___________________________________
 @DatabaseView("Select IconDef.icon_def_id As iconDefId, "+
     "IconDef.lambda, IconDef.alpha, IconDef.beta, IconDef.gamma,"+
-        "IconDef.omega, IconDef.ma, IconDef.quiltType,"+
+        "IconDef.omega, IconDef.ma, IconDef.quiltType, IconDef.degreeSym, "+
         "SymIcon.label,"+
         " GeneratorDef.gen_def_id, GeneratorDef.width, GeneratorDef.height, GeneratorDef.iterations,"+
         " GeneratedIcon.id as genIconId, "+
@@ -145,6 +146,8 @@ data class GeneratedIconWithAllImageData
     var omega: Double,
     var ma: Double ,
     var quiltType: QuiltType,
+    var degreeSym: Int,
+
     val label:String,
     val gen_def_id: UUID,
     var width: Int,
@@ -167,7 +170,7 @@ data class GeneratedIconWithAllImageData
             byteArray
         }
     *****************************/
-    }
+}
 
 //@Entity
 @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)
@@ -211,7 +214,7 @@ class GeneratedIconAndImageDataMerged(
 
 @DatabaseView("Select  "+
 "IconDef.lambda, IconDef.alpha, IconDef.beta, IconDef.gamma,"+
-"IconDef.omega, IconDef.ma, IconDef.quiltType,"+
+"IconDef.omega, IconDef.ma, IconDef.quiltType, IconDef.degreeSym, "+
 "SymIcon.label,"+
 "GeneratorDef.width, GeneratorDef.height, GeneratorDef.iterations"+
 " from IconDef inner join SymIcon on IconDef.icon_def_id = SymIcon.icon_def_id "+
@@ -228,28 +231,30 @@ data class SymImageDefinition
     var omega: Double,
     var ma: Double ,
     var quiltType: QuiltType,
+    var degreeSym: Int,
     val label:String,
     var width: Int,
     var height: Int,
     var iterations: Int
 ){
-        companion object{
+
+    companion object{
 
 fun defaultSimyDef(quiltType: QuiltType):SymImageDefinition{
     when(quiltType){
         QuiltType.SQUARE -> return SymImageDefinition( lambda = 0.6,
                             alpha = 0.3, beta =0.2,gamma = 0.4, omega = 0.2,
-                            ma = 0.3, quiltType = QuiltType.SQUARE,
+                            ma = 0.3, quiltType = QuiltType.SQUARE, degreeSym = 3,
                         label = "Square default",
                          width = TINY, height = TINY, iterations = QUICK_LOOK )
         QuiltType.HEX -> return SymImageDefinition( lambda = 0.6,
             alpha = 0.3, beta =0.2,gamma = 0.4, omega = 0.2,
-            ma = 0.3, quiltType = QuiltType.HEX,
+            ma = 0.3, quiltType = QuiltType.HEX,degreeSym = 3,
             label = "Square default",
             width = TINY, height = TINY, iterations = QUICK_LOOK )
         QuiltType.FRACTAL -> return SymImageDefinition( lambda = 0.2,
             alpha = 0.3, beta =0.02,gamma = 0.9, omega = 0.02,
-            ma = 0.3, quiltType = QuiltType.FRACTAL,
+            ma = 0.3, quiltType = QuiltType.FRACTAL,degreeSym = 3,
             label = "Square default",
             width = TINY, height = TINY, iterations = QUICK_LOOK )
     }
@@ -259,3 +264,66 @@ fun defaultSimyDef(quiltType: QuiltType):SymImageDefinition{
 //    pp.degreeSym=4; pp.scale=1;
 //    pp.lL=-1.8;
 
+/****************
+
+void SymIcon::InitialiseSymIcon()
+{
+
+Info->ICON = 1;
+Info->L= -1.8;	 Info->A= 2; Info->B= 0; Info->G = 1; Info->O= 0;
+Info->b2= 0; Info->degreeSym = 3; Info->scale = 1;
+startX = .01; startY = .003;
+x = startX; y = startY;
+Info->numberSteps = 0;  Info->MaxHits = 1;
+
+currentHP.xPix = 0; 	currentHP.yPix = 0;  currentHP.Hits = 0;
+
+go = NO;
+}
+
+void SymIcon::InitialiseSqQuilt()
+{
+Info->ICON = 2;
+Info->L= -.59;	 Info->A= .2; Info->B= .1; Info->G = -.09; Info->O= 0;
+Info->b2= 0; Info->degreeSym = 3; Info->scale = 3;
+startX = .1; startY = .333;
+x = startX; y = startY;
+Info->CONJ = false;
+Info->numberSteps = 0;  Info->MaxHits = 1;
+
+currentHP.xPix = 0; 	currentHP.yPix = 0;  currentHP.Hits = 0;
+
+go = NO;
+}
+
+void SymIcon::InitialiseHexQuilt()
+{
+Info->ICON = 3;
+Info->L= -.1;	 Info->A= -.076; Info->B= 0; Info->G = .1; Info->O= 0;
+Info->b2= 0; Info->degreeSym = 5; Info->scale = 4;
+startX = .1; startY = .3;
+x = startX; y = startY;
+Info->CONJ = false;
+
+Info->numberSteps = 0;  Info->MaxHits = 1;
+
+currentHP.xPix = 0; 	currentHP.yPix = 0;  currentHP.Hits = 0;
+
+go = NO;
+}
+
+void SymIcon::InitialiseFractal()
+{
+Info->ICON = 4;
+Info->L= .4;	 Info->A= .35; Info->B= .2; Info->G = .4; Info->O= 0;
+Info->b2= .4; Info->degreeSym = 3; Info->scale = 1;
+Info->CONJ = true;
+startX=.1; startY=-.01;
+x = .1; y = -.01;
+Info->numberSteps = 0;  Info->MaxHits = 1;
+
+currentHP.xPix = 0; 	currentHP.yPix = 0;  currentHP.Hits = 0;
+
+go = NO;
+}
+*****************************************************************************************/

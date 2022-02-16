@@ -175,5 +175,17 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
+    <EditText
+        android:id="@+id/editTextDegSym"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number"
+        android:hint="3"
+        app:layout_constraintBottom_toTopOf="@+id/imageButtonQuickDraw"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/divider2" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

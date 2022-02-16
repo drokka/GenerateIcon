@@ -178,6 +178,17 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
+        <EditText
+            android:id="@+id/editDegreeSym"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number"
+            app:layout_constraintBottom_toTopOf="@+id/imageButtonQuickDraw"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/divider2"
+            app:layout_constraintTop_toTopOf="@+id/divider2" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

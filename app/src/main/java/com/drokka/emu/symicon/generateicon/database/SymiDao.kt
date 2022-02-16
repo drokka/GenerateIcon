@@ -62,6 +62,7 @@ interface SymiDao {
             "and omega = (:omega)" +
             "and gamma = (:gamma)" +
             "and quiltType = (:quiltType)" +
+            "and degreeSym = (:degreeSym)" +
             "and width = (:sz)")
     fun  getGeneratedIconWithAllImageDataSize(ma:Double,
                                               alpha:Double,
@@ -70,6 +71,7 @@ interface SymiDao {
     omega:Double,
     gamma:Double,
     quiltType:QuiltType,
+                                              degreeSym:Int,
                                               sz:Int):List<GeneratedIconWithAllImageData>
 
   //  @Query("select count(*) from GeneratedIcon where ")

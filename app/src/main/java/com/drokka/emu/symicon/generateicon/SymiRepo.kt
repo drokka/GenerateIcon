@@ -166,6 +166,7 @@ class SymiRepo   private constructor(context: Context) {
             iconDef.omega,
             iconDef.gamma,
             iconDef.quiltType,
+            iconDef.degreeSym,
             size)
     }
 

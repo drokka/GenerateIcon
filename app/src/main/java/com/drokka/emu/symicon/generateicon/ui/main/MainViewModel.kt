@@ -3,6 +3,7 @@ package com.drokka.emu.symicon.generateicon.ui.main
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.text.Editable
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -174,6 +175,15 @@ class MainViewModel() : ViewModel() {
         }catch (x:Exception){}
     }
 
+    fun setDegSym(degreeSymText:CharSequence){
+        try {
+            iconDef.degreeSym = degreeSymText.toString().toInt()
+            clearGeneratedImage()
+        }catch (x:Exception){
+            Log.e("setDegSym","Error: "+ x.message)
+        }
+    }
+
     fun resetSymiDef(data:SymImageDefinition){
     clearGeneratedImage()
         iconDef = IconDef(
@@ -183,7 +193,8 @@ class MainViewModel() : ViewModel() {
                     gamma = data.gamma,
                     lambda = data.lambda,
                     omega = data.omega,
-                    quiltType = data.quiltType
+                    quiltType = data.quiltType,
+                    degreeSym = data.degreeSym
         )
         symIcon = SymIcon(
              icon_def_id = iconDef.icon_def_id,
@@ -206,7 +217,7 @@ class MainViewModel() : ViewModel() {
             lambda = allImageData.lambda,
             omega = allImageData.omega,
             quiltType = allImageData.quiltType,
-
+            degreeSym = allImageData.degreeSym,
             height = allImageData.height,
             width = allImageData.width,
             iterations = allImageData.iterations,
@@ -286,7 +297,8 @@ class MainViewModel() : ViewModel() {
             allImageData.gamma,
             allImageData.omega,
             allImageData.ma,
-            allImageData.quiltType
+            allImageData.quiltType,
+            allImageData.degreeSym
         )
         val symiMedList = symiRepo.getGeneratedIconWithAllImageDataSize(tempIconDef, MEDIUM)
         if(symiMedList.size > 0){
@@ -408,9 +420,13 @@ class MainViewModel() : ViewModel() {
 //---------------------------------------------------------------------------------------------
 
 
-           if (outputData!!.savedData.length > 0) {
+           if (outputData!!.savedData.isNotEmpty()) {
              //  generatedIcon.generatedData = outputData!!.savedData
 
+               if(!outputData.savedData.startsWith("Error")){
+
+
+               Log.i("MainViewModel runSymiExMPLE", "gENERATE Params: " + outputData.paramsUsed)
                val oStream =
                    context.openFileOutput(generatedIcon.generatedDataFileName, Context.MODE_APPEND)
                oStream.bufferedWriter(Charsets.UTF_8).write(outputData.savedData)
@@ -468,7 +484,11 @@ class MainViewModel() : ViewModel() {
                    }
                }
              }
+             else{
+               Log.e("runSymiExample", outputData.savedData)
+           }
         }
+       }
         return  generateJob
         }
 
