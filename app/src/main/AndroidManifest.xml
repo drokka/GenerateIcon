@@ -10,7 +10,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GenerateIcon" >
+        android:theme="@style/Theme.GenerateIcon"
+        >
       <!--  <service
             android:name="SymiService"
             android:enabled="true"

@@ -40,6 +40,9 @@
         <action
             android:id="@+id/action_imageIconFragment_to_bigImageFragment"
             app:destination="@id/bigImageFragment" />
+        <action
+            android:id="@+id/action_imageIconFragment_to_pickColourFragment"
+            app:destination="@id/pickColourFragment" />
     </fragment>
     <fragment
         android:id="@+id/mainActivityFragment"
@@ -55,4 +58,12 @@
         android:name="com.drokka.emu.symicon.generateicon.ui.main.BigImageFragment"
         android:label="fragment_big_image"
         tools:layout="@layout/fragment_big_image" />
+    <fragment
+        android:id="@+id/pickColourFragment"
+        android:name="com.drokka.emu.symicon.generateicon.ui.main.PickColourFragment"
+        android:label="PickColourFragment" >
+        <action
+            android:id="@+id/action_pickColourFragment_to_imageIconFragment"
+            app:destination="@id/imageIconFragment" />
+    </fragment>
 </navigation>

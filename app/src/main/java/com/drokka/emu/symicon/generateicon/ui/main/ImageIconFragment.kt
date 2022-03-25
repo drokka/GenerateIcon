@@ -15,6 +15,7 @@ import com.drokka.emu.symicon.generateicon.SymiRepo
 import com.drokka.emu.symicon.generateicon.data.GeneratedImage
 import com.drokka.emu.symicon.generateicon.getBitmap
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 
 class ImageIconFragment() : Fragment() {
 
@@ -42,6 +43,7 @@ class ImageIconFragment() : Fragment() {
         fun onSaveImageDataButtonSelected(button: Button)
         fun generateLargeIcon(requireContext: Context):Deferred<Unit>
         fun showBigImage()
+        fun reColour()
     }
     private var callbacks: Callbacks? = null
 
@@ -63,16 +65,17 @@ private lateinit var viewImage:Button
 
     private lateinit var saveImageDataButton: Button
     private lateinit var goBigButton:Button
+    private lateinit var reColourButton:Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.image_icon_fragment, container, false)
-        displayImageIconView = view.findViewById(R.id.displayImageIconView)!!
         viewImage = view.findViewById(R.id.viewImageButton)
         saveImageDataButton = view.findViewById(R.id.saveImageDataButton)
         goBigButton = view.findViewById(R.id.goBigButton)
+        reColourButton = view.findViewById(R.id.reColourButton)
         return view
     }
 
@@ -91,6 +94,9 @@ private lateinit var viewImage:Button
          //   val generatedImage =
         //        arguments?.getSerializable("myGeneratedImage") as GeneratedImage?
         //NEED to ensure MainViewModel generatedImage is current
+
+        displayImageIconView = view.findViewById(R.id.displayImageIconView)!!
+
         var bitmap = viewModel.medIm
         if(bitmap== null){
             bitmap = context?.let { viewModel.generatedMedImage?.getBitmap(it) }
@@ -113,14 +119,25 @@ private lateinit var viewImage:Button
                 callbacks?.showBigImage()
             }
         }
+
+        reColourButton.setOnClickListener {
+            callbacks?.reColour()
+            /*
+            val job = callbacks?.reColour(requireContext())
+            job?.invokeOnCompletion{
+                displayImageIconView.setImageBitmap(viewModel.medIm)
+            }
+
+             */
         }
+        }
+
 
      private fun viewImageFun(generatedImage: GeneratedImage, context: Context?) {
         if (context != null) {
             callbacks?.onViewImageButtonSelected(generatedImage,context)
         }
     }
-
 
 /***
     override fun onCreate(savedInstanceState: Bundle?) {

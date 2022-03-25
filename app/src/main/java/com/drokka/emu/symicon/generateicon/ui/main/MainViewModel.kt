@@ -10,11 +10,13 @@ import androidx.lifecycle.ViewModel
 import com.drokka.emu.symicon.generateicon.SymiRepo
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.getBitmap
+import com.drokka.emu.symicon.generateicon.getGeneratedData
 import com.drokka.emu.symicon.generateicon.nativewrap.SymiNativeWrapper
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
+
 
 class MainViewModel() : ViewModel() {
 
@@ -70,13 +72,25 @@ class MainViewModel() : ViewModel() {
         tinyIm = null
         medIm = null
         largeIm = null
-    }
 
+        medSymDataString =""
+    }
+    var rgbValueInt:IntArray = intArrayOf(0,0,0,255) // red, blue, green, opacity
+
+    var bgClrInt:IntArray = intArrayOf(0,0,0,255)
+    var minClrInt:IntArray = intArrayOf(0,0,0,255)
+    var maxClrInt:IntArray = intArrayOf(0,0,0,255)
+
+    var bgClr = doubleArrayOf(0.0,0.0,0.0,0.0)
+    var minClr = doubleArrayOf(0.9,0.6,0.1, 0.0)
+    var maxClr = doubleArrayOf(0.1, 0.9, 0.99, 0.0)
     var generatedTinyIAD:GeneratedIconAndImageData? = null
     var generatedTinyImage:GeneratedImage? = null
     var tinyIm:Bitmap? = null
     var medIm:Bitmap? = null
     var largeIm:Bitmap? = null
+
+    var medSymDataString =""
 
     var generatedMedIAD:GeneratedIconAndImageData? = null
     var generatedMedImage:GeneratedImage? = null
@@ -158,19 +172,19 @@ class MainViewModel() : ViewModel() {
     }
     fun setGamma(sz: Double){
         try{
-        iconDef.gamma = sz.toDouble()
+             iconDef.gamma = sz.toDouble()
             clearGeneratedImage()
-        }catch (x:Exception){}
+        }catch (_:Exception){}
     }
     fun setOmega(sz: Double){
         try{
-        iconDef.omega = sz.toDouble()
+                iconDef.omega = sz.toDouble()
             clearGeneratedImage()
         }catch (x:Exception){}
     }
     fun setMa(sz: Double){
         try{
-        iconDef.ma = sz.toDouble()
+              iconDef.ma = sz.toDouble()
             clearGeneratedImage()
         }catch (x:Exception){}
     }
@@ -287,6 +301,8 @@ class MainViewModel() : ViewModel() {
                     generatedMedIAD = genIAD
                 medIm = generatedImage.getBitmap(context)
                 Log.d("setSymiData", "adding MEDIUM width = " + symi.width.toString())
+
+                medSymDataString = generatedImage.getGeneratedData(context)
         }
 
         }
@@ -350,6 +366,8 @@ class MainViewModel() : ViewModel() {
 
                         medIm = generatedImage.getBitmap(context)
                         Log.d("setSymiData", "adding MEDIUM width = " + symi.width.toString())
+
+                        medSymDataString = generatedImage.getGeneratedData(context)
                     }
                     LARGE -> {
                         largeIm = generatedImage.getBitmap(context)
@@ -390,9 +408,9 @@ class MainViewModel() : ViewModel() {
             //________  Native call here to generate symi  -----------
 
        val generateJob = CoroutineScope(Dispatchers.Main).async {
-            val     outputDataJob = symiNativeWrapper.runSample(symi, iconDef)
-        outputDataJob.await()
-        val outputData = outputDataJob.getCompleted()
+            val     outputDataJob = symiNativeWrapper.runSample(symi, iconDef,bgClr,minClr,maxClr)
+             outputDataJob.await()
+            val outputData = outputDataJob.getCompleted()
 /*******************************************
            // TRY intent with service ------------------------------------------------------------
            val intArray = intArrayOf(  symi.iterations,symi.width, symi.height  )
@@ -440,11 +458,6 @@ class MainViewModel() : ViewModel() {
                    try {
                        val imFile = File(imagesDirPath, generatedImage.iconImageFileName)
                        val pngStream = FileOutputStream(imFile)
-                       //val pngStream = context.openFileOutput(
-                        //   generatedImage.iconImageFileName,
-                        //   Context.MODE_APPEND
-                       //)
-
                        val image = BitmapFactory.decodeByteArray(outputData.pngBuffer, 0, outputData.pngBufferLen) // generatedImage.getBitmap()
                        image?.compress(
                            Bitmap.CompressFormat.PNG,
@@ -481,6 +494,8 @@ class MainViewModel() : ViewModel() {
                        generatedMedIAD =
                            GeneratedIconAndImageData(generatedIcon, generatedImageData)
                         generatedMedImage = generatedImage
+
+                       medSymDataString = outputData.savedData
                    }
                }
              }
@@ -516,6 +531,49 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         }
 
         }
+
+    fun runReColour(context: Context): Deferred<Unit?> {
+        var symDataStr: String? = medSymDataString
+        if (symDataStr == "") {
+            symDataStr = generatedMedImage?.getGeneratedData(context)
+        }
+   //     if (!symDataStr.isNullOrEmpty()) {
+            val reColrJob = CoroutineScope(Dispatchers.Main).async {
+                 this@MainViewModel.bgClr = convItoD(bgClrInt)
+                  this@MainViewModel.minClr = convItoD(minClrInt)
+                this@MainViewModel.maxClr = convItoD(maxClrInt)
+                val rcOutDeferred =
+                    symDataStr?.let { symiNativeWrapper.reColourSym(it, bgClr, minClr, maxClr) }
+                if (rcOutDeferred != null) {
+                    rcOutDeferred.await()
+                }
+                val outputData = rcOutDeferred?.getCompleted()
+                val image = outputData?.let {
+                    BitmapFactory.decodeByteArray(
+                        outputData?.pngBuffer ?: null,
+                        0,
+                        it.pngBufferLen
+                    )
+                } // generatedImage.getBitmap()
+                image?.let { medIm = image }
+                /*****
+                .compress(
+                Bitmap.CompressFormat.PNG,
+                100,
+                pngStream
+                ).also
+                 *************************************/
+
+            }
+      //  }
+    return reColrJob
+    }
+
+    private fun convItoD(clr: IntArray): DoubleArray {
+        var doubleArray:DoubleArray = DoubleArray(4)
+        clr.forEachIndexed { index, i ->  doubleArray[index] = i/255.0 }
+        return doubleArray
+    }
 
     /******************************************************
     fun update(o: Observable?, arg: Any?) {

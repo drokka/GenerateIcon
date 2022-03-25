@@ -1,5 +1,6 @@
 package com.drokka.emu.symicon.generateicon
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -17,6 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
+import com.drokka.emu.symicon.generateicon.R.id.action_imageIconFragment_to_pickColourFragment
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.ui.main.*
 import kotlinx.coroutines.*
@@ -24,7 +26,7 @@ import java.io.File
 
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener, MainFragment.Callbacks , ImageIconFragment.Callbacks,
     SymIconListFragment.Callbacks, WrapListFragment.Callbacks,
-    MainActivityFragment.Callbacks/*, EditSymiFragment.Callbacks*/{
+    MainActivityFragment.Callbacks, PickColourFragment.Callbacks  /*, EditSymiFragment.Callbacks*/{
 
     companion object  {
 
@@ -35,12 +37,13 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             System.loadLibrary("emutil")
         }
     }
-    var mainActivityFragment:MainActivityFragment? = null
-    var mainFragment: MainFragment? = null
-    var symiListFragment: SymIconListFragment? = null
-    var wrapListFragment:WrapListFragment? = null
-    var imageIconFragment:ImageIconFragment? = null
+   private var mainActivityFragment:MainActivityFragment? = null
+   private var mainFragment: MainFragment? = null
+    private var symiListFragment: SymIconListFragment? = null
+   private var wrapListFragment:WrapListFragment? = null
+    private var imageIconFragment:ImageIconFragment? = null
     var bigImageFragment:BigImageFragment? = null
+    private var pickColourFragment: PickColourFragment? = null
   //  val blankTag = "blankFragment"
     lateinit var viewModel: MainViewModel
  //   lateinit var recyclerViewModel: SymIconListViewModel
@@ -72,6 +75,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
      * GENERATE
      */
     //MainFragment GENERATE. MainFragment is not the MainActivityFragment which is a navigation container
+    @SuppressLint("SuspiciousIndentation")
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onGenerateClicked(context:Context) :Deferred<Unit>?{
        // var generateJob:Job? = null
@@ -121,8 +125,18 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
        // }
     }
 
-    override fun doQuickDraw(context: Context): Job? {
-        var  generateJob =  viewModel.runSymiExample(context, TINY, QUICK_LOOK)
+    override fun reColour(){  //Call from reColour button to open colours dialog
+        if (pickColourFragment == null) {
+            pickColourFragment = PickColourFragment.newInstance()
+        }
+        val navvy = findNavController(R.id.fragmentContainerView)
+        if(navvy.currentDestination?.id == R.id.imageIconFragment) {
+            navvy.navigate(action_imageIconFragment_to_pickColourFragment)
+        }
+    }
+
+    override fun doQuickDraw(context: Context): Job {
+        val generateJob =  viewModel.runSymiExample(context, TINY, QUICK_LOOK)
 
         return generateJob
     }
@@ -344,6 +358,26 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             R.id.image_icon_fragment -> currentFragment = CurrentFragmet.ICON_DISPLAY
             else -> Log.d("onDestinationCanged", "ID not handled id=$destId")
         }
+    }
+
+    override fun pickedColours(context: Context): Deferred<Unit?> {
+
+        val deferredJob =  viewModel.runReColour(context)
+
+        return deferredJob
+    }
+
+    override fun redisplayMedImage() {
+        if(imageIconFragment == null){
+            imageIconFragment = ImageIconFragment.newInstance()
+        }
+        findNavController(R.id.fragmentContainerView).navigate(R.id.action_pickColourFragment_to_imageIconFragment)
+      //  imageIconFragment?.resetImage()
+
+    }
+
+    override fun cancelPickColours() {
+        TODO("Not yet implemented")
     }
 
 

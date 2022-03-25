@@ -42,6 +42,21 @@ fun GeneratedImage.getBitmap(context: Context):Bitmap?{
     }
 }
 
+fun GeneratedImage.getGeneratedData(context: Context):String{
+    var dataString =""
+    try{
+        val filesPath = context.filesDir
+        val dataFile = File(filesPath, generatedIcon.generatedDataFileName)
+        val inputStream = FileInputStream(dataFile)
+        dataString = inputStream.bufferedReader().use { it.readText() }
+
+    }catch ( xx:Exception){
+    Log.e("getGeneratedData", "ERROR msg is: " + xx.message)
+    return ""
+    }
+    return dataString
+}
+
 fun GeneratedImage.clear(){
     iconImageFileName =""
     len = 0
