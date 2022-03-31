@@ -8,15 +8,15 @@ import kotlinx.coroutines.*
 
 external fun callRunSampleFromJNI( intArgs:IntArray, type:Byte,  dArgs:DoubleArray): OutputData
 
-external fun callReColourBufFromJNI(symIn:String, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray):OutputData
+external fun callReColourBufFromJNI(symIn:String,sz:Int, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray):OutputData
 
 class SymiNativeWrapper {
 
-    suspend fun reColourSym(symData:String, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray):Deferred<OutputData>{
+    suspend fun reColourSym(symData:String,sz:Int, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray):Deferred<OutputData>{
 
         return coroutineScope {
             async {
-                callReColourBufFromJNI(symData, bgClr, minClr,maxClr)
+                callReColourBufFromJNI(symData, sz, bgClr, minClr,maxClr)
             }
         }
     }

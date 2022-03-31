@@ -3,8 +3,6 @@ package com.drokka.emu.symicon.generateicon
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
@@ -47,13 +45,17 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
   //  val blankTag = "blankFragment"
     lateinit var viewModel: MainViewModel
  //   lateinit var recyclerViewModel: SymIconListViewModel
-
+ var navController:NavController? = null   //
     /** data access using Room **/
 
    // private lateinit var  symiRepo:SymiRepo
  //   private lateinit var symIconList :LiveData<List<GeneratedIconAndImageData>>
     /*********************/
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        navController = findNavController(R.id.fragmentContainerView)
+    }
     override fun onImageIconSelected() {
         if(imageIconFragment == null) {
             imageIconFragment = ImageIconFragment.newInstance()
@@ -65,9 +67,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         ***********/
         //Make sure the TINY icon got saved before navigating to the bigger image display
       //  viewModel.saveSymi()
-        val navvy = findNavController(R.id.fragmentContainerView)
-        if(navvy.currentDestination?.id == R.id.mainFragment) {
-            navvy.navigate(R.id.action_mainFragment_to_imageIconFragment)
+        if(navController?.currentDestination?.id == R.id.mainFragment) {
+            navController?.navigate(R.id.action_mainFragment_to_imageIconFragment)
         }
     }
 
@@ -118,9 +119,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                // bigImageFragment?.bigImageView?.setImageBitmap(it)  // bigImageView null, OnCreateView not finished?
                 bigImageFragment?.view?.findViewById<ImageView>(R.id.bigImageView)?.setImageBitmap(viewModel.largeIm)
                 bigImageFragment?.view?.invalidate()
-                val navvy = findNavController(R.id.fragmentContainerView)
-                if(navvy.currentDestination?.id == R.id.imageIconFragment) {
-                    navvy.navigate(R.id.action_imageIconFragment_to_bigImageFragment)
+                if(navController?.currentDestination?.id == R.id.imageIconFragment) {
+                    navController?.navigate(R.id.action_imageIconFragment_to_bigImageFragment)
                           }
        // }
     }
@@ -129,9 +129,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         if (pickColourFragment == null) {
             pickColourFragment = PickColourFragment.newInstance()
         }
-        val navvy = findNavController(R.id.fragmentContainerView)
-        if(navvy.currentDestination?.id == R.id.imageIconFragment) {
-            navvy.navigate(action_imageIconFragment_to_pickColourFragment)
+        if(navController?.currentDestination?.id == R.id.imageIconFragment) {
+            navController?.navigate(action_imageIconFragment_to_pickColourFragment)
         }
     }
 
@@ -197,7 +196,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         supportFragmentManager.executePendingTransactions()
         ***************************/
 
-        findNavController(R.id.fragmentContainerView).navigate(R.id.action_wrapListFragment_to_mainFragment)
+        navController?.navigate(R.id.action_wrapListFragment_to_mainFragment)
         Log.d("MainActivity", "after action_wrapListFragment_to_mainFragment call")
        // supportFragmentManager.findFragmentByTag(blankTag)?.let { transaction?.hide(it) }
 
@@ -323,7 +322,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         }
 
        // findNavController(R.id.fragmentContainerView).navigate(R.id.action_wrapListFragment_to_mainFragment)
-        findNavController(R.id.fragmentContainerView).navigate(R.id.action_wrapListFragment_to_imageIconFragment)
+        navController?.navigate(R.id.action_wrapListFragment_to_imageIconFragment)
         // always reset symi data....
     //    if (generatedImageAndImageData != null) {
             viewModel.isLoadingFromData = true
@@ -343,8 +342,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
     var currentFragment:CurrentFragmet? = null
     override fun onCloseMe() {
-        findNavController(R.id.fragmentContainerView)
-            .navigate(/*R.id.action_mainActivityFragment_to_editSymiFragment*/  R.id.action_mainActivityFragment_to_wrapListFragment)
+
+            navController?.navigate(/*R.id.action_mainActivityFragment_to_editSymiFragment*/  R.id.action_mainActivityFragment_to_wrapListFragment)
             }
 
     override fun onDestinationChanged(
@@ -360,9 +359,15 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         }
     }
 
-    override fun pickedColours(context: Context): Deferred<Unit?> {
+    override fun pickedColours(
+        context: Context,
+        bgClrArray: IntArray,
+        minClrArray: IntArray,
+        maxClrArray: IntArray
+    ): Deferred<Unit?> {
 
-        val deferredJob =  viewModel.runReColour(context)
+
+        val deferredJob =  viewModel.runReColour(context, bgClrArray, minClrArray,maxClrArray)
 
         return deferredJob
     }
@@ -371,13 +376,29 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         if(imageIconFragment == null){
             imageIconFragment = ImageIconFragment.newInstance()
         }
-        findNavController(R.id.fragmentContainerView).navigate(R.id.action_pickColourFragment_to_imageIconFragment)
+
+        if(navController?.currentDestination?.id  == R.id.pickColourFragment) {
+            navController?.navigate(R.id.action_pickColourFragment_to_imageIconFragment)
+           navController?.popBackStack(R.id.pickColourFragment,true)
+
+        }
       //  imageIconFragment?.resetImage()
 
     }
 
+    override fun doQuickReColour( context: Context,
+        imageView: ImageView,
+        bgClrArray: IntArray,
+        minClrArray: IntArray,
+        maxClrArray: IntArray
+    ): Job {
+        return viewModel.quickRecolour(context, imageView,  bgClrArray, minClrArray, maxClrArray)
+    }
+
     override fun cancelPickColours() {
-        TODO("Not yet implemented")
+        navController?.navigate(R.id.action_pickColourFragment_to_imageIconFragment)
+        navController?.popBackStack(R.id.imageIconFragment,false)
+
     }
 
 

@@ -9,11 +9,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.SeekBar
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import com.drokka.emu.symicon.generateicon.R
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 
 
 class PickColourFragment : Fragment() {
@@ -22,9 +23,21 @@ class PickColourFragment : Fragment() {
         fun newInstance() = PickColourFragment()
     }
 interface Callbacks{
-    fun pickedColours(context: Context): Deferred<Unit?>
+    fun pickedColours(
+        context: Context,
+        bgClrArray: IntArray,
+        minClrArray: IntArray,
+        maxClrArray: IntArray
+    ): Deferred<Unit?>
     fun cancelPickColours()
     fun redisplayMedImage()
+    fun doQuickReColour(
+        context: Context,
+        imageView: ImageView,
+        bgClrArray: IntArray,
+        minClrArray: IntArray,
+        maxClrArray: IntArray
+    ): Job //, bgClrIntArray: IntArray, minClrIntArray: IntArray, maxClrIntArray: IntArray ): Job
 }
 
 private var callbacks:Callbacks? = null
@@ -48,6 +61,12 @@ private lateinit var minColourView: View
 private lateinit var maxColourView: View
 private lateinit var okButton: Button
 private lateinit var cancelButton: Button
+private lateinit var imageView: ImageView
+
+    private var bgClrArray = intArrayOf(0,0,0,255)
+    private var minClrArray = intArrayOf(0,0,0,255)
+    private var maxClrArray = intArrayOf(0,0,0,255)
+    private var rgbValueInt = intArrayOf(0,0,0,255)
 
 override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -63,16 +82,17 @@ override fun onCreateView(
     maxColourView = view.findViewById(R.id.viewMaxClr)
     okButton = view.findViewById(R.id.okClrButton)
     cancelButton = view.findViewById(R.id.cancelClrButton)
+    imageView = view.findViewById(R.id.pickClrImageView)
     return view
 }
 
 override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-
+    imageView.setImageBitmap(viewModel.tinyIm)
     redSeekBar.setOnSeekBarChangeListener( object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
-            viewModel.rgbValueInt[0] =i
+            rgbValueInt[0] =i
             setColourDisplay(colourDisplay)
         }
 
@@ -87,7 +107,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
     greenSeekBar.setOnSeekBarChangeListener( object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
-            viewModel.rgbValueInt[1] =i
+            rgbValueInt[1] =i
             setColourDisplay(colourDisplay)
         }
 
@@ -101,7 +121,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
     blueSeekBar.setOnSeekBarChangeListener( object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
-            viewModel.rgbValueInt[2] =i
+            rgbValueInt[2] =i
             setColourDisplay(colourDisplay)
         }
 
@@ -117,7 +137,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     maxColourView.setOnClickListener { setmaxClr(); setColourDisplay(it) }
 
     okButton.setOnClickListener{
-        val job = callbacks?.pickedColours(requireContext())
+        val job = callbacks?.pickedColours(requireContext(), bgClrArray, minClrArray, maxClrArray)
 
         job?.invokeOnCompletion{
             callbacks?.redisplayMedImage()
@@ -127,24 +147,40 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 }
 
     fun setBgClr(){
-        viewModel.rgbValueInt.forEachIndexed{ i, vv -> viewModel.bgClrInt[i] = vv}
+        rgbValueInt.forEachIndexed{ i, vv -> bgClrArray[i] = vv}
+        refreshImageView()
     }
     fun setMinClr(){
-        viewModel.rgbValueInt.forEachIndexed{ i, vv -> viewModel.minClrInt[i] = vv}
+        rgbValueInt.forEachIndexed{ i, vv -> minClrArray[i] = vv}
+        refreshImageView()
 
     }
     fun setmaxClr(){
-        viewModel.rgbValueInt.forEachIndexed{ i, vv -> viewModel.maxClrInt[i] = vv}
+        rgbValueInt.forEachIndexed{ i, vv -> maxClrArray[i] = vv}
+        refreshImageView()
+
     }
 
-fun setColourDisplay(view: View){
-    viewModel.let {
-        val intArray = viewModel.rgbValueInt
-        view.setBackgroundColor(
-            Color.argb(intArray[3],
-            intArray[0],intArray[1], intArray[2]))
-        Log.d("setColourDisplay",String.format("Called, rgb is %d %d %d" ,intArray[0], intArray[1], intArray[2] ))
-    }
+fun setColourDisplay(myview: View){
+ //   viewModel.let {
+    //    val intArray = viewModel.rgbValueInt
+        myview.setBackgroundColor(
+            Color.argb(255,
+            rgbValueInt[0],rgbValueInt[1], rgbValueInt[2]))
+    myview.invalidate()
+        Log.d("setColourDisplay",String.format("Called, rgb is %d %d %d" ,rgbValueInt[0], rgbValueInt[1], rgbValueInt[2] ))
+   // }
 }
+    fun refreshImageView(){
+            var generateJob = callbacks!!.doQuickReColour(requireContext(), imageView,  bgClrArray, minClrArray, maxClrArray)
+
+            generateJob.invokeOnCompletion {
+                imageView.invalidate()
+            }
+      //          imageView.setImageBitmap(context?.let { it1 ->
+        //            viewModel.tinyIm
+          //      })
+           // }
+    }
 
 }
