@@ -1,24 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:installLocation="preferExternal" >
+    android:installLocation="preferExternal">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+
+            <data android:scheme="png" />
+
+            <category android:name="android.intent.category.APP_FILES" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GenerateIcon"
-        android:largeHeap="true"
-        >
-      <!--  <service
+        android:theme="@style/Theme.GenerateIcon">
+
+        <!--
+          <service
             android:name="SymiService"
             android:enabled="true"
             android:exported="true" >
-        </service> -->
-         <!--
+        </service>
+        -->
+        <!--
         <receiver android:name=".not"
             android:exported="true">
             <intent-filter>
@@ -32,31 +44,44 @@
         -->
         <activity
             android:name=".MainActivity"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <!--
+provider
+            android:name=".workers.provider.WorkerFileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider
+        -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.drokka.emu.symicon"
             android:exported="false"
-            android:grantUriPermissions="true" >
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/files" />
         </provider>
-        <uses-library android:name="android.test.runner"/>
+
+        <uses-library android:name="android.test.runner" />
     </application>
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme = "png"/>
-            <category android:name="android.intent.category.APP_FILES" />
-        </intent>
-    </queries>
 
 </manifest>

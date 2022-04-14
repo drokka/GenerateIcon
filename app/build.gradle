@@ -7,6 +7,26 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('C:\\Users\\peter\\keystores\\ks1.jks')
+            storePassword 'brownbeatle1BB'
+            keyAlias 'key0'
+            keyPassword 'brownbeatle1BB'
+        }
+        release {
+            storeFile file('C:\\Users\\peter\\keystores\\ks1.jks')
+            storePassword 'brownbeatle1BB'
+            keyAlias 'key0'
+            keyPassword 'brownbeatle1BB'
+        }
+        release1 {
+            storeFile file('C:\\Users\\peter\\keystores\\androidapk.jks')
+            storePassword 'greenturtles1GT'
+            keyAlias 'symkey1'
+            keyPassword 'greenturtles1GT'
+        }
+    }
     compileSdk 31
     kotlinOptions.useIR = true
 

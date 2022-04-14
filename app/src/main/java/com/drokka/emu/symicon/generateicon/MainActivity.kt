@@ -1,15 +1,23 @@
 package com.drokka.emu.symicon.generateicon
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment.DIRECTORY_DCIM
 import android.os.PersistableBundle
+import android.provider.MediaStore
+import android.provider.MediaStore.MediaColumns.*
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.graphics.decodeBitmap
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -140,12 +148,49 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         return generateJob
     }
 
+    /*
+    private fun galleryAddPic2(imageUri:Uri, title:String) {
+
+    val bitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), imageUri)
+    val savedImageURL = MediaStore.Images.Media.insertImage(
+        requireContext().contentResolver,
+        bitmap,
+        title,
+        "Image of $title"
+    )
+    Toast.makeText(requireContext(), "Picture Added to Gallery", Toast.LENGTH_SHORT).show()
+}
+     */
     override fun onViewImageButtonSelected(generatedImage: GeneratedImage, context:Context) {
         val imPath = File(context.filesDir ,"images/")
         val imFile = File(imPath, generatedImage.iconImageFileName)
        val imageUri = FileProvider.getUriForFile(context,
             "com.drokka.emu.symicon",
            imFile)
+
+        val resolver = context.contentResolver
+        val bitmap = ImageDecoder.createSource(resolver, imageUri)
+
+        /*
+        val cvals = ContentValues().apply {
+            put(DISPLAY_NAME, generatedImage.iconImageFileName)
+            put(MIME_TYPE, "image/png")
+            put(RELATIVE_PATH, DIRECTORY_DCIM)
+            put(IS_PENDING, 1)
+        }
+        resolver.insert(imageUri,cvals)
+
+         */
+
+
+        val savedImageURL = MediaStore.Images.Media.insertImage(
+            context.contentResolver,
+            ImageDecoder.decodeBitmap(bitmap),
+            generatedImage.iconImageFileName,
+            "Image of "+ generatedImage.iconImageFileName
+        )
+
+        Toast.makeText(context, "Picture Added to Gallery ", Toast.LENGTH_SHORT).show()
 /*****************************************************************
         val intent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
@@ -159,17 +204,17 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         startActivity(Intent.createChooser(intent, null))
 **********************************************************************************/
 //NOT working at all.
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            data = imageUri   //context.getFileStreamPath(generatedImage.iconImageFileName).toUri()*/
-            type = "image/png"
-        }
-        val activityComponent = intent.resolveActivity(packageManager)
-        if ( activityComponent != null) {
-            grantUriPermission(activityComponent.packageName,intent.data, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            startActivity(intent)
-        }else{
-            Log.i("onViewImageButtonSelected","activityComponent is NULL from resolveActivity")
-        }
+ //       val intent = Intent(Intent.ACTION_SEND).apply {
+   //         data = imageUri   //context.getFileStreamPath(generatedImage.iconImageFileName).toUri()*/
+     //       type = "image/png"
+       // }
+   //     val activityComponent = intent.resolveActivity(packageManager)
+     //   if ( activityComponent != null) {
+       //     grantUriPermission(activityComponent.packageName,intent.data, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+         //   startActivity(intent)
+  //      }else{
+    //        Log.i("onViewImageButtonSelected","activityComponent is NULL from resolveActivity")
+      //  }
 
 
     }

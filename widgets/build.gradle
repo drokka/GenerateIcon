@@ -6,6 +6,14 @@ plugins {
 apply plugin: 'kotlin-android'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\peter\\keystores\\ks1.jks')
+            storePassword 'brownbeatle1BB'
+            keyAlias 'key0'
+            keyPassword 'brownbeatle1BB'
+        }
+    }
     compileSdkVersion 31
     kotlinOptions.useIR = true
 

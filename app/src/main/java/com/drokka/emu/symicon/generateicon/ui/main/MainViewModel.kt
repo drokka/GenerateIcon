@@ -30,7 +30,7 @@ class MainViewModel() : ViewModel() {
 
     }
 
-    private var imagesDirPath: File = File("")
+
 
     /***********************************************************
     var mBound = false
@@ -87,12 +87,12 @@ class MainViewModel() : ViewModel() {
     var rgbValueInt:IntArray = intArrayOf(0,0,0,255) // red, blue, green, opacity
 
     var bgClrInt:IntArray = intArrayOf(0,0,0,255)
-    var minClrInt:IntArray = intArrayOf(0,0,0,255)
-    var maxClrInt:IntArray = intArrayOf(0,0,0,255)
+    var minClrInt:IntArray = intArrayOf(0,127,0,255)
+    var maxClrInt:IntArray = intArrayOf(127,255,127,255)
 
-    var bgClr = doubleArrayOf(0.0,0.0,0.0,0.0)
-    var minClr = doubleArrayOf(0.9,0.6,0.1, 0.0)
-    var maxClr = doubleArrayOf(0.1, 0.9, 0.99, 0.0)
+    var bgClr = doubleArrayOf(0.0,0.0,0.0,1.0)
+    var minClr = doubleArrayOf(0.0,0.5,0.0, 1.0)
+    var maxClr = doubleArrayOf(0.5, 0.999, 0.5, 1.0)
     var generatedTinyIAD:GeneratedIconAndImageData? = null
     var generatedTinyImage:GeneratedImage? = null
     var tinyIm:Bitmap? = null
@@ -402,7 +402,7 @@ class MainViewModel() : ViewModel() {
        if (!runRequired) return CoroutineScope(Dispatchers.Main).async{/* do nothing*/}
         /*viewModelScope.launch(Dispatchers.Unconfined) ***/
 
-           imagesDirPath = File(context.getFilesDir(), "images")
+             val imagesDirPath = File(context.getFilesDir(), "images")
             Log.i(TAG, "dirPath is:" + imagesDirPath.toString())
             imagesDirPath.mkdirs()
             val date = Date().time.toString()
@@ -466,7 +466,7 @@ class MainViewModel() : ViewModel() {
                oStream.flush(); oStream.close()
 
                if (outputData?.pngBufferLen!! > 0) {
-                   saveImage(outputData!!, size,date+".png")
+                   saveImage(context, outputData!!, size,date+".png")
  /*               //   generatedImage.byteArray =
                  //      ByteArray(outputData!!.pngBufferLen) { i: Int -> (outputData!!.pngBuffer[i]) }
                    generatedImage.len = outputData!!.pngBufferLen
@@ -525,7 +525,7 @@ class MainViewModel() : ViewModel() {
         return  generateJob
         }
 
-fun saveImage(outputData: OutputData, size:Int, imFileSuffix:String){
+fun saveImage(context: Context, outputData: OutputData, size:Int, imFileSuffix:String){
     if (outputData.pngBufferLen > 0) {
         //   generatedImage.byteArray =
         //      ByteArray(outputData!!.pngBufferLen) { i: Int -> (outputData!!.pngBuffer[i]) }
@@ -533,6 +533,9 @@ fun saveImage(outputData: OutputData, size:Int, imFileSuffix:String){
         imCounter++
         generatedImage.iconImageFileName = "symimage_" + imCounter.toString() +"_" + imFileSuffix
         try {
+            val imagesDirPath = File(context.getFilesDir(), "images")
+            Log.i("saveImage", "dirPath is:" + imagesDirPath.toString())
+            imagesDirPath.mkdirs()
             val imFile = File(imagesDirPath, generatedImage.iconImageFileName)
             val pngStream = FileOutputStream(imFile)
             val image = BitmapFactory.decodeByteArray(outputData.pngBuffer, 0, outputData.pngBufferLen) // generatedImage.getBitmap()
@@ -566,13 +569,16 @@ fun saveImage(outputData: OutputData, size:Int, imFileSuffix:String){
     when(symi.width ){
         TINY ->  {Log.i("runSymiExample","assigning TINYs")
             generatedTinyIAD =  GeneratedIconAndImageData( generatedIcon, generatedImageData)
-            generatedTinyImage = generatedImage}
+            generatedTinyImage = generatedImage
+          //  saveTinySymi()
+        }
         MEDIUM -> {
             generatedMedIAD =
                 GeneratedIconAndImageData(generatedIcon, generatedImageData)
             generatedMedImage = generatedImage
 
             medSymDataString = outputData.savedData
+         //   saveSymi()
         }
     }
 
@@ -629,7 +635,7 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         minClr = convItoD(minClrInt)
         maxClr = convItoD((maxClrInt))
 
-        return doReColour(null, MEDIUM, symDataStr, bgClrArray,minClrArray,maxClrArray)
+        return doReColour(context, null,MEDIUM, symDataStr, bgClrArray,minClrArray,maxClrArray)
     }
 
     fun quickRecolour(context: Context, imageView: ImageView?,bgClrArray: IntArray,
@@ -638,10 +644,10 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         if (symDataStr == "") {
             symDataStr = generatedTinyImage?.getGeneratedData(context)
         }
-        return doReColour(imageView, TINY, symDataStr, bgClrArray, minClrArray, maxClrArray)
+        return doReColour(context, imageView, TINY, symDataStr, bgClrArray, minClrArray, maxClrArray)
     }
 
-    fun doReColour(
+    fun doReColour(context: Context,
      imageView: ImageView?, sz:Int,symDataStr: String?, bgClrArray: IntArray,
      minClrArray: IntArray, maxClrArray: IntArray): Deferred<Unit?> {
 
@@ -660,7 +666,7 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
                 val date = Date().time.toString()
 
                 if (outputData != null && imageView==null) { // doing MEDIUM or LARGE
-                    saveImage(outputData,sz, date+".png")
+                    saveImage(context, outputData,sz, date+".png")
                 }
                 else{ //quick recolour for display only
                         val image = outputData?.let {

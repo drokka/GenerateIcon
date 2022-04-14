@@ -88,6 +88,7 @@ override fun onCreateView(
 
 override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    setColourDisplay(colourDisplay)
 
     imageView.setImageBitmap(viewModel.tinyIm)
     redSeekBar.setOnSeekBarChangeListener( object : SeekBar.OnSeekBarChangeListener {

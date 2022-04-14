@@ -64,7 +64,7 @@ class ImageIconFragment() : Fragment() {
 private lateinit var viewImage:Button
 
     private lateinit var saveImageDataButton: Button
-    private lateinit var goBigButton:Button
+ //   private lateinit var goBigButton:Button
     private lateinit var reColourButton:Button
 
     override fun onCreateView(
@@ -74,7 +74,7 @@ private lateinit var viewImage:Button
         val view = inflater.inflate(R.layout.image_icon_fragment, container, false)
         viewImage = view.findViewById(R.id.viewImageButton)
         saveImageDataButton = view.findViewById(R.id.saveImageDataButton)
-        goBigButton = view.findViewById(R.id.goBigButton)
+     //   goBigButton = view.findViewById(R.id.goBigButton)
         reColourButton = view.findViewById(R.id.reColourButton)
         return view
     }
@@ -111,7 +111,7 @@ private lateinit var viewImage:Button
 
         }
         //Generate LARGE symi for the definition
-        goBigButton.setOnClickListener {
+  /*      goBigButton.setOnClickListener {
             //Do wait UI
             val job = callbacks?.generateLargeIcon(requireContext())
 
@@ -119,6 +119,8 @@ private lateinit var viewImage:Button
                 callbacks?.showBigImage()
             }
         }
+
+   */
 
         reColourButton.setOnClickListener {
             callbacks?.reColour()
@@ -138,6 +140,7 @@ private lateinit var viewImage:Button
             callbacks?.onViewImageButtonSelected(generatedImage,context)
         }
     }
+
 
 /***
     override fun onCreate(savedInstanceState: Bundle?) {
