@@ -20,11 +20,11 @@ class SymIconListFragment : Fragment() {
 
     interface Callbacks{
         fun onSymIconItemSelected(generatedImageAndImageData: GeneratedIconWithAllImageData)
+        fun deleteSymIcon(context: Context, generatedIconWithAllImageData: GeneratedIconWithAllImageData)
     }
 
     private var callbacks:Callbacks? = null
 
-  //  private lateinit var viewModel :SymIconListViewModel
     private var columnCount = 1
 
     private lateinit var viewAdapter :SymIconRecyclerViewAdapter
@@ -45,8 +45,6 @@ class SymIconListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-     //   viewModel = ViewModelProvider(MainActivity).get(SymIconListViewModel::class.java)
-        //viewModel.liveList.observeForever {  }
         arguments?.let {
             columnCount = it.getInt(ARG_COLUMN_COUNT)
         }

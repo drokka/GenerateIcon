@@ -235,6 +235,14 @@ class SymiRepo   private constructor(context: Context) {
 
     }
 
+    fun deleteSymIcon(context: Context, generatedIconWithAllImageData: GeneratedIconWithAllImageData) {
+            symiDao.deleteSymIcon(context,generatedIconWithAllImageData)
+    }
+
+    fun addGeneratedImageData(generatedImageData: GeneratedImageData) {
+        symiDao.addGeneratedImageData(generatedImageData)
+    }
+
 
     //---------------------------------------------------------
         companion object {

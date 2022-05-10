@@ -5,58 +5,76 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_blue_50"
+    android:background="@color/material_dynamic_neutral_variant99"
     tools:context=".ui.main.MainFragment">
 
-    <com.drokka.emu.widgets.FloatInView
+    <!--com.drokka.emu.widgets.FloatInView -->
+    <com.google.android.material.slider.Slider
         android:id="@+id/editTextMa"
         android:layout_width="180dp"
         android:layout_height="51dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="10dp"
+        android:valueFrom="0.0"
+        android:valueTo="1.0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextOmega"
-        app:parameterName="ma" />
+        app:parameterName="ma"
+        app:thumbRadius="6dp"
+        app:thumbStrokeColor="@color/design_default_color_primary_variant"
+        app:thumbStrokeWidth="2dp"/>
 
-    <com.drokka.emu.widgets.FloatInView
+    <com.google.android.material.slider.Slider
         android:id="@+id/editTextOmega"
         android:layout_width="180dp"
         android:layout_height="51dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="10dp"
+        android:valueFrom="0.0"
+        android:valueTo="1.0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextGamma"
-        app:parameterName="omega" />
+        app:parameterName="omega"
+        app:thumbRadius="2dp" />
 
-    <com.drokka.emu.widgets.FloatInView
+    <com.google.android.material.slider.Slider
         android:id="@+id/editTextGamma"
         android:layout_width="180dp"
         android:layout_height="51dp"
         android:layout_marginTop="28dp"
         android:layout_marginEnd="10dp"
+        android:valueFrom="0.0"
+        android:valueTo="1.0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:parameterName="gamma" />
+        app:parameterName="gamma"
+        app:thumbRadius="2dp" />
 
-    <com.drokka.emu.widgets.FloatInView
+    <com.google.android.material.slider.Slider
         android:id="@+id/editTextAlpha"
         android:layout_width="180dp"
         android:layout_height="51dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="50dp"
+        android:valueFrom="0.0"
+        android:valueTo="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextLamda"
-        app:parameterName="alpha" />
+        app:parameterName="alpha"
+        app:thumbRadius="2dp" />
 
-    <com.drokka.emu.widgets.FloatInView
+    <com.google.android.material.slider.Slider
         android:id="@+id/editTextBeta"
         android:layout_width="180dp"
         android:layout_height="51dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="50dp"
+        android:valueFrom="0.0"
+        android:valueTo="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextAlpha"
-        app:parameterName="beta" />
+        app:parameterName="beta"
+        app:thumbRadius="2dp" />
 
     <EditText
         android:id="@+id/editSize"
@@ -103,15 +121,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider" />
 
-    <com.drokka.emu.widgets.FloatInView
+    <com.google.android.material.slider.Slider
         android:id="@+id/editTextLamda"
         android:layout_width="180dp"
         android:layout_height="51dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="28dp"
+        android:valueFrom="0.0"
+        android:valueTo="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:parameterName="lambda" />
+        app:parameterName="lambda"
+        app:thumbRadius="2dp" />
 
     <View
         android:id="@+id/divider2"
@@ -173,15 +194,15 @@
         android:indeterminate="true"
         android:progressTint="@color/purple_700"
         android:visibility="gone"
-        tools:visibility="visible" />
+        tools:visibility="invisible" />
 
     <EditText
         android:id="@+id/editTextDegSym"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="number"
         android:hint="3"
+        android:inputType="number"
         app:layout_constraintBottom_toTopOf="@+id/imageButtonQuickDraw"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -40,7 +40,6 @@ class ImageIconFragment() : Fragment() {
 
     interface Callbacks {
         fun onViewImageButtonSelected(generatedImage: GeneratedImage, context: Context)
-        fun onSaveImageDataButtonSelected(button: Button)
         fun generateLargeIcon(requireContext: Context):Deferred<Unit>
         fun showBigImage()
         fun reColour()
@@ -73,7 +72,7 @@ private lateinit var viewImage:Button
     ): View {
         val view = inflater.inflate(R.layout.image_icon_fragment, container, false)
         viewImage = view.findViewById(R.id.viewImageButton)
-        saveImageDataButton = view.findViewById(R.id.saveImageDataButton)
+      //  saveImageDataButton = view.findViewById(R.id.saveImageDataButton)
      //   goBigButton = view.findViewById(R.id.goBigButton)
         reColourButton = view.findViewById(R.id.reColourButton)
         return view
@@ -105,11 +104,11 @@ private lateinit var viewImage:Button
                 displayImageIconView.setImageBitmap(bitmap)
                 viewImage.setOnClickListener { viewImageFun(viewModel.generatedMedImage!!, context) }
             }
-        saveImageDataButton.setOnClickListener {
+//        saveImageDataButton.setOnClickListener {
+//
+  //              callbacks?.onSaveImageDataButtonSelected(it as Button)
 
-                callbacks?.onSaveImageDataButtonSelected(it as Button)
-
-        }
+    //    }
         //Generate LARGE symi for the definition
   /*      goBigButton.setOnClickListener {
             //Do wait UI

@@ -1,18 +1,28 @@
 package com.drokka.emu.symicon.generateicon.ui.main
 
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
+import android.os.storage.StorageManager
+import android.os.storage.StorageManager.ACTION_MANAGE_STORAGE
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.NonNull
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.getSystemService
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import com.drokka.emu.symicon.generateicon.R
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.widgets.FloatInView
+import com.google.android.material.slider.Slider
 import kotlinx.coroutines.*
+import java.util.*
 
 class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon type spinner*/ {
 
@@ -37,12 +47,12 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
 
     private lateinit var sizeText: EditText
 
-    private lateinit var lambdaText: FloatInView
-    private lateinit var alphaText: FloatInView
-    private lateinit var betaText: FloatInView
-    private lateinit var gammaText: FloatInView
-    private lateinit var omegaText: FloatInView
-    private lateinit var maText: FloatInView
+    private lateinit var lambdaText:Slider // FloatInView
+    private lateinit var alphaText:Slider // FloatInView
+    private lateinit var betaText:Slider // FloatInView
+    private lateinit var gammaText:Slider // FloatInView
+    private lateinit var omegaText:Slider // FloatInView
+    private lateinit var maText: Slider //SeekBar //FloatInView
     private lateinit var degSymText: EditText
 
     private lateinit var quickDrawImageButton: ImageButton
@@ -142,6 +152,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
             // can't sleep prevents UI thread showing busy.
             // FIX this generated image will be null now
             job?.invokeOnCompletion {
+                viewModel.saveSymi()
                 displayImageIcon()
             }
 
@@ -164,20 +175,67 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
             iterTextView.doAfterTextChanged{  viewModel.setNumIterations(iterTextView.text)          }
 
         sizeText.doAfterTextChanged{  viewModel.setSize(sizeText.text)}
-        lambdaText.onSelectedValueChanged = {oldie,newie ->   viewModel.setLambda(newie)
+  /*      lambdaText.onSelectedValueChanged = {oldie,newie ->   viewModel.setLambda(newie)
         doQuickDraw()}
 
         alphaText.onSelectedValueChanged = {oldie,newie -> viewModel.setAlpha(newie);doQuickDraw()}
         betaText.onSelectedValueChanged = {oldie,newie -> viewModel.setBeta(newie);doQuickDraw()}
         gammaText.onSelectedValueChanged = {oldie,newie -> viewModel.setGamma(newie);doQuickDraw()}
         omegaText.onSelectedValueChanged = {oldie,newie -> viewModel.setOmega(newie);doQuickDraw()}
-        maText.onSelectedValueChanged = {oldie,newie -> viewModel.setMa(newie);doQuickDraw()}
+
+  */
+     //   maText.onSelectedValueChanged = {oldie,newie -> viewModel.setMa(newie);doQuickDraw()}
+        maText.addOnChangeListener { slider, value, fromUser ->
+            viewModel.setMa(value.toDouble())
+            doQuickDraw()
+        }
+        lambdaText.addOnChangeListener { slider, value, fromUser ->
+            viewModel.setLambda(value.toDouble())
+            doQuickDraw()
+        }
+        alphaText.addOnChangeListener { slider, value, fromUser ->
+            viewModel.setAlpha(value.toDouble())
+            doQuickDraw()
+        }
+        betaText.addOnChangeListener { slider, value, fromUser ->
+            viewModel.setBeta(value.toDouble())
+            doQuickDraw()
+        }
+        gammaText.addOnChangeListener { slider, value, fromUser ->
+            viewModel.setGamma(value.toDouble())
+            doQuickDraw()
+        }
+        omegaText.addOnChangeListener { slider, value, fromUser ->
+            viewModel.setOmega(value.toDouble())
+            doQuickDraw()
+        }
+
+        /*
+        maText.onChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                    viewModel.setMa(i.toDouble()/maText.max)
+                    doQuickDraw()
+                }
+
+                override fun onStartTrackingTouch(p0: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(p0: SeekBar?) {
+                }
+            }
+        )
+
+         */
+
 
         degSymText.doAfterTextChanged { viewModel.setDegSym(degSymText.text);doQuickDraw()}
 
         //  retainInstance = true
       //  restoreState(savedInstanceState)
         //imageButton.setImageDrawable(drawable)
+
+        checkStorage()
     }
 
 
@@ -197,7 +255,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
-        TODO("Not yet implemented")
+       // TODO("Not yet implemented")
     }
 
     /******
@@ -239,18 +297,19 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
 
     fun setWidgetValues() {
         // use the view model
-        omegaText.selectedValue =
-            viewModel.iconDef.omega
-        alphaText.selectedValue =
-            viewModel.iconDef.alpha
-        betaText.selectedValue =
-            viewModel.iconDef.beta
-        gammaText.selectedValue =
-            viewModel.iconDef.gamma
-        lambdaText.selectedValue =
-            viewModel.iconDef.lambda
-        maText.selectedValue =
-            viewModel.iconDef.ma
+        omegaText.value =
+            viewModel.iconDef.omega.toFloat()
+        alphaText.value =
+            viewModel.iconDef.alpha.toFloat()
+        betaText.value =
+            viewModel.iconDef.beta.toFloat()
+        gammaText.value =
+            viewModel.iconDef.gamma.toFloat()
+        lambdaText.value =
+            viewModel.iconDef.lambda.toFloat()
+        maText.value = viewModel.iconDef.ma.toFloat()
+      //  maText.setProgress((viewModel.iconDef.ma * maText.max).toInt())
+
         val iconLabel = viewModel.iconDef.quiltType
 
         when (iconLabel) {
@@ -260,6 +319,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
             else -> selectTypeSpinner.setSelection(0)
         }
         degSymText.setText( ""+viewModel.iconDef.degreeSym)
+
     }
 
     fun setBusy(boolean: Boolean){
@@ -270,28 +330,77 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
     }
 fun restoreState(savedInstanceState: Bundle?) {
     if (savedInstanceState == null) {
+        viewModel.isLoading = true
         setWidgetValues()
+        viewModel.isLoading = false
     } else {
 
         var savedVal = savedInstanceState?.getDouble("alpha")?.toFloat()
-        alphaText.selectedValue = savedVal.toDouble()
+        alphaText.value = savedVal
 
         savedVal = savedInstanceState?.getDouble("omega")?.toFloat()
-        omegaText.selectedValue = savedVal.toDouble()
+        omegaText.value = savedVal
 
         savedVal = savedInstanceState?.getDouble("gamma")?.toFloat()
-        gammaText.selectedValue = savedVal.toDouble()
+        gammaText.value = savedVal
         savedVal = savedInstanceState?.getDouble("lambda")?.toFloat()
-        lambdaText.selectedValue = savedVal.toDouble()
+        lambdaText.value = savedVal
         savedVal = savedInstanceState?.getDouble("ma")?.toFloat()
-        maText.selectedValue = savedVal.toDouble()
+        maText.value = savedVal
+      //  maText.setProgress((savedVal * maText.max).toInt())
         savedVal = savedInstanceState?.getDouble("beta")?.toFloat()
-        betaText.selectedValue = savedVal.toDouble()
+        betaText.value = savedVal
         var savedIntVal = savedInstanceState.getInt("degreeSym",3)
         degSymText.setText(savedIntVal)
+
     }
 }
+
+    // App needs 10 MB within internal storage.
+    fun checkStorage() {
+        if(viewModel.storageCheckDone) return
+        val NUM_BYTES_NEEDED_FOR_MY_APP = 1024 * 1024 * 30L;
+
+        context?.let {
+            val storageManager = it.getSystemService<StorageManager>()!!
+            val appSpecificInternalDirUuid: UUID = storageManager.getUuidForPath(it.filesDir)
+            val availableBytes: Long =
+                storageManager.getAllocatableBytes(appSpecificInternalDirUuid)
+            if (availableBytes >= NUM_BYTES_NEEDED_FOR_MY_APP) {
+                storageManager.allocateBytes(
+                    appSpecificInternalDirUuid, NUM_BYTES_NEEDED_FOR_MY_APP
+                )
+            } else {
+
+                val builder = AlertDialog.Builder(it)
+                builder.setMessage("Run storage manager?")
+                    .setTitle("App needs more data storage")
+                builder.setPositiveButton(
+                    "Yes",
+                    DialogInterface.OnClickListener { dialog, which ->
+                        Log.d("storage", "yes storage manager")
+                        val storageIntent = Intent().apply {
+                            // To request that the user remove all app cache files instead, set
+                            // "action" to ACTION_CLEAR_APP_CACHE.
+                            action = ACTION_MANAGE_STORAGE
+                        }.also {
+                            startActivity(it)
+                        }
+                 })
+                    .setNegativeButton("No", DialogInterface.OnClickListener { dialog, id ->
+                        Log.d("storage", "no do not run storage manager")
+                        // do nothing
+                    })
+                builder.create()
+                builder.show()
+
+
+            }
+        }
+        viewModel.storageCheckDone = true
     }
+
+}
 
 
 

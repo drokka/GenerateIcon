@@ -99,16 +99,16 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             if(viewModel.generatedTinyIAD == null) {
                 deferredJob = viewModel.runSymiExample(context, TINY, QUICK_LOOK)
 
-                deferredJob.invokeOnCompletion { viewModel.saveTinySymi() }
+                deferredJob!!.invokeOnCompletion { viewModel.saveTinySymi(context) }
             }else{
-                viewModel.saveTinySymi()
+                viewModel.saveTinySymi(context)
             }
 
             deferredJob =     viewModel.runSymiExample(context, MEDIUM, GO_GO)
         return deferredJob
     }
 
-    override fun generateLargeIcon(context: Context):Deferred<Unit> {
+    override fun generateLargeIcon(context: Context): Deferred<Unit> {
         var deferredJob = viewModel.runSymiExample(context, LARGE, GO_GO_GO)
         return deferredJob
     }
@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     override fun doQuickDraw(context: Context): Job {
-        val generateJob =  viewModel.runSymiExample(context, TINY, QUICK_LOOK)
+        val generateJob =  viewModel.runSymiExample(context, TINY, QUICK_LOOK, true)
 
         return generateJob
     }
@@ -249,49 +249,6 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     }
 
-    //ImageIconFragment callback
-    override fun onSaveImageDataButtonSelected(button: Button) {
-        button.isEnabled = false
-        //  it.setBackgroundColor()
-                 viewModel.saveSymi()
-         button.isEnabled = true
-    }
-
-    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-  /***** NO need already added to back stack      if(mainFragment != null) {
-            supportFragmentManager.putFragment(outState, "mainFragment", mainFragment!!)
-        }
-        if(wrapListFragment != null){
-            supportFragmentManager.putFragment(outState, "wrapListFragment", wrapListFragment!!)
-        }
-
-        if(imageIconFragment != null){
-            supportFragmentManager.putFragment(outState, "imageIconFragment",imageIconFragment!!)
-        }
-        if(symiListFragment!= null){
-            supportFragmentManager.putFragment(outState, "symiListFragment", symiListFragment!!)
-        }
-  ***/
-        super.onSaveInstanceState(outState, outPersistentState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
- /**       if(symIconList.value.isNullOrEmpty()) {
-            val fragment = supportFragmentManager.getFragment(savedInstanceState, "mainFragment")
-            if (fragment != null) {
-                mainFragment = fragment as MainFragment
-            }
-        }else{ *************/
-
- /***
-            val fragment = supportFragmentManager.getFragment(savedInstanceState, "wrapListFragment")
-            if(fragment != null){
-                wrapListFragment = fragment as WrapListFragment
-            }********************/
-     //   }
-    }
-//lateinit var listObserver:Observer<List<GeneratedIconAndImageData>>
  lateinit var   symImageListAllObserver:Observer<List<GeneratedIconWithAllImageData>>
 
  override fun onCreate(savedInstanceState: Bundle?) {
@@ -381,6 +338,12 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         *****************************/
     }
 
+    override fun deleteSymIcon(context: Context, generatedIconWithAllImageData: GeneratedIconWithAllImageData) {
+        Log.d("MainActivity", "deleteSymIcon called")
+        viewModel.deleteSymiData(context , generatedIconWithAllImageData)
+      //  wrapListFragment.
+    }
+
     enum class CurrentFragmet(val fragment:String){
         WRAP_LIST("wrap_list"),MAIN_EDIT("main"), BLANK("blank")
             ,ICON_DISPLAY("icon")
@@ -389,7 +352,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     override fun onCloseMe() {
 
             navController?.navigate(/*R.id.action_mainActivityFragment_to_editSymiFragment*/  R.id.action_mainActivityFragment_to_wrapListFragment)
-            }
+         //   navController?.popBackStack(R.id.mainActivityFragment, true)
+    }
 
     override fun onDestinationChanged(
         controller: NavController,
@@ -417,6 +381,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         return deferredJob
     }
 
+    //OK to change colour
     override fun redisplayMedImage() {
         if(imageIconFragment == null){
             imageIconFragment = ImageIconFragment.newInstance()
@@ -427,8 +392,6 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
            navController?.popBackStack(R.id.pickColourFragment,true)
 
         }
-      //  imageIconFragment?.resetImage()
-
     }
 
     override fun doQuickReColour( context: Context,

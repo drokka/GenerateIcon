@@ -21,7 +21,7 @@ const val XLARGE =2001
 
 const val QUICK_LOOK = 40000
 const val GO        = 100000
-const val GO_GO     = 1000000
+const val GO_GO     = 500000
 const val GO_GO_GO  = 5000000
 
 //@Entity(primaryKeys = ["lambda","alpha","beta","gamma","omega","ma","quiltType"])

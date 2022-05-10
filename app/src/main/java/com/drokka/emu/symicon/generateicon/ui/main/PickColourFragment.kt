@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.SeekBar
+import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import com.drokka.emu.symicon.generateicon.R
 import kotlinx.coroutines.Deferred
@@ -63,6 +64,10 @@ private lateinit var okButton: Button
 private lateinit var cancelButton: Button
 private lateinit var imageView: ImageView
 
+private lateinit var textView3:TextView
+    private lateinit var textView4:TextView
+    private lateinit var textView5:TextView
+
     private var bgClrArray = intArrayOf(0,0,0,255)
     private var minClrArray = intArrayOf(0,0,0,255)
     private var maxClrArray = intArrayOf(0,0,0,255)
@@ -83,6 +88,10 @@ override fun onCreateView(
     okButton = view.findViewById(R.id.okClrButton)
     cancelButton = view.findViewById(R.id.cancelClrButton)
     imageView = view.findViewById(R.id.pickClrImageView)
+
+    textView3 = view.findViewById(R.id.textView3)
+    textView4 = view.findViewById(R.id.textView4)
+    textView5 = view.findViewById(R.id.textView5)
     return view
 }
 
@@ -134,13 +143,21 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     }
     )
     bgColourView.setOnClickListener {setBgClr(); setColourDisplay(it) }
+    textView3.setOnClickListener {setBgClr(); setColourDisplay(bgColourView) }
+
     minColourView.setOnClickListener { setMinClr(); setColourDisplay(it) }
+    textView4.setOnClickListener { setMinClr(); setColourDisplay(minColourView) }
+
     maxColourView.setOnClickListener { setmaxClr(); setColourDisplay(it) }
+    textView5.setOnClickListener { setmaxClr(); setColourDisplay(maxColourView) }
+
 
     okButton.setOnClickListener{
         val job = callbacks?.pickedColours(requireContext(), bgClrArray, minClrArray, maxClrArray)
 
         job?.invokeOnCompletion{
+
+            viewModel.saveMedSymImage(context)
             callbacks?.redisplayMedImage()
         }
     }

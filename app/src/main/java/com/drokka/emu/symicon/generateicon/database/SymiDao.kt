@@ -1,5 +1,7 @@
 package com.drokka.emu.symicon.generateicon.database
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -9,6 +11,7 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.ui.main.MainViewModel
 import org.junit.Assert
+import java.io.File
 import java.util.*
 
 @Dao
@@ -236,6 +239,7 @@ interface SymiDao {
     @Insert //(onConflict= OnConflictStrategy.REPLACE)
     fun addGeneratedImageData(generatedImage: GeneratedImageData)
 
+    @SuppressLint("SuspiciousIndentation")
     @Transaction
     fun addGeneratedIconAndImageData(iconDef: IconDef,symIcon: SymIcon,generatorDef: GeneratorDef,
                                      genIconAndData:GeneratedIconAndImageData){
@@ -291,9 +295,9 @@ interface SymiDao {
         }
 
             genIconAndData.generatedImageData?.let {
-                 it.gen_icon_id = genIconAndData?.generatedIcon.id
+                it.gen_icon_id = genIconAndData?.generatedIcon.id
                 genImDataId = getGeneratedImageDataId(it.gen_icon_id)
-                if (genImDataId == null) {
+               if (genImDataId == null) {
                     Log.d(logTag, "adding gen image data. gen_icon_id = " +it.gen_icon_id +
                     "image data id = " + it.gid_id +"data length = " + it.len.toString())
                     it.gid_id = UUID.randomUUID()
@@ -368,7 +372,73 @@ interface SymiDao {
     @Query("select * from GeneratorDef where gen_def_id = (:id)")
     fun getGenDef(id: UUID):GeneratorDef
 
+    @Query("select gen_def_id from GeneratorDef where sym_icon_id = (:id)")
+    fun getGenDefList(id: UUID):List<UUID>
+
     @Query("select iconImageFileName from GeneratedImageData where gid_id = (:gidId)")
     fun getSymiImageFileName(gidId: UUID): String?
+
+    @Delete
+    fun deleteGeneratedImageData(generatedImageData: GeneratedImageData)
+
+    @Query("delete from SymIcon where sym_icon_id = (:id)")
+    fun deleteSymIconDef(id: UUID)
+
+    @Query("delete from GeneratorDef where gen_def_id = (:id)")
+    fun deleteGenDef(id: UUID)
+
+    @Query("select * from GeneratedIcon where gen_def_id = (:id)")
+    fun getGeneratedIconList(id: UUID):List<GeneratedIcon>
+
+    @Delete
+    fun deleteGeneratedIcon(generatedIcon: GeneratedIcon)
+
+    @Query("select * from GeneratedImageData where gen_icon_id = (:id)")
+    fun getGeneratedImageDataList(id: UUID):List<GeneratedImageData>
+
+    @Query("delete from IconDef where icon_def_id = (:id)")
+    fun deleteIconDef(id: UUID)
+
+    @Transaction
+    fun deleteSymIcon(context: Context, generatedIconWithAllImageData: GeneratedIconWithAllImageData){
+
+        for ( symIconId in getSymIconList(generatedIconWithAllImageData.iconDefId)){
+            for(genDefId in getGenDefList(symIconId)){
+                for (genIcon in getGeneratedIconList(genDefId)) {
+                       // delete file genIcon.generatedDataFileName
+                    val dataFile = File(context.filesDir, genIcon.generatedDataFileName)
+                    dataFile.delete()
+
+                    for (genImageData in getGeneratedImageDataList(genIcon.id)){
+                       // delete  genImageData.iconImageFileName
+                        val imagesDirPath = File(context.filesDir, "images")
+                        val imFile = File(imagesDirPath, genImageData.iconImageFileName)
+                        imFile.delete()
+
+                        deleteGeneratedImageData(genImageData)
+                    }
+
+                    deleteGeneratedIcon(genIcon)
+                }
+                deleteGenDef(genDefId)
+            }
+            deleteSymIconDef(symIconId)
+        }
+
+        deleteIconDef(generatedIconWithAllImageData.iconDefId)
+
+
+         /*   iconDefId
+        var symIconId:UUID?
+        var genDefId:UUID?
+        var genIconId:UUID?
+        var genImDataId:UUID?
+
+          */
+    }
+
+    @Query("select sym_icon_id from SymIcon where icon_def_id = (:iconDefId)")
+    fun getSymIconList(iconDefId: UUID): List<UUID>
+
 
 }
