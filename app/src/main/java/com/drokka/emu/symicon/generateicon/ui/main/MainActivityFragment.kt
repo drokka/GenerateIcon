@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
+
 import com.drokka.emu.symicon.generateicon.R
 
 
@@ -29,13 +30,14 @@ class MainActivityFragment : Fragment() {
     private var param2: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
 
-        val inflater = TransitionInflater.from(requireContext())
+       val inflater = TransitionInflater.from(requireContext())
         exitTransition = inflater.inflateTransition(R.transition.fade)
 
     }
@@ -66,10 +68,16 @@ class MainActivityFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
        // runBlocking { delay(22000) }
        // callbacks?.onCloseMe()
+       counter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
         counter()
     }
 
-    fun counter() {
+    private fun counter() {
         object : CountDownTimer(2000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
 

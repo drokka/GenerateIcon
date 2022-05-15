@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Theme.App.Starting"
     android:id="@+id/main_activity_container"
     tools:context=".ui.main.MainActivityFragment">
 
@@ -11,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/imageButton2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

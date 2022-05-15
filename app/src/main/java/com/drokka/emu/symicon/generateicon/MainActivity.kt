@@ -8,6 +8,8 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment.DIRECTORY_DCIM
+import android.os.Handler
+import android.os.Looper
 import android.os.PersistableBundle
 import android.provider.MediaStore
 import android.provider.MediaStore.MediaColumns.*
@@ -18,6 +20,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.graphics.decodeBitmap
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -61,6 +64,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     /*********************/
 
     override fun onAttachedToWindow() {
+
+
         super.onAttachedToWindow()
         navController = findNavController(R.id.fragmentContainerView)
     }
@@ -191,32 +196,6 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         )
 
         Toast.makeText(context, "Picture Added to Gallery ", Toast.LENGTH_SHORT).show()
-/*****************************************************************
-        val intent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-          //  data = imageUri
-          //  putExtra(Intent.ACTION_ATTACH_DATA, imageUri)
-            putExtra(Intent.EXTRA_STREAM, imageUri)
-
-          //        flags += FLAG_GRANT_READ_URI_PERMISSION
-            type = "image/png"
-        }
-        startActivity(Intent.createChooser(intent, null))
-**********************************************************************************/
-//NOT working at all.
- //       val intent = Intent(Intent.ACTION_SEND).apply {
-   //         data = imageUri   //context.getFileStreamPath(generatedImage.iconImageFileName).toUri()*/
-     //       type = "image/png"
-       // }
-   //     val activityComponent = intent.resolveActivity(packageManager)
-     //   if ( activityComponent != null) {
-       //     grantUriPermission(activityComponent.packageName,intent.data, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-         //   startActivity(intent)
-  //      }else{
-    //        Log.i("onViewImageButtonSelected","activityComponent is NULL from resolveActivity")
-      //  }
-
-
     }
 
     override fun onFloatingActionButtonClicked() {
@@ -250,9 +229,14 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
  lateinit var   symImageListAllObserver:Observer<List<GeneratedIconWithAllImageData>>
+//var keepSplashOnScreen = true
+  //  val splashDelay = 500L
 
  override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    // setTheme(R.style.Theme_App_Starting)
+     // Handle the splash screen transition.
+  //   val splashScreen = installSplashScreen()
+     super.onCreate(savedInstanceState)
         SymiRepo.initialize(applicationContext)
        // symiRepo = SymiRepo.get()
      //   symIconList = symiRepo.getAllSymIconData()  //symiRepo.getSymIconDataList(TINY)
@@ -262,6 +246,10 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
   //      recyclerViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)
    //         .get(SymIconListViewModel::class.java)
 
+  //   Handler(Looper.getMainLooper()).postDelayed({ keepSplashOnScreen = false }, splashDelay)
+  //   splashScreen.setKeepOnScreenCondition{
+   //      keepSplashOnScreen
+   //  }
         setContentView(R.layout.main_activity)
 
      /***************
@@ -351,7 +339,9 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     var currentFragment:CurrentFragmet? = null
     override fun onCloseMe() {
 
-            navController?.navigate(/*R.id.action_mainActivityFragment_to_editSymiFragment*/  R.id.action_mainActivityFragment_to_wrapListFragment)
+         if(mainActivityFragment!=null && navController?.currentDestination?.id == R.id.mainActivityFragment) {
+             navController?.navigate(/*R.id.action_mainActivityFragment_to_editSymiFragment*/  R.id.action_mainActivityFragment_to_wrapListFragment)
+         }
          //   navController?.popBackStack(R.id.mainActivityFragment, true)
     }
 
