@@ -28,10 +28,12 @@ class WrapListFragment : Fragment() {
     // TODO: Rename and change types of parameters
    // private var symIconListFragment:SymIconListFragment? = null
     var floatingActionButton:FloatingActionButton? = null
+    var viewBigsFloatingActionButton: FloatingActionButton? = null
     private val viewModel:MainViewModel by activityViewModels()
 
     interface Callbacks{
         fun onFloatingActionButtonClicked()
+        fun viewBigsFloatingActionClicked()
     }
     private var callbacks: WrapListFragment.Callbacks? = null
 
@@ -67,6 +69,11 @@ class WrapListFragment : Fragment() {
             floatingActionButton?.setOnClickListener {
                 callbacks?.onFloatingActionButtonClicked()
           //  findNavController().navigate(R.id.action_wrapListFragment_to_mainFragment)
+        }
+
+        viewBigsFloatingActionButton = view?.findViewById(R.id.bigImagesFloatingActionButton)
+        viewBigsFloatingActionButton?.setOnClickListener {
+            callbacks?.viewBigsFloatingActionClicked()
         }
         return view
     }

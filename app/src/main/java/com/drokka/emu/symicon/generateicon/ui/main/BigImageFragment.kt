@@ -1,16 +1,16 @@
 package com.drokka.emu.symicon.generateicon.ui.main
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.*
+import android.widget.Button
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModel
 import com.drokka.emu.symicon.generateicon.R
-import com.drokka.emu.symicon.generateicon.ui.main.MainViewModel
+import com.drokka.emu.symicon.generateicon.data.GeneratedImage
+import com.google.android.material.snackbar.Snackbar
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -22,12 +22,26 @@ import com.drokka.emu.symicon.generateicon.ui.main.MainViewModel
  */
 class BigImageFragment : Fragment() {
     // TODO: Rename and change types of parameters
- //   var bigIconImageBitmap:Bitmap? = null
-
+    var bigIconImageBitmap:Bitmap? = null
 
     lateinit var bigImageView: ImageView
-
+    lateinit var saveBigToGalleryBtn: Button
     val viewModel:MainViewModel by activityViewModels()
+
+    interface Callbacks {
+        fun saveBigImageToGallery(bitmap: Bitmap?, context: Context)
+    }
+    private var callbacks: Callbacks? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,13 +58,25 @@ class BigImageFragment : Fragment() {
 
        val  view = inflater.inflate(R.layout.fragment_big_image, container, false)
         bigImageView = view.findViewById(R.id.bigImageView)
+        saveBigToGalleryBtn = view.findViewById(R.id.saveBigToGalleryButton)
+
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        bigImageView.setImageBitmap(viewModel.largeIm)
+        saveBigToGalleryBtn.setOnClickListener{
+            this.callbacks?.saveBigImageToGallery(bitmap = bigIconImageBitmap,  context = requireContext())
+            Snackbar.make(view, "Image saved to media store",Snackbar.LENGTH_SHORT).show()
+         }
+
+        if(bigIconImageBitmap != null) {
+            bigImageView.setImageBitmap(this.bigIconImageBitmap)
+        }
+        else{
+            bigImageView.setImageDrawable( resources.getDrawable(R.drawable.symi_100px))
+        }
         view.isDirty
     }
 
@@ -65,11 +91,13 @@ class BigImageFragment : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(/*bitmap: Bitmap*/) =
+        fun newInstance(bitmap: Bitmap?) =
             BigImageFragment().apply {
-              //  arguments = Bundle().apply {
-             //       bigIconImageBitmap = bitmap
-              //  }
+                arguments = Bundle().apply {
+                   bigIconImageBitmap = bitmap
+               }
             }
     }
+
+
 }

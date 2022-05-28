@@ -3,8 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/drawable/go_start_pic_not_pressed.xml" value="0.248" />
+        <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/drawable/ic_launcher_background.xml" value="0.248" />
+        <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/drawable/symi_a.xml" value="0.248" />
+        <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/custom_spinner.xml" value="0.27395833333333336" />
+        <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/custom_spinner_item.xml" value="0.27395833333333336" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/edit_symi_fragment.xml" value="0.275" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_big_image.xml" value="0.25" />
+        <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_big_image_view_pager.xml" value="0.27395833333333336" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_blank.xml" value="0.275" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_edit_symi.xml" value="0.275" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_image_view.xml" value="0.2609375" />
@@ -12,6 +18,7 @@
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_pick_colour.xml" value="0.3" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_sym_icon_list.xml" value="0.3" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_sym_icon_list_list.xml" value="0.2609375" />
+        <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_view_big_pager.xml" value="0.27395833333333336" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/fragment_wrap_list.xml" value="0.275" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/image_icon_fragment.xml" value="0.3" />
         <entry key="..\:/Users/peter/AndroidStudioProjects/GenerateIcon/app/src/main/res/layout/main_activity.xml" value="0.2609375" />

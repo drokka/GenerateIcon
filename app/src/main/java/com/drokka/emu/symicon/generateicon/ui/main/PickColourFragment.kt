@@ -157,6 +157,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         job?.invokeOnCompletion{
 
+             //   viewModel.saveSymi()
             viewModel.saveMedSymImage(context)
             callbacks?.redisplayMedImage()
         }

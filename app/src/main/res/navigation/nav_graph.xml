@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_wrapListFragment_to_imageIconFragment"
             app:destination="@id/imageIconFragment" />
+        <action
+            android:id="@+id/action_wrapListFragment_to_bigImageViewPagerFragment"
+            app:destination="@id/bigImageViewPagerFragment" />
     </fragment>
     <fragment
         android:id="@+id/imageIconFragment"
@@ -65,5 +68,13 @@
         <action
             android:id="@+id/action_pickColourFragment_to_imageIconFragment"
             app:destination="@id/imageIconFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/bigImageViewPagerFragment"
+        android:name="com.drokka.emu.symicon.generateicon.ui.main.BigImageViewPagerFragment"
+        android:label="BigImageViewPagerFragment" >
+        <action
+            android:id="@+id/action_bigImageViewPagerFragment_to_wrapListFragment"
+            app:destination="@id/wrapListFragment" />
     </fragment>
 </navigation>

@@ -27,9 +27,9 @@ interface SymiDao {
     @Query("select icon_def_id from IconDef where" +
             " lambda = (:l)  and alpha = (:a)   and beta = (:b)   and gamma = (:g)   and omega = (:o)  " +
             " and ma = (:m)   and quiltType = (:q)  ")
-    fun getIconDefId(l:Double, a:Double, b:Double, g:Double, o:Double, m:Double, q:QuiltType):UUID
+    fun getIconDefId(l:Double, a:Double, b:Double, g:Double, o:Double, m:Double, q:QuiltType):UUID?
 
-    fun getIconDefId(iconDef: IconDef):UUID{
+    fun getIconDefId(iconDef: IconDef):UUID?{
         return  getIconDefId(iconDef.lambda,iconDef.alpha,iconDef.beta,iconDef.gamma,iconDef.omega,
         iconDef.ma,iconDef.quiltType)
     }
@@ -53,10 +53,14 @@ interface SymiDao {
     fun getGeneratedIcon(id:UUID):GeneratedIcon
 
     @Query("select id from GeneratedIcon where gen_def_id = (:genDefId)")
-    fun getGeneratedIconId(genDefId:UUID):UUID
+    fun getGeneratedIconId(genDefId:UUID):UUID?
+
 
     @Query("select * from GeneratedIconWithAllImageData where width = " + TINY)
     fun getAllGeneratedIconWithAllImageData():LiveData<List<GeneratedIconWithAllImageData>>
+
+    @Query("select * from GeneratedIconWithAllImageData where width >= (:sz)")
+    fun getAllGeneratedIconWithAllImageDataSize(sz: Int):List<GeneratedIconWithAllImageData>
 
     @Query("select * from GeneratedIconWithAllImageData where ma = (:ma) " +
             "and alpha = (:alpha)" +
@@ -243,48 +247,56 @@ interface SymiDao {
     @Transaction
     fun addGeneratedIconAndImageData(iconDef: IconDef,symIcon: SymIcon,generatorDef: GeneratorDef,
                                      genIconAndData:GeneratedIconAndImageData){
-        var iconDefId: UUID?
-        var symIconId:UUID?
-        var genDefId:UUID?
-        var genIconId:UUID?
-        var genImDataId:UUID?
+        var iconDefId: UUID? = null
+        var symIconId:UUID?= null
+        var genDefId:UUID?= null
+        var genIconId:UUID?= null
+        var genImDataId:UUID?= null
         var resy = 1
 
+        var addingNew :Boolean = false
         iconDefId  = getIconDefId(iconDef)
         if(iconDefId == null){
             //Reset the id. Can I have auto increment primary key using Room?
             iconDefId = UUID.randomUUID()
             iconDef.icon_def_id = iconDefId
             addIconDef(iconDef)
+            addingNew = true
         }
 
         symIcon.icon_def_id = iconDefId!!
 
-        symIconId = getSymIconId(iconDefId,symIcon.label)
+
+        if(!addingNew) symIconId = getSymIconId(iconDefId,symIcon.label)
         if(symIconId == null){
             symIconId = UUID.randomUUID()
             symIcon.sym_icon_id = symIconId
             addSymIcon(symIcon)
+            addingNew = true
         }
+
         generatorDef.sym_icon_id = symIconId!!
-        genDefId = getGenDefId(symIconId,generatorDef.width, generatorDef.height,generatorDef.iterations)
+
+        if(!addingNew) genDefId = getGenDefId(symIconId,generatorDef.width, generatorDef.height,generatorDef.iterations)
         if(genDefId == null){
             genDefId = UUID.randomUUID()
                 generatorDef.gen_def_id = genDefId!!
             addGeneratorDef(generatorDef)
             Log.d("addGeneratedImageData() after inserting NEW generatorDef" , "sz = "+ generatorDef.height.toString())
+            addingNew = true
         }
 
         val logTag = "addGeneratedIconand..."
         genIconAndData.generatedIcon?.let{
      //       Log.d(logTag, "gen_def_id = " +it.gen_def_id.toString() +" genDefId= "+ genDefId)
             it.gen_def_id = genDefId
-            genIconId = getGeneratedIconId(genDefId)
+            if(!addingNew) genIconId = getGeneratedIconId(genDefId)
             if(genIconId == null) {
-                Log.d(logTag, "adding generated icon")
+                Log.d(logTag, "adding new generated icon")
                 genIconId = UUID.randomUUID()
                 it.id = genIconId!!
                 addGeneratedIcon(it)
+                addingNew = true
             }
             else{
                 Log.d(logTag, "There was already a generated icon genIconId set to found value")
@@ -295,14 +307,14 @@ interface SymiDao {
         }
 
             genIconAndData.generatedImageData?.let {
-                it.gen_icon_id = genIconAndData?.generatedIcon.id
-                genImDataId = getGeneratedImageDataId(it.gen_icon_id)
-               if (genImDataId == null) {
-                    Log.d(logTag, "adding gen image data. gen_icon_id = " +it.gen_icon_id +
-                    "image data id = " + it.gid_id +"data length = " + it.len.toString())
-                    it.gid_id = UUID.randomUUID()
+                it.gen_icon_id = genIconId!!
+              //  genImDataId = getGeneratedImageDataId(it.gen_icon_id)
+              // if (genImDataId == null) {
+               //     Log.d(logTag, "adding gen image data. gen_icon_id = " +it.gen_icon_id +
+                 //   "image data id = " + it.gid_id +"data length = " + it.len.toString())
+                   // it.gid_id = UUID.randomUUID()
                   addGeneratedImageData(it)
-                }
+              //  }
             }
     }
 
@@ -439,6 +451,23 @@ interface SymiDao {
 
     @Query("select sym_icon_id from SymIcon where icon_def_id = (:iconDefId)")
     fun getSymIconList(iconDefId: UUID): List<UUID>
+
+    @SuppressLint("SuspiciousIndentation")
+    @Transaction
+    fun addGeneratedImageDataForGenData(generatedMedIcon: GeneratedIcon, generatedImageData: GeneratedImageData){
+        val genIconId = getGeneratedIconId(generatedMedIcon.gen_def_id)
+        if(genIconId != null){
+            generatedImageData.gen_icon_id =genIconId
+        }
+        else {
+            generatedImageData.gen_icon_id =UUID.randomUUID()
+            generatedMedIcon.id = generatedImageData.gen_icon_id
+            addGeneratedIcon(generatedMedIcon)
+        }
+        Log.d("addGeneratedImageDataForGenData", "generatedImageData " + generatedImageData.gid_id
+           +" " + generatedImageData.gen_icon_id +"  " + generatedImageData.iconImageFileName)
+         addGeneratedImageData(generatedImageData)
+    }
 
 
 }

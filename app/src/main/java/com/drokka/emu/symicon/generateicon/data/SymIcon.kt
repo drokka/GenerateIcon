@@ -13,16 +13,16 @@ enum class QuiltType(val label: String) {
     SQUARE("S"), HEX("H"), FRACTAL("F")
 }
 // width / height constants in pixels - odd since (0,0) is in the middle and centre of symmetry
-const val TINY = 201
+const val TINY = 281
 const val SMALL = 381  /* 385 is  0.75 of max Google Play icon size (512), which is recommended to accommodate rounding etc. But is it dp not px? */
-const val MEDIUM = 941
+const val MEDIUM = 841
 const val LARGE = 1081
 const val XLARGE =2001
 
 const val QUICK_LOOK = 40000
-const val GO        = 100000
-const val GO_GO     = 500000
-const val GO_GO_GO  = 5000000
+const val GO        = 400000
+const val GO_GO     = 400000
+const val GO_GO_GO  = 10000000
 
 //@Entity(primaryKeys = ["lambda","alpha","beta","gamma","omega","ma","quiltType"])
 @Entity

@@ -3,6 +3,7 @@ package com.drokka.emu.symicon.generateicon.ui.main
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.storage.StorageManager
 import android.os.storage.StorageManager.ACTION_MANAGE_STORAGE
@@ -15,6 +16,8 @@ import android.widget.*
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.getSystemService
+import androidx.core.view.get
+import androidx.core.view.iterator
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import com.drokka.emu.symicon.generateicon.R
@@ -37,15 +40,15 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
     private val viewModel:MainViewModel by activityViewModels()
 
   //  private lateinit var greyOverlay:View
-    private lateinit var imageButton: ImageView
+ //   private lateinit var imageButton: ImageView
  //   private lateinit var selectSquareButton:RadioButton
  //   private lateinit var selectHexButton:RadioButton
   //  private lateinit var selectFractalButton:RadioButton
     private lateinit var selectTypeSpinner:Spinner
 
-    private lateinit var iterTextView: EditText
+  //  private lateinit var iterTextView: EditText
 
-    private lateinit var sizeText: EditText
+  //  private lateinit var sizeText: EditText
 
     private lateinit var lambdaText:Slider // FloatInView
     private lateinit var alphaText:Slider // FloatInView
@@ -94,14 +97,14 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
                               savedInstanceState: Bundle?): View {
 
         val view = inflater.inflate(R.layout.main_fragment, container, false)
-        imageButton = view.findViewById(R.id.imageButton)
+       // imageButton = view.findViewById(R.id.imageButton)
      /**   selectFractalButton = view.findViewById(R.id.selectFractal)
         selectHexButton = view.findViewById(R.id.selectHex)
         selectSquareButton = view.findViewById(R.id.selectSquare)  **********/
         selectTypeSpinner = view.findViewById(R.id.iconTypeSpinner)
-        iterTextView = view.findViewById(R.id.editNumberIters)
+      //  iterTextView = view.findViewById(R.id.editNumberIters)
 
-        sizeText = view.findViewById(R.id.editSize)
+       // sizeText = view.findViewById(R.id.editSize)
         lambdaText = view.findViewById(R.id.editTextLamda)
         alphaText = view.findViewById(R.id.editTextAlpha)
         betaText = view.findViewById(R.id.editTextBeta)
@@ -115,16 +118,17 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
       //  greyOverlay = view.findViewById(R.id.waitOverlay)
        // greyOverlay.alpha = 0.05f
       //  greyOverlay.visibility = View.VISIBLE
-        val types = resources.getStringArray(R.array.IconTypes)
+      //  val types = resources.getStringArray(R.array.IconTypes)
         val arrayAdapter:ArrayAdapter<CharSequence> =
             context?.let {
                 ArrayAdapter.createFromResource(
-                    it,R.array.IconTypes,android.R.layout.simple_spinner_item)
-            } as ArrayAdapter<CharSequence>;
+                    it,R.array.IconTypes,R.layout.custom_spinner)
+            } as ArrayAdapter<CharSequence>
 
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        arrayAdapter.setDropDownViewResource(R.layout.custom_spinner_item ) //android.R.layout.simple_spinner_dropdown_item)
+
         // Apply the adapter to the spinner
-        selectTypeSpinner.setAdapter(arrayAdapter);
+        selectTypeSpinner.adapter = arrayAdapter
 
         //restoreState(savedInstanceState)
 
@@ -137,7 +141,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
 
         // greyOverlay.alpha = 0f
         // GENERATE button - make a bigger icon with more iterations
-        imageButton.setOnClickListener {
+        quickDrawImageButton.setOnClickListener {
             busyBar.visibility = View.VISIBLE
             view.refreshDrawableState()
         //    it.parent.refreshDrawableState()
@@ -170,11 +174,12 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         } *************************/
 
        selectTypeSpinner.setOnItemSelectedListener(this)
+      //  selectTypeSpinner.selectedView.get
 
 
-            iterTextView.doAfterTextChanged{  viewModel.setNumIterations(iterTextView.text)          }
+         //   iterTextView.doAfterTextChanged{  viewModel.setNumIterations(iterTextView.text)          }
 
-        sizeText.doAfterTextChanged{  viewModel.setSize(sizeText.text)}
+       // sizeText.doAfterTextChanged{  viewModel.setSize(sizeText.text)}
   /*      lambdaText.onSelectedValueChanged = {oldie,newie ->   viewModel.setLambda(newie)
         doQuickDraw()}
 

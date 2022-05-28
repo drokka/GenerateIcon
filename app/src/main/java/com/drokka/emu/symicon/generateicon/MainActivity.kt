@@ -1,26 +1,15 @@
 package com.drokka.emu.symicon.generateicon
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.content.Context
-import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
-import android.net.Uri
 import android.os.Bundle
-import android.os.Environment.DIRECTORY_DCIM
-import android.os.Handler
-import android.os.Looper
-import android.os.PersistableBundle
 import android.provider.MediaStore
-import android.provider.MediaStore.MediaColumns.*
 import android.util.Log
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.core.graphics.decodeBitmap
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -30,12 +19,15 @@ import androidx.navigation.fragment.FragmentNavigator
 import com.drokka.emu.symicon.generateicon.R.id.action_imageIconFragment_to_pickColourFragment
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.ui.main.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import java.io.File
+import java.util.*
 
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener, MainFragment.Callbacks , ImageIconFragment.Callbacks,
     SymIconListFragment.Callbacks, WrapListFragment.Callbacks,
-    MainActivityFragment.Callbacks, PickColourFragment.Callbacks  /*, EditSymiFragment.Callbacks*/{
+    MainActivityFragment.Callbacks, PickColourFragment.Callbacks  , BigImageFragment.Callbacks{
 
     companion object  {
 
@@ -53,6 +45,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     private var imageIconFragment:ImageIconFragment? = null
     var bigImageFragment:BigImageFragment? = null
     private var pickColourFragment: PickColourFragment? = null
+    private var bigImageViewPagerFragment:BigImageViewPagerFragment? = null
   //  val blankTag = "blankFragment"
     lateinit var viewModel: MainViewModel
  //   lateinit var recyclerViewModel: SymIconListViewModel
@@ -113,14 +106,14 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         return deferredJob
     }
 
-    override fun generateLargeIcon(context: Context): Deferred<Unit> {
-        var deferredJob = viewModel.runSymiExample(context, LARGE, GO_GO_GO)
-        return deferredJob
+    override fun generateLargeIcon(context: Context) : UUID {
+       return viewModel.runSymiExampleWorker(context)
+
     }
 
     override fun showBigImage() {
         if(bigImageFragment == null){
-            bigImageFragment = BigImageFragment.newInstance()
+            bigImageFragment = BigImageFragment.newInstance(null)
         }
       //  if(viewModel.imageExists(LARGE)){
         //Save the big image
@@ -166,36 +159,45 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     Toast.makeText(requireContext(), "Picture Added to Gallery", Toast.LENGTH_SHORT).show()
 }
      */
-    override fun onViewImageButtonSelected(generatedImage: GeneratedImage, context:Context) {
-        val imPath = File(context.filesDir ,"images/")
-        val imFile = File(imPath, generatedImage.iconImageFileName)
-       val imageUri = FileProvider.getUriForFile(context,
-            "com.drokka.emu.symicon",
-           imFile)
+    override fun saveImageToGallery(
+        bitmapIn: Bitmap?,
+        generatedImage: GeneratedImage,
+        context: Context?
+    ) {
+        context?.let {
+                val imPath = File(context?.filesDir, "images/")
+                val imFile = File(imPath, generatedImage.iconImageFileName)
+                val imageUri = FileProvider.getUriForFile(
+                    it,
+                    "com.drokka.emu.symicon",
+                    imFile
+                )
 
-        val resolver = context.contentResolver
-        val bitmap = ImageDecoder.createSource(resolver, imageUri)
 
-        /*
-        val cvals = ContentValues().apply {
-            put(DISPLAY_NAME, generatedImage.iconImageFileName)
-            put(MIME_TYPE, "image/png")
-            put(RELATIVE_PATH, DIRECTORY_DCIM)
-            put(IS_PENDING, 1)
+                val resolver = context?.contentResolver
+                val bitmap = ImageDecoder.createSource(resolver, imageUri)
+
+                /*
+            val cvals = ContentValues().apply {
+                put(DISPLAY_NAME, generatedImage.iconImageFileName)
+                put(MIME_TYPE, "image/png")
+                put(RELATIVE_PATH, DIRECTORY_DCIM)
+                put(IS_PENDING, 1)
+            }
+            resolver.insert(imageUri,cvals)
+
+             */
+
+
+                MediaStore.Images.Media.insertImage(
+                    context.contentResolver,
+                    ImageDecoder.decodeBitmap(bitmap),
+                    generatedImage.iconImageFileName,
+                    "Image of " + generatedImage.iconImageFileName
+                )
+
+          //  Toast.makeText(context, "Picture Added to Gallery ", Toast.LENGTH_SHORT).show()
         }
-        resolver.insert(imageUri,cvals)
-
-         */
-
-
-        val savedImageURL = MediaStore.Images.Media.insertImage(
-            context.contentResolver,
-            ImageDecoder.decodeBitmap(bitmap),
-            generatedImage.iconImageFileName,
-            "Image of "+ generatedImage.iconImageFileName
-        )
-
-        Toast.makeText(context, "Picture Added to Gallery ", Toast.LENGTH_SHORT).show()
     }
 
     override fun onFloatingActionButtonClicked() {
@@ -228,7 +230,19 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     }
 
- lateinit var   symImageListAllObserver:Observer<List<GeneratedIconWithAllImageData>>
+    override fun viewBigsFloatingActionClicked() {
+
+        if(bigImageViewPagerFragment == null) {
+            bigImageViewPagerFragment = BigImageViewPagerFragment.newInstance()
+        }
+        if(viewModel.getSymBigsList().isEmpty()){
+          //  Toast.makeText(applicationContext,"There are no saved big images to view!", Toast.LENGTH_SHORT).show()
+        }else {
+            navController?.navigate(R.id.action_wrapListFragment_to_bigImageViewPagerFragment)
+        }
+    }
+
+    lateinit var   symImageListAllObserver:Observer<List<GeneratedIconWithAllImageData>>
 //var keepSplashOnScreen = true
   //  val splashDelay = 500L
 
@@ -398,6 +412,20 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         navController?.popBackStack(R.id.imageIconFragment,false)
 
     }
+
+    override fun saveBigImageToGallery(bitmap: Bitmap?, context: Context) {
+       bitmap?.let {
+           MediaStore.Images.Media.insertImage(
+               context.contentResolver,
+               bitmap,
+               "SymiconBig"+Date().time.toString(),
+               "Symicon generated large image"
+           )
+         //  Toast.makeText(context, "Image Added to Gallery ", Toast.LENGTH_SHORT)
+           //    .show()
+
+       }
+       }
 
 
 }

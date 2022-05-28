@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.AppCompatCheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/customSpinnerText1"
+android:textColor="@color/white"
+    android:singleLine="true"
+    android:layout_width="match_parent"
+    android:textSize="18sp"
+    android:layout_height="wrap_content"
+    android:ellipsize="marquee"
+    android:background="@color/purple_500"
+    >
+
+</androidx.appcompat.widget.AppCompatCheckedTextView>

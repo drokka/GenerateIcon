@@ -150,6 +150,14 @@ dependencies {
 
     implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
 
+
+        // Kotlin + coroutines
+        implementation("androidx.work:work-runtime-ktx:2.7.1")
+
+       // optional - Multiprocess support
+        implementation "androidx.work:work-multiprocess:2.7.1"
+
+
     // Testing Navigation
   //  androidTestImplementation('androidx.navigation:navigation-testing:2.4.0-beta02')
 

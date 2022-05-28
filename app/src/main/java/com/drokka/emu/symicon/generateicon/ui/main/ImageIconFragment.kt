@@ -1,7 +1,9 @@
 package com.drokka.emu.symicon.generateicon.ui.main
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,13 +11,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.drokka.emu.symicon.generateicon.R
-import com.drokka.emu.symicon.generateicon.SymiRepo
 
 import com.drokka.emu.symicon.generateicon.data.GeneratedImage
 import com.drokka.emu.symicon.generateicon.getBitmap
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Job
+import com.google.android.material.snackbar.Snackbar
+import java.util.*
 
 class ImageIconFragment() : Fragment() {
 
@@ -39,8 +42,8 @@ class ImageIconFragment() : Fragment() {
     }
 
     interface Callbacks {
-        fun onViewImageButtonSelected(generatedImage: GeneratedImage, context: Context)
-        fun generateLargeIcon(requireContext: Context):Deferred<Unit>
+        fun saveImageToGallery(bitmap: Bitmap?, generatedImage: GeneratedImage, context: Context?)
+        fun generateLargeIcon(requireContext: Context): UUID
         fun showBigImage()
         fun reColour()
     }
@@ -60,10 +63,10 @@ class ImageIconFragment() : Fragment() {
     private val viewModel:MainViewModel by activityViewModels()
 
     private lateinit var displayImageIconView: ImageView
-private lateinit var viewImage:Button
+private lateinit var saveToGalleryButton:Button
 
     private lateinit var saveImageDataButton: Button
- //   private lateinit var goBigButton:Button
+    private lateinit var goBigButton:Button
     private lateinit var reColourButton:Button
 
     override fun onCreateView(
@@ -71,10 +74,9 @@ private lateinit var viewImage:Button
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.image_icon_fragment, container, false)
-        viewImage = view.findViewById(R.id.viewImageButton)
-      //  saveImageDataButton = view.findViewById(R.id.saveImageDataButton)
-     //   goBigButton = view.findViewById(R.id.goBigButton)
+        saveToGalleryButton = view.findViewById(R.id.viewImageButton)
         reColourButton = view.findViewById(R.id.reColourButton)
+        goBigButton = view.findViewById(R.id.goBigButton)
         return view
     }
 
@@ -102,7 +104,11 @@ private lateinit var viewImage:Button
         }
             if (bitmap != null) {
                 displayImageIconView.setImageBitmap(bitmap)
-                viewImage.setOnClickListener { viewImageFun(viewModel.generatedMedImage!!, context) }
+                saveToGalleryButton.setOnClickListener {
+                    saveImageToGallery(null, viewModel.generatedMedImage!!, context)
+                    Snackbar.make(view, "Image saved to media store",Snackbar.LENGTH_SHORT).show()
+
+                }
             }
 //        saveImageDataButton.setOnClickListener {
 //
@@ -110,16 +116,41 @@ private lateinit var viewImage:Button
 
     //    }
         //Generate LARGE symi for the definition
-  /*      goBigButton.setOnClickListener {
+       goBigButton.setOnClickListener {
             //Do wait UI
-            val job = callbacks?.generateLargeIcon(requireContext())
+            val id = callbacks?.generateLargeIcon(requireContext())
+            if(id == null){
+                Log.e("Go Big", "Error getting work id.")
 
-            job?.invokeOnCompletion {
-                callbacks?.showBigImage()
+            }else {
+                context?.let { it1 ->
+                    WorkManager.getInstance(it1).getWorkInfoByIdLiveData(id)
+                        .observe(viewLifecycleOwner) { workInfo ->
+                            if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                                Snackbar.make(requireView(),"Go Big completed",Snackbar.LENGTH_SHORT)
+                                    .show()
+                                Log.i("Go Big", "success for work: " + workInfo.toString())
+                               // viewModel.storeWork(requireContext(),workInfo.outputData)
+                            }
+                            else if (workInfo?.state == WorkInfo.State.ENQUEUED){
+                                Log.d("Go Big", "queued")
+                            }
+                            else if (workInfo?.state == WorkInfo.State.RUNNING){
+                                Log.d("Go Big", "running")
+                            }
+                            else{
+                                Snackbar.make(
+                                    requireView(),"Go Big generation error.",
+                                    Snackbar.LENGTH_SHORT )
+                                    .show()
+                                Log.e("Go Big", "Error generating large image. workinfo state: " +workInfo?.toString())
+                            }
+                        }
+                }
             }
+
         }
 
-   */
 
         reColourButton.setOnClickListener {
             callbacks?.reColour()
@@ -134,9 +165,10 @@ private lateinit var viewImage:Button
         }
 
 
-     private fun viewImageFun(generatedImage: GeneratedImage, context: Context?) {
+     private fun saveImageToGallery(bitmap: Bitmap?,generatedImage: GeneratedImage, context: Context?) {
         if (context != null) {
-            callbacks?.onViewImageButtonSelected(generatedImage,context)
+            callbacks?.saveImageToGallery(bitmap, generatedImage,context)
+
         }
     }
 

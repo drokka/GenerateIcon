@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/material_dynamic_neutral_variant99"
+    android:background="@drawable/symi_1611753385"
     tools:context=".ui.main.MainFragment">
 
     <!--com.drokka.emu.widgets.FloatInView -->
@@ -15,14 +15,15 @@
         android:layout_height="51dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="10dp"
+        android:foregroundTint="@color/material_dynamic_primary90"
+        android:tooltipText="Slide to change parameter value."
         android:valueFrom="0.0"
         android:valueTo="1.0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextOmega"
         app:parameterName="ma"
         app:thumbRadius="6dp"
-        app:thumbStrokeColor="@color/design_default_color_primary_variant"
-        app:thumbStrokeWidth="2dp"/>
+        app:thumbStrokeColor="@color/material_dynamic_primary10" />
 
     <com.google.android.material.slider.Slider
         android:id="@+id/editTextOmega"
@@ -33,22 +34,24 @@
         android:valueFrom="0.0"
         android:valueTo="1.0"
         app:layout_constraintEnd_toEndOf="parent"
+        android:tooltipText="Slide to change parameter value."
         app:layout_constraintTop_toBottomOf="@+id/editTextGamma"
         app:parameterName="omega"
-        app:thumbRadius="2dp" />
+        app:thumbRadius="6dp" />
 
     <com.google.android.material.slider.Slider
         android:id="@+id/editTextGamma"
         android:layout_width="180dp"
         android:layout_height="51dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
         android:valueFrom="0.0"
         android:valueTo="1.0"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        android:tooltipText="Slide to change parameter value."
+        app:layout_constraintTop_toBottomOf="@+id/divider"
         app:parameterName="gamma"
-        app:thumbRadius="2dp" />
+        app:thumbRadius="6dp" />
 
     <com.google.android.material.slider.Slider
         android:id="@+id/editTextAlpha"
@@ -59,9 +62,10 @@
         android:valueFrom="0.0"
         android:valueTo="1.0"
         app:layout_constraintStart_toStartOf="parent"
+        android:tooltipText="Slide to change parameter value."
         app:layout_constraintTop_toBottomOf="@+id/editTextLamda"
         app:parameterName="alpha"
-        app:thumbRadius="2dp" />
+        app:thumbRadius="6dp" />
 
     <com.google.android.material.slider.Slider
         android:id="@+id/editTextBeta"
@@ -72,11 +76,12 @@
         android:valueFrom="0.0"
         android:valueTo="1.0"
         app:layout_constraintStart_toStartOf="parent"
+        android:tooltipText="Slide to change parameter value."
         app:layout_constraintTop_toBottomOf="@+id/editTextAlpha"
         app:parameterName="beta"
-        app:thumbRadius="2dp" />
+        app:thumbRadius="6dp" />
 
-    <EditText
+    <!--EditText
         android:id="@+id/editSize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -85,9 +90,9 @@
         android:hint="601"
         android:inputType="number"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iconTypeSpinner" />
+        app:layout_constraintTop_toBottomOf="@+id/iconTypeSpinner" /-->
 
-    <EditText
+    <!--EditText
         android:id="@+id/editNumberIters"
         android:layout_width="172dp"
         android:layout_height="52dp"
@@ -96,43 +101,34 @@
         android:hint="10000"
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" /-->
 
     <View
         android:id="@+id/divider"
         android:layout_width="409dp"
         android:layout_height="1dp"
         android:layout_marginStart="1dp"
+        android:layout_marginTop="100dp"
         android:layout_marginEnd="1dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editSize" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Parameters"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.473"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.slider.Slider
         android:id="@+id/editTextLamda"
         android:layout_width="180dp"
         android:layout_height="51dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="32dp"
         android:valueFrom="0.0"
         android:valueTo="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        android:tooltipText="Slide to change parameter value."
+        app:layout_constraintTop_toBottomOf="@+id/divider"
         app:parameterName="lambda"
-        app:thumbRadius="2dp" />
+        app:thumbRadius="6dp" />
 
     <View
         android:id="@+id/divider2"
@@ -145,31 +141,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextBeta" />
 
-    <Spinner
-        android:id="@+id/iconTypeSpinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:entries="@array/IconTypes"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageButton
-        android:id="@+id/imageButtonQuickDraw"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:scrollbars="none"
-        android:src="@drawable/symi_100px"
-        android:tintMode="src_over"
-        app:layout_constraintBottom_toTopOf="@+id/imageButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider2"
-        app:layout_constraintVertical_bias="0.513" />
-
-    <ImageButton
+    <!--ImageButton
         android:id="@+id/imageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -181,7 +153,33 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider2"
-        app:layout_constraintVertical_bias="0.917" />
+        app:layout_constraintVertical_bias="0.917" /-->
+
+    <Spinner
+        android:id="@+id/iconTypeSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:entries="@array/IconTypes"
+        android:foregroundTint="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/imageButtonQuickDraw"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Quick view of pattern created."
+        android:fadingEdge="horizontal|vertical"
+        android:scrollbars="none"
+        android:tintMode="src_over"
+        android:tooltipText="Generate pattern. Takes a minute."
+        app:layout_constraintBottom_toBottomOf="@+id/progressBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -193,20 +191,35 @@
         android:foregroundTint="@color/purple_500"
         android:indeterminate="true"
         android:progressTint="@color/purple_700"
-        android:visibility="gone"
+        android:visibility="invisible"
+        tools:layout_editor_absoluteX="-1dp"
+        tools:layout_editor_absoluteY="42dp"
         tools:visibility="invisible" />
 
     <EditText
         android:id="@+id/editTextDegSym"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="62dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
         android:ems="10"
         android:hint="3"
         android:inputType="number"
-        app:layout_constraintBottom_toTopOf="@+id/imageButtonQuickDraw"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/divider2" />
+        app:layout_constraintTop_toTopOf="@+id/progressBar" />
+
+    <TextView
+        android:id="@+id/textViewDegreeSymLabel"
+        android:layout_width="101dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="16dp"
+        android:text="Degree of Symmetry"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/editTextDegSym"
+        app:layout_constraintHorizontal_bias="0.697"
+        app:layout_constraintStart_toEndOf="@+id/iconTypeSpinner"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

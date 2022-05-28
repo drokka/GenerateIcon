@@ -14,5 +14,6 @@
     <string name="icon_image_text">\"small generated image\"</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="big_images_floating_action_button">View large images (after Go Big)</string>
 
 </resources>

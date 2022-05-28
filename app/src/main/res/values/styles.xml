@@ -17,7 +17,7 @@
 
         // Use windowSplashScreenAnimatedIcon to add either a drawable or an
         // animated drawable. One of these is required.
-        <item name="windowSplashScreenAnimatedIcon">@drawable/symi_200px</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/symbigstar</item>
         <!--item name="windowSplashScreenAnimationDuration">2000</item-->  # Required for
         # animated icons
 

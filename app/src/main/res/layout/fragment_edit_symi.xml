@@ -7,7 +7,7 @@
         android:id="@+id/edit_symi"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/light_blue_50"
+         android:background="@drawable/symi_1611753385"
         tools:context=".ui.main.EditSymiFragment">
 
         <com.drokka.emu.widgets.FloatInView

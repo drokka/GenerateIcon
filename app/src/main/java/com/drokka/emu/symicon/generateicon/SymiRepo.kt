@@ -173,6 +173,10 @@ class SymiRepo   private constructor(context: Context) {
         return symiDao.getAllGeneratedIconWithAllImageData()
     }
 
+    fun getAllGeneratedIconWithAllImageDataSize(sz:Int): List<GeneratedIconWithAllImageData>{
+        return symiDao.getAllGeneratedIconWithAllImageDataSize(sz)
+    }
+
     fun getGeneratedIconWithAllImageDataSize(iconDef: IconDef, size:Int):List<GeneratedIconWithAllImageData>{
         return symiDao.getGeneratedIconWithAllImageDataSize(iconDef.ma,
             iconDef.alpha,
@@ -242,6 +246,10 @@ class SymiRepo   private constructor(context: Context) {
     fun addGeneratedImageData(generatedImageData: GeneratedImageData) {
         symiDao.addGeneratedImageData(generatedImageData)
     }
+
+  //  fun addGeneratedImageDataForGenData(generatedMedIcon: GeneratedIcon, generatedImageData: GeneratedImageData) {
+   //     symiDao.addGeneratedImageDataForGenData(generatedMedIcon, generatedImageData)
+   // }
 
 
     //---------------------------------------------------------
