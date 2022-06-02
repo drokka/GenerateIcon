@@ -220,8 +220,17 @@ class SymiRepo   private constructor(context: Context) {
 
      fun addGeneratedIconAndData(iconDef: IconDef, symIcon: SymIcon, generatorDef: GeneratorDef,
                                 generatedIconAndImageData: GeneratedIconAndImageData){
-        executor.execute{
-            symiDao.addGeneratedIconAndImageData(iconDef,symIcon,generatorDef, generatedIconAndImageData)
+        try {
+            executor.execute {
+                symiDao.addGeneratedIconAndImageData(
+                    iconDef,
+                    symIcon,
+                    generatorDef,
+                    generatedIconAndImageData
+                )
+            }
+        }catch (xx:Exception){
+            Log.e("addGeneratedIconAndData", "exception thrown from DB add: " +xx.message)
         }
         /************
         if(symiDao.getSymIcon(generatedIconAndImageData.generatedIcon.definition.symIcon.label).value == null) {

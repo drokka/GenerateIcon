@@ -5,9 +5,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
@@ -16,9 +20,12 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.drokka.emu.symicon.generateicon.R.id.action_imageIconFragment_to_pickColourFragment
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.ui.main.*
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -52,7 +59,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
  var navController:NavController? = null   //
     /** data access using Room **/
 
-   // private lateinit var  symiRepo:SymiRepo
+    // private lateinit var  symiRepo:SymiRepo
  //   private lateinit var symIconList :LiveData<List<GeneratedIconAndImageData>>
     /*********************/
 
@@ -61,6 +68,12 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
         super.onAttachedToWindow()
         navController = findNavController(R.id.fragmentContainerView)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
+
+        setSupportActionBar(findViewById(R.id.my_toolbar))
     }
     override fun onImageIconSelected() {
         if(imageIconFragment == null) {
@@ -106,9 +119,56 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         return deferredJob
     }
 
-    override fun generateLargeIcon(context: Context) : UUID {
-       return viewModel.runSymiExampleWorker(context)
+    override fun generateLargeIcon(context: Context)  {
+        val id = viewModel.runSymiExampleWorker(context)
+        if(id == null){
+            Log.e("Go Big", "Error getting work id.")
 
+        }else {
+            setBigsIndicator(false)
+            viewModel.workItemsList.add(id)
+            context.let { it1 ->
+                WorkManager.getInstance(it1).getWorkInfoByIdLiveData(id)
+                    .observe(this) { workInfo ->
+                        if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                         //   Snackbar.make(requireView(),"Go Big completed", Snackbar.LENGTH_SHORT)
+                           //     .show()
+                            Log.i("Go Big", "success for work: " + workInfo.toString())
+                            viewModel.workItemsList.remove(id)
+
+                            setBigsIndicator(viewModel.workItemsList.isEmpty())
+                            // viewModel.storeWork(requireContext(),workInfo.outputData)
+                        } else if (workInfo?.state == WorkInfo.State.ENQUEUED){
+                            Log.d("Go Big", "queued")
+                        } else if (workInfo?.state == WorkInfo.State.RUNNING){
+                            Log.d("Go Big", "running")
+                        } else{
+                           // Snackbar.make(
+                             //   requireView(),"Go Big generation error.",
+                               // Snackbar.LENGTH_SHORT )
+                                //.show()
+                            Log.e("Go Big", "Error generating large image. workinfo state: " +workInfo?.toString())
+                            viewModel.workItemsList.remove(id)
+
+                            setBigsIndicator(viewModel.workItemsList.isEmpty())
+                        }
+                    }
+            }
+        }
+    }
+
+    private fun setBigsIndicator(workDone: Boolean) {
+        val bigsWorkIndicator = findViewById<ImageButton>(R.id.bigsWorkImageButton)
+        if(workDone) {
+            bigsWorkIndicator.setImageResource(R.drawable.ic_baseline_circle_24green)
+        }else{
+            bigsWorkIndicator.setImageResource(R.drawable.ic_baseline_circle_24)
+
+        }
+        bigsWorkIndicator.visibility = View.VISIBLE
+
+        bigsWorkIndicator.isDirty
+      //  toolbar?.isDirty
     }
 
     override fun showBigImage() {

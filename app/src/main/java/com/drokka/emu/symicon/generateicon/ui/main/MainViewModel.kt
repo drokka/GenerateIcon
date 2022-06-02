@@ -20,6 +20,7 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainViewModel() : ViewModel() {
@@ -64,7 +65,7 @@ class MainViewModel() : ViewModel() {
     fun getSymBigsList():List<GeneratedIconWithAllImageData>{
         return  symiRepo.getAllGeneratedIconWithAllImageDataSize(LARGE)
     }
-
+    var workItemsList = ArrayList<UUID>(0)
     //var symiMedList = List<GeneratedIconWithAllImageData>(0)
 
     //val symImageListAll:LiveData<List<GeneratedIconAndImageData>> = symiRepo.getAllSymIconData()
@@ -780,69 +781,6 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
 
 
          return workerId
-    }
-
-    @SuppressLint("SuspiciousIndentation")
-    fun storeWork(context:Context, generatedData: Data) {
-        val iconDefData = generatedData.getDoubleArray(PARAMS_USED)
-        val label =  generatedData.getByte(ICON_TYPE, 'S'.toByte())
-        val quiltType = when(label){
-            'S'.toByte() -> QuiltType.SQUARE
-            'H'.toByte() -> QuiltType.HEX
-            'F'.toByte() -> QuiltType.FRACTAL
-            else -> QuiltType.SQUARE
-        }
-        val intArray = generatedData.getIntArray(INT_ARGS)
-        val degreeSym = intArray?.get(3) //HERE
-        val iconDefW =
-            degreeSym?.let {
-                IconDef(UUID.randomUUID(), iconDefData?.get(0) ?: 0.0, iconDefData?.get(1) ?: 0.0,
-                    iconDefData?.get(2) ?: 0.0, iconDefData?.get(3) ?: 0.0,
-                    iconDefData?.get(4) ?: 0.0, iconDefData?.get(5) ?: 0.0,
-                quiltType,
-                    it
-                )
-            }
-        if (iconDefW != null) {
-            val tt = Date().time.toString()
-            val dataFileName = "symdata"+"BIG" + tt +".txt"
-            val imageFileName = "symBIG" +tt + ".png"
-           val symIconW = SymIcon(icon_def_id = iconDefW.icon_def_id, label = "go big")
-            val generatorDefW = GeneratorDef(sym_icon_id = symIconW.sym_icon_id, width =intArray?.get(1),
-                                height = intArray?.get(2), iterations = intArray?.get(0))
-            val generatedIconW = GeneratedIcon(gen_def_id = generatorDefW.gen_def_id, generatedDataFileName = dataFileName)
-            val oStream = context.openFileOutput(dataFileName, Context.MODE_APPEND)
-            oStream.bufferedWriter(Charsets.UTF_8).write(generatedData.getString(SAVED_DATA))
-            oStream.flush(); oStream.close()
-
-            try {
-                val imagesDirPath = File(context.getFilesDir(), "images")
-                Log.i("saveImage", "dirPath is:" + imagesDirPath.toString())
-                imagesDirPath.mkdirs()
-                val imFile = File(imagesDirPath, imageFileName)
-                val pngStream = FileOutputStream(imFile)
-                val image = BitmapFactory.decodeByteArray(generatedData.getByteArray(PNG_BUFFER),
-                    0, generatedData.getInt(PNG_BUFFER_LEN,0))
-                image?.compress(
-                    Bitmap.CompressFormat.PNG,
-                    100,
-                    pngStream
-                )
-                pngStream.flush()
-                pngStream.close()
-            } catch (xx: Exception) {
-                xx.message?.let { Log.e("storeWork", it) }
-                Log.e("storeWork", "exception thrown saving png " + imageFileName)
-            }
-        val generatedImageDataW = GeneratedImageData(UUID.randomUUID(), generatedIconW.id, imageFileName,
-            generatedData.getInt(PNG_BUFFER_LEN,0))
-
-        val bigIADW = GeneratedIconAndImageData(generatedIconW, generatedImageDataW)
-
-            symiRepo.addGeneratedIconAndData(iconDefW,symIconW, generatorDefW, bigIADW)
-            Log.d("storeWork", "done symiRepo add")
-        }
-        Log.e("storeWork", "did not manage to get / save completed work request. " )
     }
 
     /******************************************************

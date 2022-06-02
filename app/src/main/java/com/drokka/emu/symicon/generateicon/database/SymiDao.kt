@@ -312,7 +312,7 @@ interface SymiDao {
               // if (genImDataId == null) {
                //     Log.d(logTag, "adding gen image data. gen_icon_id = " +it.gen_icon_id +
                  //   "image data id = " + it.gid_id +"data length = " + it.len.toString())
-                   // it.gid_id = UUID.randomUUID()
+                    it.gid_id = UUID.randomUUID()
                   addGeneratedImageData(it)
               //  }
             }

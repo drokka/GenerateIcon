@@ -43,7 +43,7 @@ class ImageIconFragment() : Fragment() {
 
     interface Callbacks {
         fun saveImageToGallery(bitmap: Bitmap?, generatedImage: GeneratedImage, context: Context?)
-        fun generateLargeIcon(requireContext: Context): UUID
+        fun generateLargeIcon(requireContext: Context)
         fun showBigImage()
         fun reColour()
     }
@@ -118,7 +118,8 @@ private lateinit var saveToGalleryButton:Button
         //Generate LARGE symi for the definition
        goBigButton.setOnClickListener {
             //Do wait UI
-            val id = callbacks?.generateLargeIcon(requireContext())
+           callbacks?.generateLargeIcon(requireContext())
+           /*
             if(id == null){
                 Log.e("Go Big", "Error getting work id.")
 
@@ -148,6 +149,8 @@ private lateinit var saveToGalleryButton:Button
                         }
                 }
             }
+
+            */
 
         }
 
