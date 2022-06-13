@@ -63,13 +63,13 @@ interface SymiDao {
     fun getAllGeneratedIconWithAllImageDataSize(sz: Int):List<GeneratedIconWithAllImageData>
 
     @Query("select * from GeneratedIconWithAllImageData where ma = (:ma) " +
-            "and alpha = (:alpha)" +
-            "and beta = (:beta)" +
-            "and lambda = (:lambda)" +
-            "and omega = (:omega)" +
-            "and gamma = (:gamma)" +
-            "and quiltType = (:quiltType)" +
-            "and degreeSym = (:degreeSym)" +
+            "and alpha = (:alpha) " +
+            "and beta = (:beta) " +
+            "and lambda = (:lambda) " +
+            "and omega = (:omega) " +
+            "and gamma = (:gamma) " +
+            "and quiltType = (:quiltType) " +
+            "and degreeSym = (:degreeSym) " +
             "and width = (:sz)")
     fun  getGeneratedIconWithAllImageDataSize(ma:Double,
                                               alpha:Double,
@@ -77,9 +77,7 @@ interface SymiDao {
     lambda:Double,
     omega:Double,
     gamma:Double,
-    quiltType:QuiltType,
-                                              degreeSym:Int,
-                                              sz:Int):List<GeneratedIconWithAllImageData>
+    quiltType:QuiltType, degreeSym:Int,  sz:Int):List<GeneratedIconWithAllImageData>
 
   //  @Query("select count(*) from GeneratedIcon where ")
   //  fun existsGeneratedIcon()
@@ -91,7 +89,7 @@ interface SymiDao {
     fun getGeneratedImageDataList():LiveData<List<GeneratedImageData>>
 
     @Query("select gid_id from GeneratedImageData where gen_icon_id = (:genIconId)")
-    fun getGeneratedImageDataId(genIconId:UUID):UUID
+    fun getGeneratedImageDataId(genIconId:UUID):List<UUID>
 
   //  @Query("select byteArray from GeneratedImageData where gid_id = (:gidId)")
   //  fun getImageBitmap(gidId: UUID):ByteArray?
@@ -468,6 +466,31 @@ interface SymiDao {
            +" " + generatedImageData.gen_icon_id +"  " + generatedImageData.iconImageFileName)
          addGeneratedImageData(generatedImageData)
     }
+
+    @Query("select * from GeneratedIconWithAllImageData where ma = (:ma) " +
+            "and alpha = (:alpha) " +
+            "and beta = (:beta) " +
+            "and lambda = (:lambda) " +
+            "and omega = (:omega) " +
+            "and gamma = (:gamma) " +
+            "and quiltType = (:quiltType) " +
+            "and degreeSym = (:degreeSym) " +
+            "and width = (:sz) "+
+            "and bgClr = (:bgClr) and minClr = (:minClr) and maxClr = (:maxClr)")
+    fun getGeneratedIconWithAllImageDataSizeClr(
+        ma:Double,
+        alpha:Double,
+        beta:Double,
+        lambda:Double,
+        omega:Double,
+        gamma:Double,
+        quiltType:QuiltType,
+        degreeSym:Int,
+        sz:Int,
+        bgClr:String,
+        minClr:String,
+        maxClr:String
+    ): List<GeneratedIconWithAllImageData>
 
 
 }

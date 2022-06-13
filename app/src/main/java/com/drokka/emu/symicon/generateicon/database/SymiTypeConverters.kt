@@ -1,11 +1,10 @@
 package com.drokka.emu.symicon.generateicon.database
 
-import androidx.room.ColumnInfo
 import androidx.room.TypeConverter
-import com.drokka.emu.symicon.generateicon.data.GeneratedIconAndImageData
-import com.drokka.emu.symicon.generateicon.data.GeneratedIconAndImageDataMerged
 import com.drokka.emu.symicon.generateicon.data.GeneratedIconWithAllImageData
 import com.drokka.emu.symicon.generateicon.data.SymImageDefinition
+import org.json.JSONArray
+import org.json.JSONException
 import java.util.*
 
 class SymiTypeConverters {
@@ -58,12 +57,46 @@ class SymiTypeConverters {
 
             genIconId = UUID.randomUUID(),
             label = allImageData.label,
-         //   generatedData = "",
+            //   generatedData = "",
             generatedDataFileName = "",
             iconImageFileName = "",
-         //   byteArray = null,
+            bgClr = JSONArrayfromDoubleArray(doubleArrayOf(0.0, 0.0, 0.0, 0.0)),
+            minClr = JSONArrayfromDoubleArray(doubleArrayOf(0.9, 0.9, 0.9, 0.0)),
+            maxClr = JSONArrayfromDoubleArray(doubleArrayOf(0.9, 0.9, 0.9, 0.0)),
+            clrFunction = "default",
+            //   byteArray = null,
             len = 0,
             generatedImageDataId = UUID.randomUUID()
         )
+    }
+
+companion object {
+    @TypeConverter
+    fun JSONArrayfromDoubleArray(values: DoubleArray): String {
+        val jsonArray = JSONArray()
+        for (value in values) {
+            try {
+                jsonArray.put(value)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+        return jsonArray.toString()
+    }
+
+    @TypeConverter
+    fun JSONArrayToDoubleArray(values: String): DoubleArray {
+        try {
+            val jsonArray = JSONArray(values)
+            val DoubleArray = DoubleArray(jsonArray.length())
+            for (i in 0 until jsonArray.length()) {
+                DoubleArray[i] = jsonArray.getString(i).toDouble()
+            }
+            return DoubleArray
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+        return doubleArrayOf(0.0, 0.0, 0.0, 0.0)
+    }
 }
 }

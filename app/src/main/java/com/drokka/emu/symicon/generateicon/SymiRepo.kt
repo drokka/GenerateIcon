@@ -16,11 +16,17 @@ import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
 
 private val DB_NAME = "SYMI_DATABASE"
 
-// extension to GeneratedImage for convenience
+// GetBitmap extension to GeneratedImage for convenience
 fun GeneratedImage.getBitmap(context: Context):Bitmap?{
+    if(iconImageFileName.isNullOrEmpty()){
+        Log.e("GeneratedImage.getBitmap", "ERROR iconImageFileName not set")
+        return null
+    }
     try {
         val imagesDirPath = File(context.filesDir, "images")
 
@@ -28,15 +34,17 @@ fun GeneratedImage.getBitmap(context: Context):Bitmap?{
 
         val inputStream = FileInputStream(imFile.path)
 
+        Log.d("GeneratedImage.getBitmap", "iconImageFileName is $iconImageFileName")
     var byteArray = ByteArray(len)
     inputStream.read(byteArray,0,len)
     var bitmapImage:Bitmap? = null
     if (byteArray != null) {
         bitmapImage = BitmapFactory.decodeByteArray(byteArray, 0, len)
     }
+        inputStream.close()
     return bitmapImage
     }catch ( xx:Exception){
-        Log.e("getImagesByteArray", "ERROR msg is: " + xx.message)
+        Log.e("GeneratedImage.getBitmap", "ERROR msg is: " + xx.message)
 
         return null
     }
@@ -45,14 +53,21 @@ fun GeneratedImage.getBitmap(context: Context):Bitmap?{
 fun GeneratedImage.getGeneratedData(context: Context):String{
     var dataString =""
     try{
+
         val filesPath = context.filesDir
         val dataFile = File(filesPath, generatedIcon.generatedDataFileName)
-        val inputStream = FileInputStream(dataFile)
-        dataString = inputStream.bufferedReader().use { it.readText() }
 
+        val zipFile = ZipFile(dataFile)
+        val entry = zipFile.getEntry(generatedIcon.generatedDataFileName)
+
+        val zipInputStream = zipFile.getInputStream(entry)
+        dataString = zipInputStream.bufferedReader().readText()
+
+        zipInputStream.close()
+        zipFile.close()
     }catch ( xx:Exception){
-    Log.e("getGeneratedData", "ERROR msg is: " + xx.message)
-    return ""
+        Log.e("getGeneratedData", "ERROR msg is: " + xx.message)
+        return ""
     }
     return dataString
 }
@@ -256,7 +271,29 @@ class SymiRepo   private constructor(context: Context) {
         symiDao.addGeneratedImageData(generatedImageData)
     }
 
-  //  fun addGeneratedImageDataForGenData(generatedMedIcon: GeneratedIcon, generatedImageData: GeneratedImageData) {
+    fun getGeneratedIcon(genIconId: UUID): GeneratedIcon {
+        return symiDao.getGeneratedIcon(genIconId)
+    }
+
+    fun getGeneratedIconWithAllImageDataSizeClr(
+        iconDef: IconDef,
+        sz: Int,
+        bgClr: String,
+        minClr: String,
+        maxClr: String
+    ):List<GeneratedIconWithAllImageData> {
+        return symiDao.getGeneratedIconWithAllImageDataSizeClr(iconDef.ma,
+            iconDef.alpha,
+            iconDef.beta,
+            iconDef.lambda,
+            iconDef.omega,
+            iconDef.gamma,
+            iconDef.quiltType,
+            iconDef.degreeSym,
+            sz, bgClr, minClr, maxClr)
+    }
+
+    //  fun addGeneratedImageDataForGenData(generatedMedIcon: GeneratedIcon, generatedImageData: GeneratedImageData) {
    //     symiDao.addGeneratedImageDataForGenData(generatedMedIcon, generatedImageData)
    // }
 

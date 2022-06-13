@@ -14,8 +14,5 @@ import com.drokka.emu.symicon.generateicon.data.*
 @TypeConverters(SymiTypeConverters::class)
 abstract class SymiDatabase: RoomDatabase() {
 
-    init {
-
-    }
     abstract fun symiDao():SymiDao
 }

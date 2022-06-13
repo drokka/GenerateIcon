@@ -127,6 +127,7 @@ class BigImageViewPagerFragment : Fragment() {
                 var byteArray = ByteArray(len)
                 inputStream.read(byteArray, 0, len)
                 bitmapImage = BitmapFactory.decodeByteArray(byteArray, 0, len)
+                inputStream.close()
             } catch (xx: Exception) {
                 Log.e("ViewBigImagePagerAdapter", "Error could not load bitmap:" + xx.message)
             }

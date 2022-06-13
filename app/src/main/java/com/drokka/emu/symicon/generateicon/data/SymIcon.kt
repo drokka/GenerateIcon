@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import androidx.room.*
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.drokka.emu.symicon.generateicon.database.SymiTypeConverters
 import java.io.Serializable
 import java.util.*
 
@@ -19,10 +20,10 @@ const val MEDIUM = 841
 const val LARGE = 1081
 const val XLARGE =2001
 
-const val QUICK_LOOK = 40000
-const val GO        = 400000
-const val GO_GO     = 1000000
-const val GO_GO_GO  = 10000000
+const val QUICK_LOOK = 5000
+const val GO        = 50000
+const val GO_GO     = 100000
+const val GO_GO_GO  = 1000000
 
 //@Entity(primaryKeys = ["lambda","alpha","beta","gamma","omega","ma","quiltType"])
 @Entity
@@ -91,6 +92,12 @@ data class GeneratedImageData(
     var iconImageFileName: String,
 //    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
 //    var byteArray: ByteArray?,
+    var bgClr:String,
+
+    var minClr:String,
+    var maxClr:String,
+    var clrFunction:String,
+
     var len: Int
 ) {
     override fun equals(other: Any?): Boolean {
@@ -102,6 +109,11 @@ data class GeneratedImageData(
         if (gid_id != other.gid_id) return false
         if (gen_icon_id != other.gen_icon_id) return false
         if (iconImageFileName != other.iconImageFileName) return false
+
+        if(!bgClr.contentEquals(other.bgClr)) return false
+        if(!minClr.contentEquals(other.minClr)) return false
+        if(!maxClr.contentEquals(other.maxClr)) return false
+        if(clrFunction != other.clrFunction) return false
 
         if (len != other.len) return false
 
@@ -128,6 +140,7 @@ data class GeneratedImageData(
                                         /* " GeneratedIcon.generatedData,*/ " GeneratedIcon.generatedDataFileName,"+
         " GeneratedImageData.gid_id as generatedImageDataId, GeneratedImageData.iconImageFileName, "
         +     //"GeneratedImageData.byteArray, "+
+        "GeneratedImageData.bgClr, GeneratedImageData.minClr, GeneratedImageData.maxClr, GeneratedImageData.clrFunction, "+
         " GeneratedImageData.len"+
         " from IconDef inner join SymIcon on IconDef.icon_def_id = SymIcon.icon_def_id "+
     "inner join GeneratorDef on GeneratorDef.sym_icon_id = SymIcon.sym_icon_id" +
@@ -158,18 +171,84 @@ data class GeneratedIconWithAllImageData
     var generatedDataFileName: String,
     var generatedImageDataId:UUID,
     val iconImageFileName: String,
+    @TypeConverters
+    var bgClr: String,
+    @TypeConverters
+    var minClr: String,
+    @TypeConverters
+    var maxClr: String,
+    var clrFunction: String,
  //   @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
   //  var byteArray: ByteArray?,
     var len: Int
 ){
     /*************
     init {
-        byteArray = null
+    byteArray = null
 
 
-            byteArray
-        }
-    *****************************/
+    byteArray
+    }
+     *****************************/
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as GeneratedIconWithAllImageData
+
+        if (iconDefId != other.iconDefId) return false
+        if (lambda != other.lambda) return false
+        if (alpha != other.alpha) return false
+        if (beta != other.beta) return false
+        if (gamma != other.gamma) return false
+        if (omega != other.omega) return false
+        if (ma != other.ma) return false
+        if (quiltType != other.quiltType) return false
+        if (degreeSym != other.degreeSym) return false
+        if (label != other.label) return false
+        if (gen_def_id != other.gen_def_id) return false
+        if (width != other.width) return false
+        if (height != other.height) return false
+        if (iterations != other.iterations) return false
+        if (genIconId != other.genIconId) return false
+        if (generatedDataFileName != other.generatedDataFileName) return false
+        if (generatedImageDataId != other.generatedImageDataId) return false
+        if (iconImageFileName != other.iconImageFileName) return false
+        if (!bgClr.contentEquals(other.bgClr)) return false
+        if (!minClr.contentEquals(other.minClr)) return false
+        if (!maxClr.contentEquals(other.maxClr)) return false
+        if (clrFunction != other.clrFunction) return false
+        if (len != other.len) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = iconDefId.hashCode()
+        result = 31 * result + lambda.hashCode()
+        result = 31 * result + alpha.hashCode()
+        result = 31 * result + beta.hashCode()
+        result = 31 * result + gamma.hashCode()
+        result = 31 * result + omega.hashCode()
+        result = 31 * result + ma.hashCode()
+        result = 31 * result + quiltType.hashCode()
+        result = 31 * result + degreeSym
+        result = 31 * result + label.hashCode()
+        result = 31 * result + gen_def_id.hashCode()
+        result = 31 * result + width
+        result = 31 * result + height
+        result = 31 * result + iterations
+        result = 31 * result + genIconId.hashCode()
+        result = 31 * result + generatedDataFileName.hashCode()
+        result = 31 * result + generatedImageDataId.hashCode()
+        result = 31 * result + iconImageFileName.hashCode()
+        result = 31 * result + bgClr.hashCode()
+        result = 31 * result + minClr.hashCode()
+        result = 31 * result + maxClr.hashCode()
+        result = 31 * result + clrFunction.hashCode()
+        result = 31 * result + len
+        return result
+    }
 }
 
 //@Entity

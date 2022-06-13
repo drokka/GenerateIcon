@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
+/*
 @RunWith(androidx.test.ext.junit.runners.AndroidJUnit4::class)
 class SymDAOInstrumentedTest {
 
@@ -134,18 +135,13 @@ lateinit var  iconDefId3:UUID
 
 
         generatedIcon = GeneratedIcon(
-            UUID.randomUUID(), def1.gen_def_id, String(byteArray1),
-            "generated data file name"
-        )
+            UUID.randomUUID(), def1.gen_def_id, String(byteArray1))
         generatedIcon2 = GeneratedIcon(
-            UUID.randomUUID(), def1.gen_def_id, "generated data string two",
-            "generated data file name two"
+            UUID.randomUUID(), def1.gen_def_id, "generated data string two"
         )
 
         generatedIcon3 = GeneratedIcon(
-            UUID.randomUUID(), def3.gen_def_id, "generated data string three",
-            "generated data file name three"
-        )
+            UUID.randomUUID(), def3.gen_def_id, "generated data string three")
 
          gen1 =
             GeneratedImageData(UUID.randomUUID(), generatedIcon.id, filename, byteArray1, len1)
@@ -316,3 +312,4 @@ lateinit var  iconDefId3:UUID
         return data
     }
 }
+*/

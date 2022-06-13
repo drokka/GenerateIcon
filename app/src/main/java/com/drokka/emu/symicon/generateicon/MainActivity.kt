@@ -5,13 +5,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.os.StrictMode
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.Toolbar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
@@ -22,12 +22,10 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.drokka.emu.symicon.generateicon.R.id.action_imageIconFragment_to_pickColourFragment
+import com.drokka.emu.symicon.generateicon.R.id.*
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.ui.main.*
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import java.io.File
 import java.util.*
@@ -70,10 +68,16 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         navController = findNavController(R.id.fragmentContainerView)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+        override fun onResume() {
+        super.onResume()
 
-        setSupportActionBar(findViewById(R.id.my_toolbar))
+        if(!viewModel.workItemsList.isEmpty()){
+            val wm = WorkManager.getInstance(applicationContext)
+            for(wi in viewModel.workItemsList){
+               val workInfo = wm.getWorkInfoByIdLiveData(wi.key)
+                workInfo.value?.let { checkWI(it,applicationContext,wi.key) }
+            }
+        }
     }
     override fun onImageIconSelected() {
         if(imageIconFragment == null) {
@@ -96,7 +100,6 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
      */
     //MainFragment GENERATE. MainFragment is not the MainActivityFragment which is a navigation container
     @SuppressLint("SuspiciousIndentation")
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onGenerateClicked(context:Context) :Deferred<Unit>?{
        // var generateJob:Job? = null
         var deferredJob:Deferred<Unit>? = null
@@ -119,42 +122,59 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         return deferredJob
     }
 
-    override fun generateLargeIcon(context: Context)  {
-        val id = viewModel.runSymiExampleWorker(context)
-        if(id == null){
-            Log.e("Go Big", "Error getting work id.")
+    override fun generateLargeIcon(requireContext: Context) {
+        try {
 
-        }else {
+            val id: Pair<UUID, String> = viewModel.runSymiExampleWorker(requireContext)
+
             setBigsIndicator(false)
-            viewModel.workItemsList.add(id)
-            context.let { it1 ->
-                WorkManager.getInstance(it1).getWorkInfoByIdLiveData(id)
+            viewModel.workItemsList.put(id.first, id.second)
+            requireContext.let { it1 ->
+                WorkManager.getInstance(it1).getWorkInfoByIdLiveData(id.first)
                     .observe(this) { workInfo ->
-                        if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                         //   Snackbar.make(requireView(),"Go Big completed", Snackbar.LENGTH_SHORT)
-                           //     .show()
-                            Log.i("Go Big", "success for work: " + workInfo.toString())
-                            viewModel.workItemsList.remove(id)
-
-                            setBigsIndicator(viewModel.workItemsList.isEmpty())
-                            // viewModel.storeWork(requireContext(),workInfo.outputData)
-                        } else if (workInfo?.state == WorkInfo.State.ENQUEUED){
-                            Log.d("Go Big", "queued")
-                        } else if (workInfo?.state == WorkInfo.State.RUNNING){
-                            Log.d("Go Big", "running")
-                        } else{
-                           // Snackbar.make(
-                             //   requireView(),"Go Big generation error.",
-                               // Snackbar.LENGTH_SHORT )
-                                //.show()
-                            Log.e("Go Big", "Error generating large image. workinfo state: " +workInfo?.toString())
-                            viewModel.workItemsList.remove(id)
-
-                            setBigsIndicator(viewModel.workItemsList.isEmpty())
-                        }
+                        checkWI(workInfo, it1, id.first)
                     }
             }
+        } catch (xx:Exception){
+            xx.message?.let { Log.i("generateLargeIcon", it) }
         }
+    }
+
+        private fun checkWI(
+        workInfo: WorkInfo,
+        it1: Context,
+        id: UUID
+    ) {
+
+        if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+            Toast.makeText(applicationContext, "Go Big completed.", Toast.LENGTH_SHORT)
+                .show()
+            Log.i("Go Big checkWI", "success for work: " +id +" " + workInfo.toString())
+            viewModel.workItemsList.remove(id)
+
+            // viewModel.storeWork(requireContext(),workInfo.outputData)
+        } else if (workInfo?.state == WorkInfo.State.ENQUEUED) {
+            Toast.makeText(applicationContext, "Go Big  task queued."  , Toast.LENGTH_SHORT)
+                .show()
+            Log.d("Go Big checkWI", "queued")
+        } else if (workInfo?.state == WorkInfo.State.RUNNING) {
+            Toast.makeText(applicationContext, "Go Big task running." , Toast.LENGTH_SHORT)
+                .show()
+            Log.d("Go Big checkWI", "running" +id +" " )
+        } else if(workInfo.state.isFinished) {
+            Toast.makeText(
+                applicationContext, "Go Big generation did not complete.",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+            Log.e("Go Big checkWI", "Error generating large image. workinfo state: " +id +" "  + workInfo?.toString())
+            viewModel.workItemsList.remove(id)
+
+        } else {
+            Log.e("Go Big checkWI", "Fail? fall through generating large image. workinfo: " +id +" "  + workInfo?.toString())
+
+        }
+        setBigsIndicator(viewModel.workItemsList.isEmpty())
     }
 
     private fun setBigsIndicator(workDone: Boolean) {
@@ -172,19 +192,18 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     override fun showBigImage() {
-        if(bigImageFragment == null){
-            bigImageFragment = BigImageFragment.newInstance(null)
-        }
+      //  if(bigImageFragment == null){
+            bigImageFragment = BigImageFragment.newInstance(viewModel.largeIm)
+      //  }
       //  if(viewModel.imageExists(LARGE)){
         //Save the big image
-            viewModel.saveSymi()
         //Now show it.
         //    viewModel.getIconBitmap(applicationContext, viewModel.genIAD?.generatedImageData!!.gid_id)?.let {
 
          //     val  bitMap = BitmapFactory.decodeByteArray(it, 0, viewModel.genIAD?.generatedImageData!!.len)
                // bigImageFragment?.bigImageView?.setImageBitmap(it)  // bigImageView null, OnCreateView not finished?
-                bigImageFragment?.view?.findViewById<ImageView>(R.id.bigImageView)?.setImageBitmap(viewModel.largeIm)
-                bigImageFragment?.view?.invalidate()
+           //     bigImageFragment?.view?.findViewById<ImageView>(R.id.bigImageView)?.setImageBitmap(viewModel.largeIm)
+            //    bigImageFragment?.view?.invalidate()
                 if(navController?.currentDestination?.id == R.id.imageIconFragment) {
                     navController?.navigate(R.id.action_imageIconFragment_to_bigImageFragment)
                           }
@@ -311,6 +330,12 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
      // Handle the splash screen transition.
   //   val splashScreen = installSplashScreen()
      super.onCreate(savedInstanceState)
+
+     StrictMode.setVmPolicy(
+         StrictMode.VmPolicy.Builder(StrictMode.getVmPolicy())
+             .detectLeakedClosableObjects()
+             .build()
+     )
         SymiRepo.initialize(applicationContext)
        // symiRepo = SymiRepo.get()
      //   symIconList = symiRepo.getAllSymIconData()  //symiRepo.getSymIconDataList(TINY)
@@ -365,6 +390,18 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
      if(mainActivityFragment == null){
          mainActivityFragment = MainActivityFragment.newInstance("hell", "yeah")
      }
+
+     setSupportActionBar(findViewById(R.id.my_toolbar))
+
+     if(!viewModel.workItemsList.isEmpty()){
+         val wm = WorkManager.getInstance(applicationContext)
+         for(wi in viewModel.workItemsList){
+             val workInfo = wm.getWorkInfoByIdLiveData(wi.key)
+             workInfo.value?.let { checkWI(it,applicationContext,wi.key) }
+         }
+     }
+
+     setBigsIndicator(viewModel.workItemsList.isEmpty())
 
                 /*******
                 supportFragmentManager.beginTransaction().replace(id.container,wrapListFragment!!)

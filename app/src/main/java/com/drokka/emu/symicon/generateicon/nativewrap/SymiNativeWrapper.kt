@@ -1,23 +1,40 @@
 package com.drokka.emu.symicon.generateicon.nativewrap
 
 import android.content.Context
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
+import android.util.Log
+import androidx.work.*
 import com.drokka.emu.symicon.generateicon.data.GeneratorDef
 import com.drokka.emu.symicon.generateicon.data.IconDef
-import com.drokka.emu.symicon.generateicon.nativewrap.SymiWorker
+import com.drokka.emu.symicon.generateicon.ui.main.MainViewModel
 import kotlinx.coroutines.*
 import java.util.*
 
 //external fun getHelloFromJNI(): String
 
+external fun callMoreIterSampleFromJNI(
+    mainViewModel: MainViewModel,
+    context: Context,
+    iterations: Long,
+   // inData: String,
+    fname: String,
+    imageFileName: String?,
+    bgClr: DoubleArray?,
+    minClr: DoubleArray?,
+    maxClr: DoubleArray?
+): Int
+
 external fun callRunSampleFromJNI( intArgs:IntArray, type:Byte,  dArgs:DoubleArray): OutputData
 
 external fun callReColourBufFromJNI(symIn:String,sz:Int, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray):OutputData
 
-class SymiNativeWrapper {
+class SymiNativeWrapper (mainViewModel:MainViewModel){
+
+    init {
+         Companion.mainViewModel = mainViewModel
+    }
+    companion object Companion {
+        var mainViewModel:MainViewModel? = null
+    }
 
     suspend fun reColourSym(symData:String,sz:Int, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray):Deferred<OutputData>{
 
@@ -26,6 +43,65 @@ class SymiNativeWrapper {
                 callReColourBufFromJNI(symData, sz, bgClr, minClr,maxClr)
             }
         }
+    }
+
+    suspend fun runMoreIter(
+      //  mainViewModel: MainViewModel,
+        context: Context,
+        iterations: Long,
+        symIn: String,
+        fname: String,
+        imageFileName: String,
+        bgClr: DoubleArray,
+        minClr: DoubleArray,
+        maxClr: DoubleArray
+    ):Deferred<Int>{
+
+        return coroutineScope {
+            async{
+                callMoreIterSampleFromJNI(
+                    Companion.mainViewModel!!,
+                    context,
+                    iterations,
+                    fname,
+                    imageFileName,
+                    bgClr,
+                    minClr,
+                    maxClr
+                )
+            }
+        }
+    }
+
+    fun runMoreIterWorker(
+        context: Context,
+        iterations: Long,
+        fname: String,
+        imageFileName: String,
+        bgClr: DoubleArray,
+        minClr: DoubleArray,
+        maxClr: DoubleArray
+    ):UUID{
+
+        Log.d("runMoreIterWorker", "colours are: $bgClr , $minClr , $maxClr")
+        val params =   Data.Builder().putLong("iterations", iterations)
+            .putString("fname", fname)
+            .putString("imageFileName", imageFileName)
+            .putDoubleArray("bgClr", bgClr)
+            .putDoubleArray("minClr", minClr)
+            .putDoubleArray("maxClr", maxClr)
+            .build()
+        val symiWorkRequest: WorkRequest = OneTimeWorkRequestBuilder<MoreIterWorker>()
+                .setInputData(params)
+                .build()
+
+        WorkManager
+            .getInstance(context)
+            .enqueue(symiWorkRequest)
+
+
+        return symiWorkRequest.id
+
     }
 
     suspend fun runSample(generatorDef: GeneratorDef, iconDef: IconDef, bgClr: DoubleArray,
@@ -68,8 +144,8 @@ class SymiNativeWrapper {
             }
         }
     }
-        fun runSampleWorker(context:Context,generatorDef: GeneratorDef, iconDef: IconDef, bgClr: DoubleArray,
-                              minClr: DoubleArray, maxClr: DoubleArray): UUID {
+        fun runSampleWorker(context:Context,dataFileName:String, imageFileName:String, generatorDef: GeneratorDef, iconDef: IconDef, bgClr: DoubleArray,
+                              minClr: DoubleArray, maxClr: DoubleArray): Pair<UUID,String> {
             var iconImageType: Byte
             val dArgs = DoubleArray(18)
 
@@ -106,8 +182,10 @@ class SymiNativeWrapper {
             val inputData = Data.Builder().putIntArray(INT_ARGS, intArgs)
                 .putByte(ICON_TYPE, iconImageType)
                 .putDoubleArray(D_ARGS, dArgs)
+                .putString("dataFileName", dataFileName)
+                .putString("imageFileName", imageFileName)
                 .build()
-            val uploadWorkRequest: WorkRequest =
+            val symiWorkRequest: WorkRequest =
                 OneTimeWorkRequestBuilder<SymiWorker>()
                     .setInputData(inputData)
                     .build()
@@ -115,10 +193,10 @@ class SymiNativeWrapper {
 
             WorkManager
                 .getInstance(context)
-                .enqueue(uploadWorkRequest)
+                .enqueue(symiWorkRequest)
 
 
-            return uploadWorkRequest.id
+            return Pair(symiWorkRequest.id, dataFileName)
         }
 //    fun getHellow() : String{
         //       return getHelloFromJNI()

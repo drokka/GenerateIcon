@@ -72,7 +72,7 @@ class BigImageFragment : Fragment() {
          }
 
         if(bigIconImageBitmap != null) {
-            bigImageView.setImageBitmap(this.bigIconImageBitmap)
+            bigImageView.setImageBitmap(bigIconImageBitmap)
         }
         else{
             bigImageView.setImageDrawable( resources.getDrawable(R.drawable.symi_100px))

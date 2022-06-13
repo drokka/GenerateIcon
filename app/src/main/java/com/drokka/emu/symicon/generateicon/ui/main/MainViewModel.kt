@@ -1,6 +1,5 @@
 package com.drokka.emu.symicon.generateicon.ui.main
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -8,30 +7,31 @@ import android.util.Log
 import android.widget.ImageView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.work.Data
 import com.drokka.emu.symicon.generateicon.SymiRepo
 import com.drokka.emu.symicon.generateicon.clear
 import com.drokka.emu.symicon.generateicon.data.*
+import com.drokka.emu.symicon.generateicon.database.SymiTypeConverters
 import com.drokka.emu.symicon.generateicon.getBitmap
 import com.drokka.emu.symicon.generateicon.getGeneratedData
 import com.drokka.emu.symicon.generateicon.nativewrap.*
-import com.drokka.emu.symicon.generateicon.worker.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
-import kotlin.collections.ArrayList
-
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 class MainViewModel() : ViewModel() {
 
     companion object {
-        val symiNativeWrapper = SymiNativeWrapper()
 
         /** data access using Room **/
         val symiRepo = SymiRepo.get()
 
     }
+
+    val symiNativeWrapper = SymiNativeWrapper(this)
 
 
     /***********************************************************
@@ -65,7 +65,7 @@ class MainViewModel() : ViewModel() {
     fun getSymBigsList():List<GeneratedIconWithAllImageData>{
         return  symiRepo.getAllGeneratedIconWithAllImageDataSize(LARGE)
     }
-    var workItemsList = ArrayList<UUID>(0)
+    var workItemsList = mutableMapOf<UUID, String>()
     //var symiMedList = List<GeneratedIconWithAllImageData>(0)
 
     //val symImageListAll:LiveData<List<GeneratedIconAndImageData>> = symiRepo.getAllSymIconData()
@@ -76,7 +76,6 @@ class MainViewModel() : ViewModel() {
     var imCounter = 0
 
     var storageCheckDone = false
-    val workers = ArrayList<UUID>()
 
     fun clearGeneratedImage(){
 
@@ -88,6 +87,7 @@ class MainViewModel() : ViewModel() {
         generatedMedImage?.clear()
 
         generatedTinyImage?.clear()
+        generatedLargeImage?.clear()
 
         generatedIcon.clear()
         generatedMedIcon.clear()
@@ -101,17 +101,21 @@ class MainViewModel() : ViewModel() {
         tinySymDataString = ""
 
     }
+
+    var clrFunction:String = "default"
     var rgbValueInt:IntArray = intArrayOf(0,0,0,255) // red, blue, green, opacity
 
-    var bgClrInt:IntArray = intArrayOf(0,0,0,255)
-    var minClrInt:IntArray = intArrayOf(0,127,0,255)
-    var maxClrInt:IntArray = intArrayOf(127,255,127,255)
+    var bgClrInt:IntArray = intArrayOf(0,0,0,0)
+    var minClrInt:IntArray = intArrayOf(0,127,0,0)
+    var maxClrInt:IntArray = intArrayOf(127,255,127,0)
 
-    var bgClr = doubleArrayOf(0.0,0.0,0.0,1.0)
-    var minClr = doubleArrayOf(0.0,0.5,0.0, 1.0)
-    var maxClr = doubleArrayOf(0.5, 0.999, 0.5, 1.0)
+    var bgClr = doubleArrayOf(0.0,0.0,0.0,0.0)
+    var minClr = doubleArrayOf(0.0,0.5,0.0, 0.0)
+    var maxClr = doubleArrayOf(0.5, 0.999, 0.5, 0.0)
     var generatedTinyIAD:GeneratedIconAndImageData? = null
     var generatedTinyImage:GeneratedImage? = null
+    var generatedLargeImage:GeneratedImage? = null
+
     var tinyIm:Bitmap? = null
     var medIm:Bitmap? = null
     var largeIm:Bitmap? = null
@@ -135,6 +139,8 @@ class MainViewModel() : ViewModel() {
                         height = TINY, iterations = QUICK_LOOK)
     var symiMed = GeneratorDef(sym_icon_id = symIcon.sym_icon_id,width = MEDIUM,
         height = MEDIUM, iterations = GO_GO)
+    var symiLarge = GeneratorDef(sym_icon_id = symIcon.sym_icon_id,width = LARGE,
+        height = LARGE, iterations = GO_GO_GO)
         var generatedIcon = GeneratedIcon(gen_def_id = symi.gen_def_id,
             generatedDataFileName = "symdata"
         )
@@ -143,6 +149,9 @@ class MainViewModel() : ViewModel() {
     )
     var generatedTinyIcon = GeneratedIcon(gen_def_id = symiTiny.gen_def_id,
         generatedDataFileName = "symdataTiny"
+    )
+    var generatedLargeIcon = GeneratedIcon(gen_def_id = symiLarge.gen_def_id,
+        generatedDataFileName = "symdataLarge"
     )
         var generatedImage = GeneratedImage(generatedIcon, 0,  "symimage")
 
@@ -333,10 +342,13 @@ class MainViewModel() : ViewModel() {
 
             val generatedImageData = GeneratedImageData(
                 allImageData.generatedImageDataId, generatedIcon.id,
-               generatedImage.iconImageFileName,  generatedImage.len
+               generatedImage.iconImageFileName,allImageData.bgClr, allImageData.minClr, allImageData.maxClr, clrFunction, generatedImage.len
             )
+            bgClr = SymiTypeConverters.JSONArrayToDoubleArray(allImageData.bgClr)
+        minClr = SymiTypeConverters.JSONArrayToDoubleArray(allImageData.minClr)
+        maxClr = SymiTypeConverters.JSONArrayToDoubleArray(allImageData.maxClr)
 
-            genIAD = GeneratedIconAndImageData(generatedIcon, generatedImageData)
+        genIAD = GeneratedIconAndImageData(generatedIcon, generatedImageData)
      //   }
 
         when(symi.width){
@@ -360,6 +372,14 @@ class MainViewModel() : ViewModel() {
 
                 medSymDataString = generatedImage.getGeneratedData(context)
         }
+            LARGE-> {
+            generatedLargeImage = generatedImage
+           // generatedLargeIAD = genIAD
+            largeIm = generatedImage.getBitmap(context)
+            Log.d("setSymiData", "adding  width = " + symi.width.toString())
+
+           // medSymDataString = generatedImage.getGeneratedData(context)
+        }
 
         }
         // Actually with current view sql will always be TINY that has loaded. So load MEDIUM.
@@ -372,7 +392,13 @@ class MainViewModel() : ViewModel() {
             allImageData.quiltType,
             allImageData.degreeSym
         )
-        val symiMedList = symiRepo.getGeneratedIconWithAllImageDataSize(tempIconDef, MEDIUM)
+        var symiMedList = symiRepo.getGeneratedIconWithAllImageDataSizeClr(tempIconDef, MEDIUM, SymiTypeConverters.JSONArrayfromDoubleArray( bgClr),
+            SymiTypeConverters.JSONArrayfromDoubleArray( minClr),
+            SymiTypeConverters.JSONArrayfromDoubleArray( maxClr))
+        if(symiMedList.size == 0) {
+            symiMedList = symiRepo.getGeneratedIconWithAllImageDataSize(tempIconDef, MEDIUM) // fall back to any colour
+            Log.d("setSymiData", "No medium inage for this colour scheme, falling back to any.")
+        }
         if(symiMedList.size > 0){
             if(symiMedList.size >1){
                 Log.i("setSymiData", "There is more than one MEDIUM image!! Number is: "+symiMedList.size.toString())
@@ -382,7 +408,8 @@ class MainViewModel() : ViewModel() {
             generatedMedImage =  GeneratedImage( generatedMedIcon, symiMedList[0].len, symiMedList[0].iconImageFileName)
             val generatedMedImageData = GeneratedImageData(
                 symiMedList[0].generatedImageDataId, generatedMedIcon.id,
-                symiMedList[0].iconImageFileName,  symiMedList[0].len
+                symiMedList[0].iconImageFileName, symiMedList[0].bgClr, symiMedList[0].minClr, symiMedList[0].maxClr,
+                symiMedList[0].clrFunction, symiMedList[0].len
             )
             generatedMedIAD = GeneratedIconAndImageData(generatedMedIcon, generatedMedImageData)
          //   medIm = getIconBitmap(context = generatedMedIcon.id)
@@ -400,7 +427,9 @@ class MainViewModel() : ViewModel() {
         }
         if(!haveImage){
             //check DB
-            val symiSizedDataList = symiRepo.getGeneratedIconWithAllImageDataSize(iconDef,sz)
+            val symiSizedDataList = symiRepo.getGeneratedIconWithAllImageDataSizeClr(iconDef,sz, SymiTypeConverters.JSONArrayfromDoubleArray( bgClr),
+                SymiTypeConverters.JSONArrayfromDoubleArray( minClr),
+                SymiTypeConverters.JSONArrayfromDoubleArray( maxClr))
             if(symiSizedDataList.isNotEmpty()) {
                 generatedIcon = getGeneratedIcon(symiSizedDataList[0])
                 generatedImage = getGeneratedImage(generatedIcon, symiSizedDataList[0])
@@ -408,7 +437,9 @@ class MainViewModel() : ViewModel() {
                 genIAD = getGeneratedIconAndImageData(
                     generatedIcon, GeneratedImageData(
                         symiSizedDataList[0].generatedImageDataId, generatedIcon.id,
-                        symiSizedDataList[0].iconImageFileName, symiSizedDataList[0].len
+                        symiSizedDataList[0].iconImageFileName, symiSizedDataList[0].bgClr,
+                        symiSizedDataList[0].minClr, symiSizedDataList[0].maxClr,
+                        symiSizedDataList[0].clrFunction, symiSizedDataList[0].len
                     )
                 )
                 val bitmap = generatedImage.getBitmap(context)
@@ -448,7 +479,9 @@ class MainViewModel() : ViewModel() {
         val TAG = "runSymiExample"
         val runRequired = !imageExists(context, size)
         Log.i(TAG , "runRequired is " + runRequired + "number of DB entries is " + symImageListAll.value?.size)
-       if (!runRequired) return CoroutineScope(Dispatchers.Main).async{/* do nothing*/}
+       if (!runRequired) {
+           return CoroutineScope(Dispatchers.Main).async{/* do nothing*/}
+       }
         /*viewModelScope.launch(Dispatchers.Unconfined) ***/
 
              val imagesDirPath = File(context.getFilesDir(), "images")
@@ -491,6 +524,10 @@ class MainViewModel() : ViewModel() {
                                0,
                                outputData!!.pngBufferLen
                            )
+                           if(tinyIm == null){
+                               Log.e("MainViewModel runSymiExMPLE", "TINY just extracted BUT IS NULL bitmap")
+                           }
+                           Log.d("MainViewModel runSymiExMPLE", "TINY just set tinyIm size is " + tinyIm?.height)
                        }
                        MEDIUM -> {
                            medSymDataString = outputData!!.savedData
@@ -500,7 +537,13 @@ class MainViewModel() : ViewModel() {
                                outputData!!.pngBufferLen
                            )
                            saveDataFile(context, medSymDataString, MEDIUM,"symdata"+imCounter.toString()+"_"+Date().time.toString()+".txt")
-                           saveImage(context, medIm, MEDIUM,imCounter.toString()+"_"+Date().time.toString()+"MED.png")
+                           saveImage(
+                               context,
+                               medIm,
+                               MEDIUM,
+                               imCounter.toString()+"_"+Date().time.toString()+"MED.png",
+                               ""
+                           )
 
                        }
                        else -> {
@@ -526,19 +569,57 @@ class MainViewModel() : ViewModel() {
         when(size) {
             TINY -> generatedTinyIcon.generatedDataFileName = fname
             MEDIUM ->generatedMedIcon.generatedDataFileName = fname
+            LARGE -> generatedLargeIcon.generatedDataFileName = fname
         }
         generatedIcon.generatedDataFileName = fname
-        val oStream = context.openFileOutput(fname, Context.MODE_APPEND)
-        oStream.bufferedWriter(Charsets.UTF_8).write(savedData)
+
+        val oStream = context.openFileOutput(fname, Context.MODE_PRIVATE)
+
+        ZipOutputStream(oStream).use { zipStream ->
+            val zipEntry = ZipEntry(fname)
+            zipStream.putNextEntry(zipEntry)
+            zipStream.write(savedData.toByteArray())
+        }
+
+        //oStream.bufferedWriter(Charsets.UTF_8).write(savedData)
         oStream.flush(); oStream.close()
     }
 
-fun saveImage(context: Context, image: Bitmap?, size: Int, imFileSuffix:String) {
+    fun readDataFile(context: Context, fname: String): String{
+        val iStream = context.openFileInput(fname)
+        var symData:String =""
+        ZipInputStream(iStream).use {
+            try {
+
+                val zipEntry = it.nextEntry
+             //   if (zipEntry.name == fname) {
+                    symData = it.bufferedReader().readText()
+             //   }
+            }catch (xx:Exception){
+                Log.e("readDataFile", "exception loading file: " +xx.message)
+
+            }
+        }
+        return symData
+    }
+
+fun saveImage(
+    context: Context,
+    image: Bitmap?,
+    size: Int,
+    imFileSuffix: String,
+    imageFileName: String
+) {
     imCounter++
-    val fname = "symimage_" + imCounter.toString() + "_" + imFileSuffix
+    var fname:String
+    if(imageFileName.isNotEmpty()){
+     fname =  imageFileName}
+    else{ fname =  "symimage_" + imCounter.toString() + "_" + imFileSuffix}
+
     when(size) {
         MEDIUM -> generatedMedImage?.iconImageFileName = fname
         TINY -> generatedTinyImage?.iconImageFileName = fname
+        LARGE ->generatedLargeImage?.iconImageFileName = fname
     }
     generatedImage.iconImageFileName = fname
     try {
@@ -571,7 +652,10 @@ fun saveImage(context: Context, image: Bitmap?, size: Int, imFileSuffix:String) 
 
                     val generatedImageData = GeneratedImageData(
                         UUID.randomUUID(), generatedTinyIcon.id,
-                        generatedImage.iconImageFileName!!, generatedImage?.len!!
+                        generatedImage.iconImageFileName!!,
+                       SymiTypeConverters.JSONArrayfromDoubleArray( bgClr),
+                        SymiTypeConverters.JSONArrayfromDoubleArray(  minClr),
+                            SymiTypeConverters.JSONArrayfromDoubleArray( maxClr),clrFunction, generatedImage?.len!!
                     )
                     generatedTinyIAD = GeneratedIconAndImageData(generatedTinyIcon, generatedImageData)
                     generatedTinyImage = generatedImage
@@ -580,7 +664,10 @@ fun saveImage(context: Context, image: Bitmap?, size: Int, imFileSuffix:String) 
                 MEDIUM -> {
                     val generatedImageData = GeneratedImageData(
                         UUID.randomUUID(), generatedMedIcon.id,
-                        generatedImage?.iconImageFileName!!, generatedImage?.len!!
+                        generatedImage?.iconImageFileName!!,
+                        SymiTypeConverters.JSONArrayfromDoubleArray( bgClr),
+                            SymiTypeConverters.JSONArrayfromDoubleArray( minClr),
+                                SymiTypeConverters.JSONArrayfromDoubleArray( maxClr),clrFunction, generatedImage?.len!!
                     )
 
                     generatedMedIAD = GeneratedIconAndImageData(generatedMedIcon, generatedImageData)
@@ -591,7 +678,9 @@ fun saveImage(context: Context, image: Bitmap?, size: Int, imFileSuffix:String) 
                 else ->{
                     val generatedImageData = GeneratedImageData(
                         UUID.randomUUID(), generatedIcon.id,
-                        generatedImage.iconImageFileName, generatedImage.len
+                        generatedImage.iconImageFileName, SymiTypeConverters.JSONArrayfromDoubleArray( bgClr),
+                        SymiTypeConverters.JSONArrayfromDoubleArray( minClr),
+                        SymiTypeConverters.JSONArrayfromDoubleArray( maxClr),clrFunction,generatedImage.len
                     )
 
 
@@ -618,16 +707,21 @@ fun saveTinySymi(context: Context): String{
     if(tinyIm == null){
         return "no tiny image"
     }
-    saveDataFile(context, tinySymDataString, TINY,"symdata"+imCounter.toString()+"_"+Date().time.toString()+".txt")
-    saveImage(context, tinyIm, TINY,imCounter.toString()+"_"+Date().time.toString()+".png")
+    val fname = "symdata"+imCounter.toString()+"_"+Date().time.toString()+".txt"
+    saveDataFile(context, tinySymDataString, TINY,fname)
+    saveImage(
+        context,
+        tinyIm,
+        TINY,
+        imCounter.toString()+"_"+Date().time.toString()+".png",
+        ""
+    )
 
         if (generatedTinyIAD != null) {
             Log.d(tag,"generatedTinyAD not null" )
 
-            if(generatedTinyIAD!!.generatedIcon.generatedDataFileName.isEmpty()){
+            generatedTinyIAD!!.generatedIcon.generatedDataFileName = fname
 
-                saveDataFile(context, tinySymDataString, TINY,"symdata"+imCounter.toString() + "_" + Date().time.toString() +".txt")
-            }
             symiRepo.addGeneratedIconAndData(iconDef, symIcon, symiTiny, generatedTinyIAD!!)
 Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (generatedTinyIAD!!.generatedImageData?.len
     ?: 0))
@@ -653,7 +747,8 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
                     context,
                     medIm,
                     MEDIUM,
-                    imCounter.toString() + "_RCLR_" + Date().time.toString() + ".png"
+                    imCounter.toString() + "_RCLR_" + Date().time.toString() + ".png",
+                    ""
                 )
                 // JUST the image!!!!
                 var generatedImageData = generatedMedIAD?.generatedImageData!!
@@ -768,19 +863,144 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         symiRepo.deleteSymIcon(context, generatedIconWithAllImageData)
     }
 
-    fun runSymiExampleWorker(context: Context): UUID {
+    @Throws(Exception::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun runSymiExampleWorker(context: Context): Pair<UUID, String> {
         val TAG = "runSymiExampleWorker"
+        var workerId:UUID? = null
         var generatorDef = symi
         generatorDef.height = LARGE
         generatorDef.width = LARGE
 
         generatorDef.iterations = GO_GO_GO
+        var reiter = false
+        val largeList = symiRepo.getGeneratedIconWithAllImageDataSize(iconDef, LARGE)
+        if(largeList.isNotEmpty()) {
+            val symGenIconId = largeList[0].genIconId
+            val generatedIcon = symiRepo.getGeneratedIcon(symGenIconId)
+         //   val symData = generatedIcon.getGeneratedData(context)
+            val fname = generatedIcon.generatedDataFileName
+         //   if(symData.isNotEmpty()) {
+            Log.d(TAG, "generatedLargeImage not null doing reiter")
 
-        val workerId = symiNativeWrapper.runSampleWorker(context, symi, iconDef, bgClr, minClr, maxClr)
-        workers.add(workerId)
+            if(workItemsList.containsValue(fname)){
+                    //Already running for this data
+                    throw Exception("Not reiterating job already running")
+                }
+               // var outputData: OutputData? = null
+//                    Log.d(TAG, "runSymiExample: symi.lambda " + iconDef.lambda.toString())
+                Log.d(TAG, "colours are: $bgClr , $minClr , $maxClr")
+                    workerId = symiNativeWrapper.runMoreIterWorker(
+                        context,
+                        GO_GO_GO.toLong(),
+                        fname,
+                        largeList[0].iconImageFileName,
+                        bgClr, minClr, maxClr
+                    )
+
+                  //  outputDataJob.await()
+                  //  outputData = outputDataJob.getCompleted()
+
+                   // saveOutputData(outputData, context, fname)
+             //   }
+                return Pair(workerId, fname)
+          //  }
+        }
+        val tt = Date().time.toString()
+        val dataFileName = "symdata"+"BIG" + tt +".txt"
+        val imageFileName = "symBIG" +tt + ".png"
+        val idFname =
+                symiNativeWrapper.runSampleWorker(context, dataFileName, imageFileName, symi, iconDef, bgClr, minClr, maxClr)
+        return idFname
+    }
+
+    fun saveOutputData(
+        outputData: OutputData?,
+        context: Context,
+        fname: String,
+        imageFileName:String =""
+    ) {
+        if (outputData?.savedData?.isNotEmpty() == true) {
+            //  generatedIcon.generatedData = outputData!!.savedData
+
+            if (!outputData?.savedData!!.startsWith("Error")) {
+
+                generatedImage.len = outputData!!.pngBufferLen
+
+                val bitmap = BitmapFactory.decodeByteArray(
+                    outputData!!.pngBuffer,
+                    0,
+                    outputData!!.pngBufferLen
+                )
+
+                when (bitmap.height) {
+                    TINY -> {
+                        tinySymDataString = outputData!!.savedData
+                        tinyIm = bitmap
+                    }
+                    MEDIUM -> {
+                        medSymDataString = outputData!!.savedData
+                        medIm = bitmap
+                        saveDataFile(
+                            context,
+                            medSymDataString,
+                            MEDIUM, fname
+                        )
+                        saveImage(
+                            context,
+                            medIm,
+                            MEDIUM,
+                            imCounter.toString() + "_" + Date().time.toString() + "MED.png",
+                            imageFileName
+                        )
+
+                    }
+                    LARGE -> {
+                        // largeSymDataString = outputData!!.savedData
+                        largeIm = bitmap
+                        saveDataFile(
+                            context,
+                            outputData!!.savedData,
+                            LARGE,
+                            fname
+                        )
+                        saveImage(
+                            context,
+                            largeIm,
+                            LARGE,
+                            imCounter.toString() + "_" + Date().time.toString() + ".png",
+                            imageFileName
+                        )
+
+                    }
+                    else -> {
+                        Log.d("runSymiExample", "size not TINY or MEDIUM or LARGE")
+
+                        saveDataFile(
+                            context,
+                            outputData!!.savedData,
+                            bitmap.height,
+                            fname
+                        )
+                        saveImage(
+                            context,
+                            bitmap,
+                            bitmap.height,
+                            imCounter.toString() + "_" + Date().time.toString() + ".png",
+                            imageFileName
+                        )
+
+                    }
+                }
 
 
-         return workerId
+            } else {
+                Log.e(
+                    "runSymiExample",
+                    "output data is error message: " + outputData!!.savedData
+                )
+            }
+        }
     }
 
     /******************************************************

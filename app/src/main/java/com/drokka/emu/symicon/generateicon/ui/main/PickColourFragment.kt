@@ -97,6 +97,10 @@ override fun onCreateView(
 
 override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    bgClrArray = viewModel.bgClrInt
+    minClrArray = viewModel.minClrInt
+    maxClrArray = viewModel.maxClrInt
+
     setColourDisplay(colourDisplay)
 
     imageView.setImageBitmap(viewModel.tinyIm)
