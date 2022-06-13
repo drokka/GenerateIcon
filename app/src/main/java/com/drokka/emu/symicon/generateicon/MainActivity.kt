@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.Toast
 import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -22,7 +23,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.drokka.emu.symicon.generateicon.R.id.action_imageIconFragment_to_pickColourFragment
+import com.drokka.emu.symicon.generateicon.R.id.*
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.ui.main.*
 import com.google.android.material.snackbar.Snackbar
@@ -70,10 +71,16 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         navController = findNavController(R.id.fragmentContainerView)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+        override fun onResume() {
+        super.onResume()
 
-        setSupportActionBar(findViewById(R.id.my_toolbar))
+        if(!viewModel.workItemsList.isEmpty()){
+            val wm = WorkManager.getInstance(applicationContext)
+            for(wi in viewModel.workItemsList){
+               val workInfo = wm.getWorkInfoByIdLiveData(wi)
+                workInfo.value?.let { checkWI(it,applicationContext,wi) }
+            }
+        }
     }
     override fun onImageIconSelected() {
         if(imageIconFragment == null) {
@@ -96,7 +103,6 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
      */
     //MainFragment GENERATE. MainFragment is not the MainActivityFragment which is a navigation container
     @SuppressLint("SuspiciousIndentation")
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onGenerateClicked(context:Context) :Deferred<Unit>?{
        // var generateJob:Job? = null
         var deferredJob:Deferred<Unit>? = null
@@ -130,31 +136,47 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             context.let { it1 ->
                 WorkManager.getInstance(it1).getWorkInfoByIdLiveData(id)
                     .observe(this) { workInfo ->
-                        if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                         //   Snackbar.make(requireView(),"Go Big completed", Snackbar.LENGTH_SHORT)
-                           //     .show()
-                            Log.i("Go Big", "success for work: " + workInfo.toString())
-                            viewModel.workItemsList.remove(id)
-
-                            setBigsIndicator(viewModel.workItemsList.isEmpty())
-                            // viewModel.storeWork(requireContext(),workInfo.outputData)
-                        } else if (workInfo?.state == WorkInfo.State.ENQUEUED){
-                            Log.d("Go Big", "queued")
-                        } else if (workInfo?.state == WorkInfo.State.RUNNING){
-                            Log.d("Go Big", "running")
-                        } else{
-                           // Snackbar.make(
-                             //   requireView(),"Go Big generation error.",
-                               // Snackbar.LENGTH_SHORT )
-                                //.show()
-                            Log.e("Go Big", "Error generating large image. workinfo state: " +workInfo?.toString())
-                            viewModel.workItemsList.remove(id)
-
-                            setBigsIndicator(viewModel.workItemsList.isEmpty())
-                        }
+                        checkWI(workInfo, it1, id)
                     }
             }
         }
+    }
+
+    private fun checkWI(
+        workInfo: WorkInfo,
+        it1: Context,
+        id: UUID
+    ) {
+
+        if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+            Toast.makeText(it1, "Go Big completed.", Toast.LENGTH_SHORT)
+                .show()
+            Log.i("Go Big checkWI", "success for work: " +id +" " + workInfo.toString())
+            viewModel.workItemsList.remove(id)
+
+            // viewModel.storeWork(requireContext(),workInfo.outputData)
+        } else if (workInfo?.state == WorkInfo.State.ENQUEUED) {
+            Toast.makeText(it1, "Go Big  task queued."  , Toast.LENGTH_SHORT)
+                .show()
+            Log.d("Go Big checkWI", "queued")
+        } else if (workInfo?.state == WorkInfo.State.RUNNING) {
+            Toast.makeText(it1, "Go Big task running." , Toast.LENGTH_SHORT)
+                .show()
+            Log.d("Go Big checkWI", "running" +id +" " )
+        } else if(workInfo.state.isFinished) {
+            Toast.makeText(
+                it1, "Go Big generation did not complete.",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+            Log.e("Go Big checkWI", "Error generating large image. workinfo state: " +id +" "  + workInfo?.toString())
+            viewModel.workItemsList.remove(id)
+
+        } else {
+            Log.e("Go Big checkWI", "Fail? fall through generating large image. workinfo: " +id +" "  + workInfo?.toString())
+
+        }
+        setBigsIndicator(viewModel.workItemsList.isEmpty())
     }
 
     private fun setBigsIndicator(workDone: Boolean) {
@@ -365,6 +387,18 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
      if(mainActivityFragment == null){
          mainActivityFragment = MainActivityFragment.newInstance("hell", "yeah")
      }
+
+     setSupportActionBar(findViewById(R.id.my_toolbar))
+
+     if(!viewModel.workItemsList.isEmpty()){
+         val wm = WorkManager.getInstance(applicationContext)
+         for(wi in viewModel.workItemsList){
+             val workInfo = wm.getWorkInfoByIdLiveData(wi)
+             workInfo.value?.let { checkWI(it,applicationContext,wi) }
+         }
+     }
+
+     setBigsIndicator(viewModel.workItemsList.isEmpty())
 
                 /*******
                 supportFragmentManager.beginTransaction().replace(id.container,wrapListFragment!!)

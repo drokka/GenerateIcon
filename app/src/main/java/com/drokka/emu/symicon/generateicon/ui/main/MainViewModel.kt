@@ -15,11 +15,12 @@ import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.getBitmap
 import com.drokka.emu.symicon.generateicon.getGeneratedData
 import com.drokka.emu.symicon.generateicon.nativewrap.*
-import com.drokka.emu.symicon.generateicon.worker.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.collections.ArrayList
 
 
@@ -76,7 +77,6 @@ class MainViewModel() : ViewModel() {
     var imCounter = 0
 
     var storageCheckDone = false
-    val workers = ArrayList<UUID>()
 
     fun clearGeneratedImage(){
 
@@ -88,6 +88,7 @@ class MainViewModel() : ViewModel() {
         generatedMedImage?.clear()
 
         generatedTinyImage?.clear()
+        generatedLargeImage?.clear()
 
         generatedIcon.clear()
         generatedMedIcon.clear()
@@ -112,6 +113,8 @@ class MainViewModel() : ViewModel() {
     var maxClr = doubleArrayOf(0.5, 0.999, 0.5, 1.0)
     var generatedTinyIAD:GeneratedIconAndImageData? = null
     var generatedTinyImage:GeneratedImage? = null
+    var generatedLargeImage:GeneratedImage? = null
+
     var tinyIm:Bitmap? = null
     var medIm:Bitmap? = null
     var largeIm:Bitmap? = null
@@ -135,6 +138,8 @@ class MainViewModel() : ViewModel() {
                         height = TINY, iterations = QUICK_LOOK)
     var symiMed = GeneratorDef(sym_icon_id = symIcon.sym_icon_id,width = MEDIUM,
         height = MEDIUM, iterations = GO_GO)
+    var symiLarge = GeneratorDef(sym_icon_id = symIcon.sym_icon_id,width = LARGE,
+        height = LARGE, iterations = GO_GO_GO)
         var generatedIcon = GeneratedIcon(gen_def_id = symi.gen_def_id,
             generatedDataFileName = "symdata"
         )
@@ -143,6 +148,9 @@ class MainViewModel() : ViewModel() {
     )
     var generatedTinyIcon = GeneratedIcon(gen_def_id = symiTiny.gen_def_id,
         generatedDataFileName = "symdataTiny"
+    )
+    var generatedLargeIcon = GeneratedIcon(gen_def_id = symiLarge.gen_def_id,
+        generatedDataFileName = "symdataLarge"
     )
         var generatedImage = GeneratedImage(generatedIcon, 0,  "symimage")
 
@@ -526,10 +534,19 @@ class MainViewModel() : ViewModel() {
         when(size) {
             TINY -> generatedTinyIcon.generatedDataFileName = fname
             MEDIUM ->generatedMedIcon.generatedDataFileName = fname
+            LARGE -> generatedLargeIcon.generatedDataFileName = fname
         }
         generatedIcon.generatedDataFileName = fname
+
         val oStream = context.openFileOutput(fname, Context.MODE_APPEND)
-        oStream.bufferedWriter(Charsets.UTF_8).write(savedData)
+
+        ZipOutputStream(oStream).use { zipStream ->
+            val zipEntry = ZipEntry(fname)
+            zipStream.putNextEntry(zipEntry)
+            zipStream.write(savedData.toByteArray())
+        }
+
+        //oStream.bufferedWriter(Charsets.UTF_8).write(savedData)
         oStream.flush(); oStream.close()
     }
 
@@ -618,16 +635,15 @@ fun saveTinySymi(context: Context): String{
     if(tinyIm == null){
         return "no tiny image"
     }
-    saveDataFile(context, tinySymDataString, TINY,"symdata"+imCounter.toString()+"_"+Date().time.toString()+".txt")
+    val fname = "symdata"+imCounter.toString()+"_"+Date().time.toString()+".txt"
+    saveDataFile(context, tinySymDataString, TINY,fname)
     saveImage(context, tinyIm, TINY,imCounter.toString()+"_"+Date().time.toString()+".png")
 
         if (generatedTinyIAD != null) {
             Log.d(tag,"generatedTinyAD not null" )
 
-            if(generatedTinyIAD!!.generatedIcon.generatedDataFileName.isEmpty()){
+            generatedTinyIAD!!.generatedIcon.generatedDataFileName = fname
 
-                saveDataFile(context, tinySymDataString, TINY,"symdata"+imCounter.toString() + "_" + Date().time.toString() +".txt")
-            }
             symiRepo.addGeneratedIconAndData(iconDef, symIcon, symiTiny, generatedTinyIAD!!)
 Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (generatedTinyIAD!!.generatedImageData?.len
     ?: 0))
@@ -777,10 +793,7 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         generatorDef.iterations = GO_GO_GO
 
         val workerId = symiNativeWrapper.runSampleWorker(context, symi, iconDef, bgClr, minClr, maxClr)
-        workers.add(workerId)
-
-
-         return workerId
+        return workerId
     }
 
     /******************************************************

@@ -16,10 +16,12 @@ import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
 
 private val DB_NAME = "SYMI_DATABASE"
 
-// extension to GeneratedImage for convenience
+// GetBitmap extension to GeneratedImage for convenience
 fun GeneratedImage.getBitmap(context: Context):Bitmap?{
     try {
         val imagesDirPath = File(context.filesDir, "images")
@@ -45,10 +47,15 @@ fun GeneratedImage.getBitmap(context: Context):Bitmap?{
 fun GeneratedImage.getGeneratedData(context: Context):String{
     var dataString =""
     try{
+
         val filesPath = context.filesDir
         val dataFile = File(filesPath, generatedIcon.generatedDataFileName)
-        val inputStream = FileInputStream(dataFile)
-        dataString = inputStream.bufferedReader().use { it.readText() }
+
+        val zipFile = ZipFile(dataFile)
+        val entry = zipFile.getEntry(generatedIcon.generatedDataFileName)
+
+        val zipInputStream = zipFile.getInputStream(entry)
+        dataString = zipInputStream.bufferedReader().readText()
 
     }catch ( xx:Exception){
     Log.e("getGeneratedData", "ERROR msg is: " + xx.message)
