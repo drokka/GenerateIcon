@@ -91,6 +91,11 @@ interface SymiDao {
     @Query("select gid_id from GeneratedImageData where gen_icon_id = (:genIconId)")
     fun getGeneratedImageDataId(genIconId:UUID):List<UUID>
 
+    @Query("select gid_id from GeneratedImageData where iconImageFileName = (:iconImageFileName)")
+    fun existsImageFile(iconImageFileName:String):List<UUID>
+
+    @Query("update GeneratedImageData set len = (:len) where gid_id = (:gid_id)")
+    fun updateImageFileDataLength(gid_id:UUID, len:Int)
   //  @Query("select byteArray from GeneratedImageData where gid_id = (:gidId)")
   //  fun getImageBitmap(gidId: UUID):ByteArray?
 
@@ -241,6 +246,25 @@ interface SymiDao {
     @Insert //(onConflict= OnConflictStrategy.REPLACE)
     fun addGeneratedImageData(generatedImage: GeneratedImageData)
 
+    @Query("select id from GeneratedIcon where generatedDataFileName = (:dataFileName)")
+    fun getGeneratedDataIdForDataFile(dataFileName: String): UUID?
+
+    @Transaction
+    fun addGeneratedImageDataForDef(dataFileName:String, iconImageFileName: String, bgClr:String,
+                                     minClr:String,
+                                     maxClr:String,
+                                     clrFunction:String, len: Int){
+        if(existsImageFile(iconImageFileName).isNotEmpty()){
+            return
+        }
+        val genDefId = getGeneratedDataIdForDataFile(dataFileName)
+
+        genDefId?.let {
+
+            addGeneratedImageData(GeneratedImageData(UUID.randomUUID(),genDefId,iconImageFileName,
+                                    bgClr,minClr,maxClr,clrFunction,len))
+        }
+    }
     @SuppressLint("SuspiciousIndentation")
     @Transaction
     fun addGeneratedIconAndImageData(iconDef: IconDef,symIcon: SymIcon,generatorDef: GeneratorDef,
@@ -305,14 +329,20 @@ interface SymiDao {
         }
 
             genIconAndData.generatedImageData?.let {
-                it.gen_icon_id = genIconId!!
-              //  genImDataId = getGeneratedImageDataId(it.gen_icon_id)
-              // if (genImDataId == null) {
-               //     Log.d(logTag, "adding gen image data. gen_icon_id = " +it.gen_icon_id +
-                 //   "image data id = " + it.gid_id +"data length = " + it.len.toString())
+                val listUidy = existsImageFile(genIconAndData.generatedImageData.iconImageFileName)
+                if(listUidy.isEmpty()) {
+                    it.gen_icon_id = genIconId!!
+                    //  genImDataId = getGeneratedImageDataId(it.gen_icon_id)
+                    // if (genImDataId == null) {
+                    //     Log.d(logTag, "adding gen image data. gen_icon_id = " +it.gen_icon_id +
+                    //   "image data id = " + it.gid_id +"data length = " + it.len.toString())
                     it.gid_id = UUID.randomUUID()
-                  addGeneratedImageData(it)
-              //  }
+                    addGeneratedImageData(it)
+                    //  }
+                }
+                else{
+                    updateImageFileDataLength(listUidy[0], it.len)
+                }
             }
     }
 

@@ -1,25 +1,14 @@
 package com.drokka.emu.symicon.generateicon.nativewrap
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Build
-import android.os.Parcel
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.work.*
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.database.SymiTypeConverters
-import com.drokka.emu.symicon.generateicon.nativewrap.OutputData
-import com.drokka.emu.symicon.generateicon.nativewrap.callRunSampleFromJNI
 import com.drokka.emu.symicon.generateicon.ui.main.MainViewModel
-import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
@@ -107,7 +96,7 @@ class SymiWorker(context: Context, params:WorkerParameters) : CoroutineWorker(co
      //           withContext(Dispatchers.IO) {
        //              job = coroutineScope {
          //               async {
-                   val   generatedData =    callRunSampleFromJNI(intArgs, iconImageType, dArgs)
+                   val   generatedData:OutputData =    callRunSampleFromJNI(intArgs, iconImageType, dArgs)
           //              }
             //        }
               //  }

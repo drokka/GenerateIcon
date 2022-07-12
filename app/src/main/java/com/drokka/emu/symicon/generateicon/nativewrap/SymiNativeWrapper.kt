@@ -21,7 +21,7 @@ external fun callMoreIterSampleFromJNI(
     bgClr: DoubleArray?,
     minClr: DoubleArray?,
     maxClr: DoubleArray?
-): Int
+): OutputData
 
 external fun callRunSampleFromJNI( intArgs:IntArray, type:Byte,  dArgs:DoubleArray): OutputData
 
@@ -45,6 +45,7 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
         }
     }
 
+    /*
     suspend fun runMoreIter(
       //  mainViewModel: MainViewModel,
         context: Context,
@@ -73,6 +74,8 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
         }
     }
 
+     */
+
     fun runMoreIterWorker(
         context: Context,
         iterations: Long,
@@ -80,8 +83,7 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
         imageFileName: String,
         bgClr: DoubleArray,
         minClr: DoubleArray,
-        maxClr: DoubleArray
-    ):UUID{
+        maxClr: DoubleArray):UUID{
 
         Log.d("runMoreIterWorker", "colours are: $bgClr , $minClr , $maxClr")
         val params =   Data.Builder().putLong("iterations", iterations)

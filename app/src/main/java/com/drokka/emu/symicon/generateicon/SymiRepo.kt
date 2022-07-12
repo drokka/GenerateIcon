@@ -271,6 +271,15 @@ class SymiRepo   private constructor(context: Context) {
         symiDao.addGeneratedImageData(generatedImageData)
     }
 
+    fun addGeneratedImageDataForDef(dataFileName:String, iconImageFileName: String, bgClr:String,
+                                    minClr:String,
+                                    maxClr:String,
+                                    clrFunction:String, len: Int){
+        return symiDao.addGeneratedImageDataForDef(dataFileName, iconImageFileName, bgClr,
+                                        minClr,
+                                        maxClr,
+                                        clrFunction, len)
+    }
     fun getGeneratedIcon(genIconId: UUID): GeneratedIcon {
         return symiDao.getGeneratedIcon(genIconId)
     }
