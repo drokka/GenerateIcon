@@ -62,6 +62,7 @@ class MainViewModel() : ViewModel() {
 
     val symImageListAll:LiveData<List<GeneratedIconWithAllImageData>> = symiRepo.getAllGeneratedIconWithAllImageData()
 
+    val paletteList: LiveData<List<ClrPalette>> = symiRepo.getAllClrPalette()
     fun getSymBigsList():List<GeneratedIconWithAllImageData>{
         return  symiRepo.getAllGeneratedIconWithAllImageDataSize(LARGE)
     }

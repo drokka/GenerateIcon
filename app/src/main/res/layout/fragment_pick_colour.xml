@@ -18,7 +18,7 @@
             android:layout_marginStart="6dp"
             android:layout_marginEnd="6dp"
             app:layout_constraintTop_toBottomOf="@+id/divider"
-            app:layout_constraintBottom_toBottomOf="@id/blueSeekBar"
+            app:layout_constraintBottom_toBottomOf="@id/alphaSeekBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.63"
             app:layout_constraintStart_toEndOf="@+id/divider3"
@@ -110,14 +110,14 @@
             android:id="@+id/redTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="RED"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="10dp"
+            android:text="RED"
             android:textColor="@color/white"
             app:layout_constraintEnd_toStartOf="@id/divider2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider"/>
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
 
         <SeekBar
             android:id="@+id/greenSeekBar"
@@ -137,7 +137,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="10dp"
             android:text="GREEN"
             android:textColor="@color/white"
@@ -156,18 +156,46 @@
             app:layout_constraintStart_toEndOf="@id/divider2"
             app:layout_constraintTop_toBottomOf="@+id/greenSeekBar" />
 
+        <SeekBar
+            android:id="@+id/alphaSeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="8dp"
+            android:max="255"
+            app:layout_constraintBottom_toTopOf="@+id/pickClrImageView"
+            app:layout_constraintEnd_toStartOf="@+id/divider3"
+            app:layout_constraintStart_toEndOf="@id/divider2"
+            app:layout_constraintTop_toBottomOf="@+id/blueSeekBar" />
+
         <TextView
             android:id="@+id/blueTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="10dp"
             android:text="BLUE"
             android:textColor="@color/white"
             app:layout_constraintEnd_toStartOf="@id/divider2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/greenTextView" />
+
+        <TextView
+            android:id="@+id/alphaTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="8dp"
+            android:text="ALPHA"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toTopOf="@+id/pickClrImageView"
+            app:layout_constraintEnd_toStartOf="@id/divider2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/blueTextView" />
 
         <View
             android:id="@+id/divider2"
@@ -213,35 +241,33 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="120dp"
+            android:layout_marginBottom="8dp"
             android:text="@android:string/ok"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/blueSeekBar"
-            app:layout_constraintVertical_bias="0.79" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/cancelClrButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="@android:string/cancel"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/okClrButton"
-            app:layout_constraintTop_toBottomOf="@+id/blueSeekBar"
-            app:layout_constraintVertical_bias="0.79" />
+            app:layout_constraintStart_toEndOf="@+id/okClrButton" />
 
         <ImageView
             android:id="@+id/pickClrImageView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginTop="8dp"
             android:src="@drawable/symi_200px"
-            app:layout_constraintBottom_toTopOf="@id/okClrButton"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/blueSeekBar"
-            app:layout_constraintVertical_bias="0.743" />
+            app:layout_constraintTop_toBottomOf="@+id/alphaSeekBar"
+            app:layout_constraintBottom_toTopOf="@id/idColourRecyclerView"
+            />
 
         <View
             android:id="@+id/divider3"
@@ -252,6 +278,24 @@
             app:layout_constraintHorizontal_bias="0.7"
             app:layout_constraintStart_toEndOf="@+id/divider2"
             app:layout_constraintTop_toBottomOf="@+id/divider" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/idColourRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@+id/okClrButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pickClrImageView"
+            app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

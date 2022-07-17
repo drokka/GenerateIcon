@@ -11,13 +11,9 @@ import com.drokka.emu.symicon.generateicon.database.SymiDatabase
 import com.drokka.emu.symicon.generateicon.database.SymiTypeConverters
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
-import java.nio.charset.Charset
 import java.util.*
-import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
 
 private val DB_NAME = "SYMI_DATABASE"
 
@@ -302,12 +298,27 @@ class SymiRepo   private constructor(context: Context) {
             sz, bgClr, minClr, maxClr)
     }
 
+    fun getClrPalleteList(): List<ClrPalette> {
+        return symiDao.getClrPalette()
+    }
+    fun getAllClrPalette(): LiveData<List<ClrPalette> >{
+
+        return symiDao.getColours()
+      /*  val paletteList :Array<ClrPalette> = arrayOf()
+        for(pal in clrList.value!!){
+            paletteList.plusElement(ClrPalette(SymiTypeConverters.JSONArrayToDoubleArray(pal[0]),
+                SymiTypeConverters.JSONArrayToDoubleArray(pal[1]),
+                SymiTypeConverters.JSONArrayToDoubleArray(pal[2])))
+        }
+        return LiveData<Array<ClrPalette>>(paletteList) */
+    }
+
     //  fun addGeneratedImageDataForGenData(generatedMedIcon: GeneratedIcon, generatedImageData: GeneratedImageData) {
    //     symiDao.addGeneratedImageDataForGenData(generatedMedIcon, generatedImageData)
    // }
 
 
-    //---------------------------------------------------------
+     //---------------------------------------------------------
         companion object {
             private var INSTANCE: SymiRepo? = null
 

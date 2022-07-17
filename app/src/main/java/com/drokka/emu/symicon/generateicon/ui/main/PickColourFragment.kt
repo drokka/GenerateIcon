@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.RecyclerView
 import com.drokka.emu.symicon.generateicon.R
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -56,6 +57,7 @@ override fun onDetach() {
 private lateinit var redSeekBar: SeekBar
 private lateinit var greenSeekBar: SeekBar
 private lateinit var blueSeekBar: SeekBar
+    private lateinit var alphaSeekBar: SeekBar
 private lateinit var colourDisplay: View
 private lateinit var bgColourView: View
 private lateinit var minColourView: View
@@ -73,6 +75,7 @@ private lateinit var textView3:TextView
     private var maxClrArray = intArrayOf(0,0,0,255)
     private var rgbValueInt = intArrayOf(0,0,0,255)
 
+    private lateinit var colourRecyclerView:RecyclerView
 override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
     savedInstanceState: Bundle?
@@ -81,6 +84,7 @@ override fun onCreateView(
     redSeekBar = view.findViewById(R.id.redSeekBar)
     blueSeekBar = view.findViewById(R.id.blueSeekBar)
     greenSeekBar = view.findViewById(R.id.greenSeekBar)
+    alphaSeekBar = view.findViewById(R.id.alphaSeekBar)
     colourDisplay = view.findViewById(R.id.colourDisplayView)
     bgColourView = view.findViewById(R.id.viewBgClr)
     minColourView = view.findViewById(R.id.viewMinClr)
@@ -92,6 +96,7 @@ override fun onCreateView(
     textView3 = view.findViewById(R.id.textView3)
     textView4 = view.findViewById(R.id.textView4)
     textView5 = view.findViewById(R.id.textView5)
+    colourRecyclerView = view.findViewById(R.id.idColourRecyclerView)
     return view
 }
 
@@ -146,6 +151,21 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         }
     }
     )
+
+    alphaSeekBar.setOnSeekBarChangeListener( object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+            rgbValueInt[3] =i
+            setColourDisplay(colourDisplay)
+        }
+
+        override fun onStartTrackingTouch(p0: SeekBar?) {
+        }
+
+        override fun onStopTrackingTouch(p0: SeekBar?) {
+        }
+    }
+    )
+
     bgColourView.setOnClickListener {setBgClr(); setColourDisplay(it) }
     textView3.setOnClickListener {setBgClr(); setColourDisplay(bgColourView) }
 
@@ -167,6 +187,8 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         }
     }
     cancelButton.setOnClickListener { callbacks?.cancelPickColours() }
+
+    colourRecyclerView.adapter = ColourRecyclerViewAdapter(viewModel, callbacks)
 }
 
     fun setBgClr(){
@@ -188,7 +210,7 @@ fun setColourDisplay(myview: View){
  //   viewModel.let {
     //    val intArray = viewModel.rgbValueInt
         myview.setBackgroundColor(
-            Color.argb(255,
+            Color.argb(rgbValueInt[3],
             rgbValueInt[0],rgbValueInt[1], rgbValueInt[2]))
     myview.invalidate()
         Log.d("setColourDisplay",String.format("Called, rgb is %d %d %d" ,rgbValueInt[0], rgbValueInt[1], rgbValueInt[2] ))
@@ -207,3 +229,4 @@ fun setColourDisplay(myview: View){
     }
 
 }
+

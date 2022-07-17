@@ -22,8 +22,8 @@ const val XLARGE =2001
 
 const val QUICK_LOOK = 5000
 const val GO        = 50000
-const val GO_GO     = 100000
-const val GO_GO_GO  = 500000
+const val GO_GO     = 500000
+const val GO_GO_GO  = 2000000
 
 //@Entity(primaryKeys = ["lambda","alpha","beta","gamma","omega","ma","quiltType"])
 @Entity
@@ -128,6 +128,9 @@ data class GeneratedImageData(
         return result
     }
 }
+@DatabaseView("select bgClr, minClr, maxClr from GeneratedImageData")
+data class ClrPalette(val bgClr: String, val minClr: String, val maxClr: String)
+
 //-----------
 // Get all the  images data. Every symi should have at least a TINY entry
 //__________________-----------------___________________________________

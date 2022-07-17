@@ -23,7 +23,6 @@ import kotlinx.coroutines.runBlocking
 
 /**
  * [RecyclerView.Adapter] that can display a [SymIcon].
- * TODO: Replace the implementation with code for your data type.
  */
 class SymIconRecyclerViewAdapter(
     internal val viewModel: MainViewModel //MutableLiveData<List<GeneratedIconWithAllImageData>>

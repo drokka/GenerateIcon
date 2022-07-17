@@ -10,8 +10,7 @@
         <item name="exampleColor">@color/light_blue_400</item>
     </style>
 
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen"
-        id = "theme_starting">
+    <style name="Theme.App.Starting" id="theme_starting" parent="Theme.SplashScreen">
         // Set the splash screen background, animated icon, and animation duration.
         <item name="windowSplashScreenBackground">@color/light_blue_50</item>
 
@@ -22,7 +21,8 @@
         # animated icons
 
         // Set the theme of the Activity that directly follows your splash screen.
-        <item name="postSplashScreenTheme">@style/Theme.GenerateIcon</item>  # Required.
+        <item name="postSplashScreenTheme">@style/Theme.GenerateIcon</item>
+        # Required.
     </style>
 
 </resources>

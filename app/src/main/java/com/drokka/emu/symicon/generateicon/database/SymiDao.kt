@@ -2,15 +2,10 @@ package com.drokka.emu.symicon.generateicon.database
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import androidx.sqlite.db.SimpleSQLiteQuery
-import androidx.sqlite.db.SupportSQLiteQuery
 import com.drokka.emu.symicon.generateicon.data.*
-import com.drokka.emu.symicon.generateicon.ui.main.MainViewModel
-import org.junit.Assert
 import java.io.File
 import java.util.*
 
@@ -522,5 +517,9 @@ interface SymiDao {
         maxClr:String
     ): List<GeneratedIconWithAllImageData>
 
+    @Query("Select distinct * from ClrPalette")
+    fun getColours():LiveData<List<ClrPalette>>
 
+    @Query("select distinct * from ClrPalette")
+    fun getClrPalette(): List<ClrPalette>
 }
