@@ -4,8 +4,8 @@ import android.content.pm.InstrumentationInfo
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import com.drokka.emu.symicon.generateicon.database.SymiDatabase
-import org.junit.After
-import org.junit.Before
+//import org.junit.After
+//import org.junit.Before
 import java.io.IOException
 import kotlin.jvm.Throws
 import android.content.Context
@@ -15,25 +15,25 @@ import com.drokka.emu.symicon.generateicon.data.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.junit.Assert
-import org.junit.Test
-import org.junit.runner.RunWith
+//import org.junit.Assert
+//import org.junit.Test
+//import org.junit.runner.RunWith
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 
-abstract class DBTest {
-    protected lateinit var symiDatabase: SymiDatabase
-
-    @Before
+//abstract class DBTest {
+  //  protected lateinit var symiDatabase: SymiDatabase
+/**
+  //  @Before
     fun initDB(){
        val context = InstrumentationRegistry.getInstrumentation().context   //ApplicationProvider.getApplicationContext<Context>()
 
         symiDatabase = Room.inMemoryDatabaseBuilder(context, SymiDatabase::class.java).build()
     }
 
-    @After
+  //  @After
     @Throws(IOException::class)
     fun closeDB(){
         symiDatabase.close()
@@ -218,4 +218,4 @@ abstract class DBTest {
 
         return data
     }
-}
+} **/

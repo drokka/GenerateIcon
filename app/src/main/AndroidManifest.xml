@@ -15,7 +15,9 @@
         </intent>
     </queries>
 
+
     <application
+
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -23,7 +25,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GenerateIcon">
-
+        <profileable android:shell="true"
+            android:enabled="true"/>
         <!--
           <service
             android:name="SymiService"
@@ -84,7 +87,7 @@ provider
                 android:resource="@xml/files" />
         </provider>
 
-        <uses-library android:name="android.test.runner" />
+        <!--uses-library android:name="android.test.runner" /-->
         <!--provider
             android:name="androidx.work.impl.WorkManagerInitializer"
             android:authorities="${applicationId}.workmanager-init"

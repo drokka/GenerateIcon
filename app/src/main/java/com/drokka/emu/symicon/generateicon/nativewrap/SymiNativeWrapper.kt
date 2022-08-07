@@ -140,6 +140,8 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
             generatorDef.height,
             iconDef.degreeSym
         )
+        Log.d("RunSample", "on thread::  " + Thread.currentThread().id.toString())
+
         return coroutineScope {
             async {
                 callRunSampleFromJNI(intArgs, iconImageType, dArgs)

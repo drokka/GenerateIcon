@@ -15,6 +15,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.drokka.emu.symicon.generateicon.R
 import com.drokka.emu.symicon.generateicon.data.GeneratedIconWithAllImageData
 import com.drokka.emu.symicon.generateicon.data.GeneratedImage
+import com.drokka.emu.symicon.generateicon.data.LARGE
 import java.io.File
 import java.io.FileInputStream
 
@@ -116,7 +117,7 @@ class BigImageViewPagerFragment : Fragment() {
 
 
             val bitmapFile = imageList?.get(position)?.iconImageFileName
-            val len = imageList?.get(position)?.len ?: 0
+            val len = LARGE*LARGE*4  //imageList?.get(position)?.len ?: 0
             try {
                 val imagesDirPath = File(context?.filesDir, "images")
 

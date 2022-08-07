@@ -192,8 +192,8 @@
         android:indeterminate="true"
         android:progressTint="@color/purple_700"
         android:visibility="invisible"
-        tools:layout_editor_absoluteX="-1dp"
-        tools:layout_editor_absoluteY="42dp"
+        tools:layout_editor_absoluteX="-10dp"
+        tools:layout_editor_absoluteY="31dp"
         tools:visibility="invisible" />
 
     <EditText
@@ -205,7 +205,7 @@
         android:ems="10"
         android:hint="3"
         android:inputType="number"
-        android:textColor="@color/white"
+        android:textColor="@color/light_blue_50"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/progressBar" />
 
@@ -220,6 +220,19 @@
         app:layout_constraintHorizontal_bias="0.697"
         app:layout_constraintStart_toEndOf="@+id/iconTypeSpinner"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/labelTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:ems="10"
+        android:textColor="@color/light_blue_50"
+        android:text="Symi Name"
+        app:layout_constraintBottom_toTopOf="@+id/imageButtonQuickDraw"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

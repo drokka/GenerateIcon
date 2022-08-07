@@ -97,7 +97,9 @@ class SymiWorker(context: Context, params:WorkerParameters) : CoroutineWorker(co
        //              job = coroutineScope {
          //               async {
                    val   generatedData:OutputData =    callRunSampleFromJNI(intArgs, iconImageType, dArgs)
-          //              }
+                Log.d("SymiWorker", "on thread::  " + Thread.currentThread().id.toString())
+
+                //              }
             //        }
               //  }
               //  setForeground(createForegroundInfo("Started big job"))
@@ -202,5 +204,9 @@ class SymiWorker(context: Context, params:WorkerParameters) : CoroutineWorker(co
 
         MainViewModel.symiRepo.addGeneratedIconAndData(iconDefW,symIconW, generatorDefW, bigIADW)
         Log.d("storeWork", "done symiRepo add")
+        generatedData.bitmap = null
+        generatedData.savedData = ""
+
     }
+
 }

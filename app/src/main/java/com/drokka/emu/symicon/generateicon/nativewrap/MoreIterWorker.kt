@@ -53,7 +53,9 @@ class MoreIterWorker( val context: Context, params: WorkerParameters) : Coroutin
                                 maxClr
                             )
                         }
-                        if (generatedData?.savedData?.isNotEmpty() == true) {
+                      Log.d("MoreIterWorker", "on thread::  " + Thread.currentThread().id.toString())
+
+                      if (generatedData?.savedData?.isNotEmpty() == true) {
                             //  generatedIcon.generatedData = generatedData!!.savedData
 
                             if (!generatedData?.savedData!!.startsWith("Error")) {
@@ -70,7 +72,7 @@ class MoreIterWorker( val context: Context, params: WorkerParameters) : Coroutin
                                             SymiTypeConverters.JSONArrayfromDoubleArray(minClr),
                                             SymiTypeConverters.JSONArrayfromDoubleArray(maxClr),
                                             "default",
-                                            generatedData.bitmap.byteCount
+                                            generatedData.bitmap.height * generatedData.bitmap.width *4 //assuming alpha
                                         )
                                     }
                                 }
@@ -127,6 +129,8 @@ class MoreIterWorker( val context: Context, params: WorkerParameters) : Coroutin
             xx.message?.let { Log.e("storeWork", it) }
             Log.e("storeWork", "exception thrown saving png " + imageFileName)
         }
+        generatedData.bitmap = null
+        generatedData.savedData = ""
         return false
     }
 

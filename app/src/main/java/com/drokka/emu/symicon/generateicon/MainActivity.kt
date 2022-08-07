@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                 workInfo.value?.let { checkWI(it,applicationContext,wi.key) }
             }
         }
+            System.gc()
     }
     override fun onImageIconSelected() {
         if(imageIconFragment == null) {
@@ -138,6 +139,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         } catch (xx:Exception){
             xx.message?.let { Log.i("generateLargeIcon", it) }
         }
+        System.gc()
     }
 
         private fun checkWI(

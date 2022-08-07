@@ -31,7 +31,9 @@ class MainViewModel() : ViewModel() {
 
     }
 
-    val symiNativeWrapper = SymiNativeWrapper(this)
+    val symiNativeWrapper = SymiNativeWrapper(this).also {
+        Log.d("MainViewModel create SymiNativeWrapper", "wrapper on thread::  " + Thread.currentThread().id.toString())
+    }
 
 
     /***********************************************************
@@ -544,6 +546,7 @@ class MainViewModel() : ViewModel() {
                            Log.d("runSymiExample","size not TINY or MEDIUM")
 
                        }
+
                    }
 
 
@@ -553,9 +556,12 @@ class MainViewModel() : ViewModel() {
                        "output data is error message: " + outputData!!.savedData
                    )
                }
-           }
-           }
 
+           }
+           }
+        outputData?.bitmap = null
+        outputData?.savedData =""
+        System.gc()
         return  generateJob
         }
 
@@ -886,8 +892,12 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
                         }
                     }
                 }
-            }
+                    outputData?.bitmap = null
+                    outputData?.savedData = ""
+
+                }
         }
+        System.gc()
     return reColrJob
     }
 
@@ -956,6 +966,7 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
 
                    // saveOutputData(outputData, context, fname)
              //   }
+
                 return Pair(workerId, fname)     //RETURN jump out here if we found existing bigs
           //  }
         }
@@ -963,6 +974,8 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         val dataFileName = "symdata"+"BIG" + tt +".txt"
         val idFname =
                 symiNativeWrapper.runSampleWorker(context, dataFileName, imageFileName, symi, iconDef, bgClr, minClr, maxClr)
+        System.gc()
+
         return idFname
     }
 
