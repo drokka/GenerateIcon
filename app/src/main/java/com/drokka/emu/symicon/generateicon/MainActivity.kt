@@ -1,14 +1,17 @@
 package com.drokka.emu.symicon.generateicon
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment.DIRECTORY_PICTURES
 import android.os.StrictMode
 import android.provider.MediaStore
+import android.provider.MediaStore.MediaColumns.*
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
@@ -28,6 +31,7 @@ import com.drokka.emu.symicon.generateicon.ui.main.*
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import java.io.File
+import java.io.FileInputStream
 import java.util.*
 
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener, MainFragment.Callbacks , ImageIconFragment.Callbacks,
@@ -75,7 +79,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             val wm = WorkManager.getInstance(applicationContext)
             for(wi in viewModel.workItemsList){
                val workInfo = wm.getWorkInfoByIdLiveData(wi.key)
-                workInfo.value?.let { checkWI(it,applicationContext,wi.key) }
+                workInfo.value?.let { checkWI(it,applicationContext,wi.key, wm) }
             }
         }
             System.gc()
@@ -123,30 +127,41 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         return deferredJob
     }
 
-    override fun generateLargeIcon(requireContext: Context) {
+    override fun generateLargeIcon(requireContext: Context, goBigButton: Button) {
+        goBigButton.isEnabled = false
+        goBigButton.isClickable = false //has no effect
+      //  goBigButton.isFocusable = false
         try {
 
             val id: Pair<UUID, String> = viewModel.runSymiExampleWorker(requireContext)
-
+            if(viewModel.workItemsList.containsValue(id.second)){ // Already a job running for this one
+                return
+            }
             setBigsIndicator(false)
             viewModel.workItemsList.put(id.first, id.second)
             requireContext.let { it1 ->
-                WorkManager.getInstance(it1).getWorkInfoByIdLiveData(id.first)
+               val wm = WorkManager.getInstance(it1)
+                wm.getWorkInfoByIdLiveData(id.first)
                     .observe(this) { workInfo ->
-                        checkWI(workInfo, it1, id.first)
+                        checkWI(workInfo, it1, id.first, wm)
                     }
             }
         } catch (xx:Exception){
             xx.message?.let { Log.i("generateLargeIcon", it) }
         }
+        goBigButton.isEnabled = true
+        goBigButton.isClickable = true
+      //  goBigButton.isFocusable = true
+
         System.gc()
     }
 
         private fun checkWI(
-        workInfo: WorkInfo,
-        it1: Context,
-        id: UUID
-    ) {
+            workInfo: WorkInfo,
+            it1: Context,
+            id: UUID,
+            wm: WorkManager
+        ) {
 
         if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
             Toast.makeText(applicationContext, "Go Big completed.", Toast.LENGTH_SHORT)
@@ -173,9 +188,14 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             viewModel.workItemsList.remove(id)
 
         } else {
+            // could be Failed, cancelled or blocked
+
             Log.e("Go Big checkWI", "Fail? fall through generating large image. workinfo: " +id +" "  + workInfo?.toString())
 
+            wm.cancelWorkById(id)
+            viewModel.workItemsList.remove(id)
         }
+
         setBigsIndicator(viewModel.workItemsList.isEmpty())
     }
 
@@ -195,7 +215,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     override fun showBigImage() {
       //  if(bigImageFragment == null){
-            bigImageFragment = BigImageFragment.newInstance(viewModel.largeIm)
+            bigImageFragment = BigImageFragment.newInstance(viewModel.largeIm, viewModel?.generatedLargeImage?.iconImageFileName)
       //  }
       //  if(viewModel.imageExists(LARGE)){
         //Save the big image
@@ -241,43 +261,66 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 }
      */
     override fun saveImageToGallery(
-        bitmapIn: Bitmap?,
-        generatedImage: GeneratedImage,
+        imFileName: String,
         context: Context?
     ) {
         context?.let {
                 val imPath = File(context?.filesDir, "images/")
-                val imFile = File(imPath, generatedImage.iconImageFileName)
-                val imageUri = FileProvider.getUriForFile(
+                val imFile = File(imPath, imFileName)
+
+          //  val newFile: File = File(MediaStore.Images.Media.EXTERNAL_CONTENT_URI., generatedImage.iconImageFileName)
+         //  imFile.copyTo(newFile)
+
+    //        Log.d("saveImageToGallery", "saved to " + newFile.absolutePath)
+
+                var imageUri = FileProvider.getUriForFile(
                     it,
                     "com.drokka.emu.symicon",
                     imFile
                 )
 
 
-                val resolver = context?.contentResolver
-                val bitmap = ImageDecoder.createSource(resolver, imageUri)
 
-                /*
+            // Add a media item that other apps shouldn't see until the item is
+// fully written to the media store.
+
+// Find all audio files on the primary external storage device.
+            val imageCollection =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Images.Media.getContentUri(
+                        MediaStore.VOLUME_EXTERNAL_PRIMARY
+                    )
+                } else {
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                }
+
+                 val resolver = context.contentResolver
+
             val cvals = ContentValues().apply {
-                put(DISPLAY_NAME, generatedImage.iconImageFileName)
+                put(DISPLAY_NAME, imFileName)
                 put(MIME_TYPE, "image/png")
-                put(RELATIVE_PATH, DIRECTORY_DCIM)
+                put(RELATIVE_PATH, DIRECTORY_PICTURES)
                 put(IS_PENDING, 1)
             }
-            resolver.insert(imageUri,cvals)
 
-             */
+                val uri = resolver.insert(imageCollection, cvals)    //(imageUri, cvals)
+               uri?.let {
+                   resolver.openOutputStream(uri).use { medStr ->
+                       // Write data into the pending image file.
 
+                       val imStr = FileInputStream(imFile)
+                       medStr?.let { it1 ->
+                           imStr.copyTo(it1)
+                           imStr.close()
+                           medStr.close()
+                       }
+                   }
 
-                MediaStore.Images.Media.insertImage(
-                    context.contentResolver,
-                    ImageDecoder.decodeBitmap(bitmap),
-                    generatedImage.iconImageFileName,
-                    "Image of " + generatedImage.iconImageFileName
-                )
+                   cvals.clear()
+                   cvals.put(IS_PENDING, 0)
+                   resolver.update(uri, cvals, null, null)
+               }
 
-          //  Toast.makeText(context, "Picture Added to Gallery ", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -399,7 +442,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
          val wm = WorkManager.getInstance(applicationContext)
          for(wi in viewModel.workItemsList){
              val workInfo = wm.getWorkInfoByIdLiveData(wi.key)
-             workInfo.value?.let { checkWI(it,applicationContext,wi.key) }
+             workInfo.value?.let { checkWI(it, applicationContext, wi.key, wm) }
          }
      }
 
@@ -512,7 +555,44 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     }
 
-    override fun saveBigImageToGallery(bitmap: Bitmap?, context: Context) {
+   /* override fun saveBigImageToGallery(bitmap: Bitmap?, context: Context) {
+
+        val imageCollection =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Images.Media.getContentUri(
+                    MediaStore.VOLUME_EXTERNAL_PRIMARY
+                )
+            } else {
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            }
+
+        val resolver = context.contentResolver
+
+        val cvals = ContentValues().apply {
+            put(DISPLAY_NAME, "SymiconBig"+Date().time.toString())
+            put(MIME_TYPE, "image/png")
+            put(RELATIVE_PATH, DIRECTORY_PICTURES)
+            put(IS_PENDING, 1)
+        }
+
+        val uri = resolver.insert(imageCollection, cvals)    //(imageUri, cvals)
+        uri?.let {
+            resolver.openOutputStream(uri).use { medStr ->
+                // Write data into the pending image file.
+
+               medStr?.let { it1 ->
+                    bitmap.w .copyTo(it1)
+                    imStr.close()
+                    medStr.close()
+                }
+            }
+
+            cvals.clear()
+            cvals.put(IS_PENDING, 0)
+            resolver.update(uri, cvals, null, null)
+        }
+
+    }
        bitmap?.let {
            MediaStore.Images.Media.insertImage(
                context.contentResolver,
@@ -525,6 +605,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
        }
        }
+
+    */
 
 
 }

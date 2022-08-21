@@ -112,9 +112,9 @@ class MainViewModel() : ViewModel() {
     var minClrInt:IntArray = intArrayOf(255,127,0,255)
     var maxClrInt:IntArray = intArrayOf(255,255,127,255)
 
-    var bgClr = doubleArrayOf(1.0,0.24,0.24,1.0)
-    var minClr = doubleArrayOf(1.0,0.5,0.0, 1.0)
-    var maxClr = doubleArrayOf(1.0, 0.999, 0.5, 1.0)
+    var bgClr = doubleArrayOf(1.0,0.0,0.0,0.36)
+    var minClr = doubleArrayOf(0.0,0.9,0.6, 0.8)
+    var maxClr = doubleArrayOf(0.8, 0.999, 1.0, 1.0)
     var generatedTinyIAD:GeneratedIconAndImageData? = null
     var generatedTinyImage:GeneratedImage? = null
     var generatedLargeImage:GeneratedImage? = null
@@ -514,7 +514,7 @@ class MainViewModel() : ViewModel() {
 
                if (!outputData?.savedData!!.startsWith("Error")) {
 
-                   generatedImage.len = outputData!!.pngBufferLen
+                   generatedImage.len = size*size*4  // make it rgbaBuffer len //outputData!!.pngBufferLen
 
                    Log.i(
                        "MainViewModel runSymiExMPLE",
@@ -523,7 +523,7 @@ class MainViewModel() : ViewModel() {
                    when (size) {
                        TINY -> {
                            tinySymDataString = outputData!!.savedData
-                           tinyIm = bitmapFromBytes(outputData)
+                           tinyIm = outputData!!.bitmap //bitmapFromBytes(outputData)
                            if(tinyIm == null){
                                Log.e("MainViewModel runSymiExMPLE", "TINY just extracted BUT IS NULL bitmap")
                            }
@@ -531,7 +531,7 @@ class MainViewModel() : ViewModel() {
                        }
                        MEDIUM -> {
                            medSymDataString = outputData!!.savedData
-                           medIm = bitmapFromBytes(outputData)
+                           medIm = outputData!!.bitmap
                            saveDataFile(context, medSymDataString, MEDIUM,"symdata"+imCounter.toString()+"_"+Date().time.toString()+".txt")
                            saveImage(
                                context,
@@ -944,9 +944,11 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
          //   if(symData.isNotEmpty()) {
             Log.d(TAG, "generatedLargeImage not null doing reiter")
 
-            if(workItemsList.containsValue(fname)){
+            val ity = workItemsList.filterValues { v -> v==fname }
+            if(!ity.isEmpty()){
                     //Already running for this data
-                    throw Exception("Not reiterating job already running")
+                    Log.i("MVM runSymiExampleWorker","Not reiterating job already running")
+                return ity.toList()[0]
                 }
                // var outputData: OutputData? = null
 //                    Log.d(TAG, "runSymiExample: symi.lambda " + iconDef.lambda.toString())

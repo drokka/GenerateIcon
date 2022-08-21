@@ -14,7 +14,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.drokka.emu.symicon.generateicon.R
 import com.drokka.emu.symicon.generateicon.data.GeneratedIconWithAllImageData
-import com.drokka.emu.symicon.generateicon.data.GeneratedImage
 import com.drokka.emu.symicon.generateicon.data.LARGE
 import java.io.File
 import java.io.FileInputStream
@@ -115,13 +114,13 @@ class BigImageViewPagerFragment : Fragment() {
         override fun createFragment(position: Int): Fragment {
             var bitmapImage: Bitmap? = null
 
-
+            var imFile:File? = null
             val bitmapFile = imageList?.get(position)?.iconImageFileName
             val len = LARGE*LARGE*4  //imageList?.get(position)?.len ?: 0
             try {
                 val imagesDirPath = File(context?.filesDir, "images")
 
-                val imFile = bitmapFile?.let { File(imagesDirPath, it) }
+                imFile = bitmapFile?.let { File(imagesDirPath, it) }
 
                 val inputStream = FileInputStream(imFile?.path)
 
@@ -133,7 +132,7 @@ class BigImageViewPagerFragment : Fragment() {
                 Log.e("ViewBigImagePagerAdapter", "Error could not load bitmap:" + xx.message)
             }
 
-            return BigImageFragment.newInstance(bitmapImage )
+            return BigImageFragment.newInstance(bitmapImage , bitmapFile)
         }
 
 

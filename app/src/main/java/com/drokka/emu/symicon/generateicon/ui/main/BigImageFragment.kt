@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
 import com.drokka.emu.symicon.generateicon.R
-import com.drokka.emu.symicon.generateicon.data.GeneratedImage
 import com.google.android.material.snackbar.Snackbar
+import java.io.File
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -23,13 +23,14 @@ import com.google.android.material.snackbar.Snackbar
 class BigImageFragment : Fragment() {
     // TODO: Rename and change types of parameters
     var bigIconImageBitmap:Bitmap? = null
+    var imFileName: String? = null
 
     lateinit var bigImageView: ImageView
     lateinit var saveBigToGalleryBtn: Button
     val viewModel:MainViewModel by activityViewModels()
 
     interface Callbacks {
-        fun saveBigImageToGallery(bitmap: Bitmap?, context: Context)
+        fun saveImageToGallery(imFN:String, context: Context?)
     }
     private var callbacks: Callbacks? = null
 
@@ -67,7 +68,7 @@ class BigImageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         saveBigToGalleryBtn.setOnClickListener{
-            this.callbacks?.saveBigImageToGallery(bitmap = bigIconImageBitmap,  context = requireContext())
+            imFileName?.let { it1 -> this.callbacks?.saveImageToGallery(imFN = it1, context = requireContext()) }
             Snackbar.make(view, "Image saved to media store",Snackbar.LENGTH_SHORT).show()
          }
 
@@ -91,10 +92,11 @@ class BigImageFragment : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(bitmap: Bitmap?) =
+        fun newInstance(bitmap: Bitmap?, imFileIn: String?) =
             BigImageFragment().apply {
                 arguments = Bundle().apply {
                    bigIconImageBitmap = bitmap
+                    imFileName = imFileIn
                }
             }
     }

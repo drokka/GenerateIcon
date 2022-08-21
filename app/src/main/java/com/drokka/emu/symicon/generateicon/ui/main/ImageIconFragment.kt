@@ -1,9 +1,7 @@
 package com.drokka.emu.symicon.generateicon.ui.main
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,14 +9,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
 import com.drokka.emu.symicon.generateicon.R
 
 import com.drokka.emu.symicon.generateicon.data.GeneratedImage
 import com.drokka.emu.symicon.generateicon.getBitmap
 import com.google.android.material.snackbar.Snackbar
-import java.util.*
 
 class ImageIconFragment() : Fragment() {
 
@@ -42,8 +37,8 @@ class ImageIconFragment() : Fragment() {
     }
 
     interface Callbacks {
-        fun saveImageToGallery(bitmap: Bitmap?, generatedImage: GeneratedImage, context: Context?)
-        fun generateLargeIcon(requireContext: Context)
+        fun saveImageToGallery( imFileName: String, context: Context?)
+        fun generateLargeIcon(requireContext: Context, goBigButton: Button)
         fun showBigImage()
         fun reColour()
     }
@@ -105,7 +100,7 @@ private lateinit var saveToGalleryButton:Button
             if (bitmap != null) {
                 displayImageIconView.setImageBitmap(bitmap)
                 saveToGalleryButton.setOnClickListener {
-                    saveImageToGallery(null, viewModel.generatedMedImage!!, context)
+                    saveImageToGallery( viewModel.generatedMedImage!!, context)
                     Snackbar.make(view, "Image saved to media store",Snackbar.LENGTH_SHORT).show()
 
                 }
@@ -118,39 +113,8 @@ private lateinit var saveToGalleryButton:Button
         //Generate LARGE symi for the definition
        goBigButton.setOnClickListener {
             //Do wait UI
-           callbacks?.generateLargeIcon(requireContext())
-           /*
-            if(id == null){
-                Log.e("Go Big", "Error getting work id.")
 
-            }else {
-                context?.let { it1 ->
-                    WorkManager.getInstance(it1).getWorkInfoByIdLiveData(id)
-                        .observe(viewLifecycleOwner) { workInfo ->
-                            if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                                Snackbar.make(requireView(),"Go Big completed",Snackbar.LENGTH_SHORT)
-                                    .show()
-                                Log.i("Go Big", "success for work: " + workInfo.toString())
-                               // viewModel.storeWork(requireContext(),workInfo.outputData)
-                            }
-                            else if (workInfo?.state == WorkInfo.State.ENQUEUED){
-                                Log.d("Go Big", "queued")
-                            }
-                            else if (workInfo?.state == WorkInfo.State.RUNNING){
-                                Log.d("Go Big", "running")
-                            }
-                            else{
-                                Snackbar.make(
-                                    requireView(),"Go Big generation error.",
-                                    Snackbar.LENGTH_SHORT )
-                                    .show()
-                                Log.e("Go Big", "Error generating large image. workinfo state: " +workInfo?.toString())
-                            }
-                        }
-                }
-            }
-
-            */
+           callbacks?.generateLargeIcon(requireContext(), goBigButton)
 
         }
 
@@ -168,9 +132,9 @@ private lateinit var saveToGalleryButton:Button
         }
 
 
-     private fun saveImageToGallery(bitmap: Bitmap?,generatedImage: GeneratedImage, context: Context?) {
+     private fun saveImageToGallery(generatedImage: GeneratedImage, context: Context?) {
         if (context != null) {
-            callbacks?.saveImageToGallery(bitmap, generatedImage,context)
+            callbacks?.saveImageToGallery( generatedImage.iconImageFileName,context)
 
         }
     }

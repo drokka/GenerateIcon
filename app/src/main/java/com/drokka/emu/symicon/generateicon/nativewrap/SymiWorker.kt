@@ -177,8 +177,8 @@ class SymiWorker(context: Context, params:WorkerParameters) : CoroutineWorker(co
             imagesDirPath.mkdirs()
             val imFile = File(imagesDirPath, imageFileName)
             val pngStream = FileOutputStream(imFile)
-            val image = BitmapFactory.decodeByteArray(generatedData.pngBuffer,
-                0, generatedData.pngBufferLen)
+            val image = generatedData.bitmap   //BitmapFactory.decodeByteArray(generatedData.pngBuffer,
+              //  0, generatedData.pngBufferLen)
             image?.compress(
                 Bitmap.CompressFormat.PNG,
                 100,

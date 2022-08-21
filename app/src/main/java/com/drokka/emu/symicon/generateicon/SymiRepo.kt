@@ -99,7 +99,7 @@ class SymiRepo   private constructor(context: Context) {
         if(!it.isOpen){
             Log.i("SymiRepo constructor", "SYMI_DATABASE is closed trying to open")
         }
-            it.openHelper.writableDatabase
+            it.getOpenHelper().writableDatabase
 
     Log.i("SymiRepo constructor isOpen: ", it.isOpen.toString())
     }

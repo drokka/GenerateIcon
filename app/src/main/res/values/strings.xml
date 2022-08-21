@@ -16,4 +16,5 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="big_images_floating_action_button">View large images (after Go Big)</string>
         <string name="leak_canary_test_class_name">assertk.Assert</string>
+    <string name="background">Background</string>
 </resources>
