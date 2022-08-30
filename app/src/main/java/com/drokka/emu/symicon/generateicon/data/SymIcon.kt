@@ -1,12 +1,7 @@
 package com.drokka.emu.symicon.generateicon.data
 
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.room.*
-import androidx.sqlite.db.SimpleSQLiteQuery
-import androidx.sqlite.db.SupportSQLiteQuery
-import com.drokka.emu.symicon.generateicon.database.SymiTypeConverters
 import java.io.Serializable
 import java.util.*
 
@@ -23,18 +18,18 @@ const val XLARGE =2001
 const val QUICK_LOOK = 5000
 const val GO        = 50000
 const val GO_GO     = 200000
-const val GO_GO_GO  = 1200000
+const val GO_GO_GO  = 1000000
 
 //@Entity(primaryKeys = ["lambda","alpha","beta","gamma","omega","ma","quiltType"])
 @Entity
 data class IconDef(
     @PrimaryKey var icon_def_id: UUID = UUID.randomUUID(),
-    var lambda: Double = 0.6,
-    var alpha: Double = 0.3,
-    var beta: Double =0.2,
-    var gamma: Double = 0.4,
-    var omega: Double = 0.2,
-    var ma: Double = 0.3,
+    var lambda: Double = Random().nextDouble(),
+    var alpha: Double = Random().nextDouble(),
+    var beta: Double =Random().nextDouble(),
+    var gamma: Double = Random().nextDouble(),
+    var omega: Double = Random().nextDouble(),
+    var ma: Double = Random().nextDouble(),
     var quiltType: QuiltType = QuiltType.SQUARE,
     var degreeSym:Int =3
 ):Serializable

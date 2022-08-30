@@ -15,15 +15,18 @@
         android:layout_height="51dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="10dp"
-        android:foregroundTint="@color/material_dynamic_primary90"
+        android:foregroundTint="@color/teal_700"
+        android:backgroundTint="@color/light_blue_600"
         android:tooltipText="Slide to change parameter value."
         android:valueFrom="0.0"
         android:valueTo="1.0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextOmega"
-        app:parameterName="ma"
-        app:thumbRadius="6dp"
-        app:thumbStrokeColor="@color/material_dynamic_primary10" />
+        app:thumbRadius="10dp"
+        app:thumbStrokeColor="@color/gray_400"
+        app:thumbColor="@color/light_blue_600"
+        app:trackColor="@color/gray_400"
+        app:trackColorActive="@color/light_blue_50"/>
 
     <com.google.android.material.slider.Slider
         android:id="@+id/editTextOmega"
@@ -36,8 +39,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:tooltipText="Slide to change parameter value."
         app:layout_constraintTop_toBottomOf="@+id/editTextGamma"
-        app:parameterName="omega"
-        app:thumbRadius="6dp" />
+        app:thumbRadius="10dp"
+        app:thumbStrokeColor="@color/gray_400"
+        app:thumbColor="@color/light_blue_600"
+        app:trackColor="@color/gray_400"
+        app:trackColorActive="@color/light_blue_50" />
 
     <com.google.android.material.slider.Slider
         android:id="@+id/editTextGamma"
@@ -50,8 +56,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:tooltipText="Slide to change parameter value."
         app:layout_constraintTop_toBottomOf="@+id/divider"
-        app:parameterName="gamma"
-        app:thumbRadius="6dp" />
+        app:thumbRadius="10dp"
+        app:thumbStrokeColor="@color/gray_400"
+        app:thumbColor="@color/light_blue_600"
+        app:trackColor="@color/gray_400"
+        app:trackColorActive="@color/light_blue_50"/>
 
     <com.google.android.material.slider.Slider
         android:id="@+id/editTextAlpha"
@@ -64,8 +73,11 @@
         app:layout_constraintStart_toStartOf="parent"
         android:tooltipText="Slide to change parameter value."
         app:layout_constraintTop_toBottomOf="@+id/editTextLamda"
-        app:parameterName="alpha"
-        app:thumbRadius="6dp" />
+        app:thumbRadius="10dp"
+        app:thumbStrokeColor="@color/gray_400"
+        app:thumbColor="@color/light_blue_600"
+        app:trackColor="@color/gray_400"
+        app:trackColorActive="@color/light_blue_50"/>
 
     <com.google.android.material.slider.Slider
         android:id="@+id/editTextBeta"
@@ -78,8 +90,11 @@
         app:layout_constraintStart_toStartOf="parent"
         android:tooltipText="Slide to change parameter value."
         app:layout_constraintTop_toBottomOf="@+id/editTextAlpha"
-        app:parameterName="beta"
-        app:thumbRadius="6dp" />
+        app:thumbRadius="10dp"
+        app:thumbStrokeColor="@color/gray_400"
+        app:thumbColor="@color/light_blue_600"
+        app:trackColor="@color/gray_400"
+        app:trackColorActive="@color/light_blue_50"/>
 
     <!--EditText
         android:id="@+id/editSize"
@@ -127,8 +142,11 @@
         app:layout_constraintStart_toStartOf="parent"
         android:tooltipText="Slide to change parameter value."
         app:layout_constraintTop_toBottomOf="@+id/divider"
-        app:parameterName="lambda"
-        app:thumbRadius="6dp" />
+        app:thumbRadius="10dp"
+        app:thumbStrokeColor="@color/gray_400"
+        app:thumbColor="@color/light_blue_600"
+        app:trackColor="@color/gray_400"
+        app:trackColorActive="@color/light_blue_50"/>
 
     <View
         android:id="@+id/divider2"
@@ -171,7 +189,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@android:color/transparent"
-        android:contentDescription="Quick view of pattern created."
+        android:contentDescription="@string/quick_view_of_pattern_created"
         android:fadingEdge="horizontal|vertical"
         android:scrollbars="none"
         android:tintMode="src_over"
@@ -192,8 +210,8 @@
         android:indeterminate="true"
         android:progressTint="@color/purple_700"
         android:visibility="invisible"
-        tools:layout_editor_absoluteX="-10dp"
-        tools:layout_editor_absoluteY="31dp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="0dp"
         tools:visibility="invisible" />
 
     <EditText
@@ -228,7 +246,7 @@
         android:layout_marginTop="24dp"
         android:ems="10"
         android:textColor="@color/light_blue_50"
-        android:text="Symi Name"
+        android:text="@string/symi_name"
         app:layout_constraintBottom_toTopOf="@+id/imageButtonQuickDraw"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

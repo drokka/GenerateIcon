@@ -6,9 +6,9 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.database.SymiDatabase
-import com.drokka.emu.symicon.generateicon.database.SymiTypeConverters
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
@@ -99,7 +99,7 @@ class SymiRepo   private constructor(context: Context) {
         if(!it.isOpen){
             Log.i("SymiRepo constructor", "SYMI_DATABASE is closed trying to open")
         }
-            it.getOpenHelper().writableDatabase
+            (it as RoomDatabase).openHelper.writableDatabase
 
     Log.i("SymiRepo constructor isOpen: ", it.isOpen.toString())
     }

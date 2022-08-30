@@ -21,35 +21,33 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout="@layout/fragment_sym_icon_list_list" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:alpha=".5"
         android:clickable="true"
-        android:contentDescription="Generate new symicon"
+        android:contentDescription="@string/generate_new_symicon"
         android:focusable="true"
-        android:tintMode="src_in"
-        android:tooltipText="Define a new pattern."
-        app:backgroundTint="@color/material_dynamic_secondary95"
-        app:backgroundTintMode="src_in"
+        android:tooltipText="@string/create_new"
+        android:text="@string/create"
+        android:textAlignment="center"
+        android:backgroundTint="@color/light_blue_400"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/symbigstar_216" />
+         />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/bigImagesFloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:alpha=".5"
         android:clickable="true"
-        android:contentDescription="View large images generated."
-        android:src="@drawable/symbigstar_216"
-        android:tooltipText="View the large images generated."
-        app:backgroundTint="@color/material_dynamic_secondary95"
-        app:backgroundTintMode="src_in"
+        android:contentDescription="@string/view_large_images_generated"
+        android:tooltipText="@string/big_images_floating_action_button"
+        android:text="@string/view_large_images_generated_label"
+        android:textAlignment="center"
+        android:backgroundTint="@color/light_blue_400"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.96"

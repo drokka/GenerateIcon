@@ -64,17 +64,19 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     // private lateinit var  symiRepo:SymiRepo
  //   private lateinit var symIconList :LiveData<List<GeneratedIconAndImageData>>
     /*********************/
-
+    private var SPLASH_DONE = false
     override fun onAttachedToWindow() {
 
 
         super.onAttachedToWindow()
-        navController = findNavController(R.id.fragmentContainerView)
+        if (navController == null) {
+            navController = findNavController(R.id.fragmentContainerView)
+        }
     }
 
         override fun onResume() {
         super.onResume()
-
+        SPLASH_DONE = false
         if(!viewModel.workItemsList.isEmpty()){
             val wm = WorkManager.getInstance(applicationContext)
             for(wi in viewModel.workItemsList){
@@ -84,6 +86,20 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         }
             System.gc()
     }
+
+  /*  override fun ???? {
+        super.???()
+            //shut down pending work
+        if(!viewModel.workItemsList.isEmpty()){
+            val wm = WorkManager.getInstance(applicationContext)
+            for(wi in viewModel.workItemsList){
+                wm.cancelWorkById(wi.key)
+            }
+        }
+        finish()
+    }
+
+   */
     override fun onImageIconSelected() {
         if(imageIconFragment == null) {
             imageIconFragment = ImageIconFragment.newInstance()
@@ -203,6 +219,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         val bigsWorkIndicator = findViewById<ImageButton>(R.id.bigsWorkImageButton)
         if(workDone) {
             bigsWorkIndicator.setImageResource(R.drawable.ic_baseline_circle_24green)
+//                wrapListFragment?.sitBigsButtonVisible()
+
         }else{
             bigsWorkIndicator.setImageResource(R.drawable.ic_baseline_circle_24)
 
@@ -360,7 +378,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             bigImageViewPagerFragment = BigImageViewPagerFragment.newInstance()
         }
         if(viewModel.getSymBigsList().isEmpty()){
-          //  Toast.makeText(applicationContext,"There are no saved big images to view!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext,"There are no saved big images to view.", Toast.LENGTH_SHORT).show()
         }else {
             navController?.navigate(R.id.action_wrapListFragment_to_bigImageViewPagerFragment)
         }
@@ -493,12 +511,20 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             ,ICON_DISPLAY("icon")
     }
     var currentFragment:CurrentFragmet? = null
-    override fun onCloseMe() {
-
-         if(mainActivityFragment!=null && navController?.currentDestination?.id == R.id.mainActivityFragment) {
-             navController?.navigate(/*R.id.action_mainActivityFragment_to_editSymiFragment*/  R.id.action_mainActivityFragment_to_wrapListFragment)
+    //Callback for main activity fragment which is just splash, called by countdown timer that closes the page.
+    override fun onCloseMe(b: Boolean) {
+        if(b) SPLASH_DONE = false
+        if (navController == null) {
+            navController = findNavController(R.id.fragmentContainerView)
+        }
+         if((mainActivityFragment != null)
+             && (navController?.currentDestination?.id == R.id.mainActivityFragment
+                     && !SPLASH_DONE)
+         ) {
+             navController?.navigate( R.id.action_mainActivityFragment_to_wrapListFragment)
+             SPLASH_DONE = true
          }
-         //   navController?.popBackStack(R.id.mainActivityFragment, true)
+          //  navController?.popBackStack(R.id.mainActivityFragment, false)
     }
 
     override fun onDestinationChanged(
@@ -508,7 +534,10 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     ) {
         when(val destId = (NavDestination as FragmentNavigator.Destination).id){
                 R.id.mainActivityFragment -> currentFragment= CurrentFragmet.MAIN_EDIT
-            R.id.wrapListFragment -> currentFragment = CurrentFragmet.WRAP_LIST
+            R.id.wrapListFragment -> {
+                currentFragment = CurrentFragmet.WRAP_LIST
+              //  navController?.popBackStack(R.id.wrapListFragment, true)
+            }
             R.id.image_icon_fragment -> currentFragment = CurrentFragmet.ICON_DISPLAY
             else -> Log.d("onDestinationCanged", "ID not handled id=$destId")
         }

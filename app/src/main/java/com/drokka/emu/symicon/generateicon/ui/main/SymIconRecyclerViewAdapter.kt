@@ -3,23 +3,20 @@ package com.drokka.emu.symicon.generateicon.ui.main
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.drokka.emu.symicon.generateicon.data.GeneratedIconWithAllImageData
 import com.drokka.emu.symicon.generateicon.data.SymIcon
 import com.drokka.emu.symicon.generateicon.databinding.FragmentSymIconListBinding
 import com.drokka.emu.symicon.generateicon.getBitmap
-import kotlinx.coroutines.runBlocking
 
 /**
  * [RecyclerView.Adapter] that can display a [SymIcon].
@@ -89,6 +86,7 @@ class SymIconRecyclerViewAdapter(
         val contentView: TextView = binding.content
         var iconImageView:ImageView = binding.iconImageView
         var bitMap: Bitmap? = null
+        val deleteButton:ImageButton = binding.deleteDataImageButton
          //   var byteArray:ByteArray? = null
         val res = binding.also {
              this.itemView.setOnClickListener {
@@ -101,41 +99,14 @@ class SymIconRecyclerViewAdapter(
                  }
              }
              this.itemView.setOnLongClickListener {
-                 val callbacks = it?.context as SymIconListFragment.Callbacks
-                     val builder = AlertDialog.Builder(it.context)
-                     builder.setMessage("Are you sure?")
-                         .setTitle("Delete")
-                     builder.setPositiveButton(
-                         "Yes"
-                     ) { dialog, which ->
-                         Log.d("long click listener", "yes")
-                         var generatedIconWithAllImageData:GeneratedIconWithAllImageData? = null
-                         try {
-                             generatedIconWithAllImageData = (viewModel.symImageListAll.value as
-                                     List<GeneratedIconWithAllImageData>)[absoluteAdapterPosition]
-                         }catch (err:Exception){
-                             Log.e("Adapter delete", "Adapter list index error: " +err.message)
-                             return@setPositiveButton
-                         }
-                         callbacks.deleteSymIcon(it.context, generatedIconWithAllImageData as GeneratedIconWithAllImageData)
-                         //  viewModel.symImageListAll
-                         //Hack needed because the notifies happen too quickly I think.
-                          (viewModel.symImageListAll.value as MutableList<GeneratedIconWithAllImageData>)
-                              .removeAt(absoluteAdapterPosition)
-                         notifyItemRemoved(this.absoluteAdapterPosition)
-                         //  notifyItemRangeChanged(absoluteAdapterPosition, itemCount-absoluteAdapterPosition)
-                         notifyDataSetChanged()
-                       //  bindingAdapter?.notifyItemRangeChanged(absoluteAdapterPosition, itemCount-absoluteAdapterPosition)
-
-                     }
-                         .setNegativeButton("No", DialogInterface.OnClickListener { dialog, id ->
-                             Log.d("long click listener", "no")
-                         })
-                     builder.create()
-                     builder.show()
-                     return@setOnLongClickListener true
+                 doDeleteData(it)
+                 return@setOnLongClickListener true
 
                  }
+             this.deleteButton.setOnClickListener {
+                 doDeleteData(it)
+                 return@setOnClickListener
+             }
              }
 
 
@@ -167,6 +138,46 @@ class SymIconRecyclerViewAdapter(
         }
 
 
+    }
+
+    private fun ViewHolder.doDeleteData(
+        view: View
+    ) {
+        val callbacks = view?.context as SymIconListFragment.Callbacks
+        val builder = AlertDialog.Builder(view.context)
+        builder.setMessage("Are you sure?")
+            .setTitle("Delete")
+        builder.setPositiveButton(
+            "Yes"
+        ) { dialog, which ->
+            Log.d("long click listener", "yes")
+            var generatedIconWithAllImageData: GeneratedIconWithAllImageData? = null
+            try {
+                generatedIconWithAllImageData = (viewModel.symImageListAll.value as
+                        List<GeneratedIconWithAllImageData>)[absoluteAdapterPosition]
+            } catch (err: Exception) {
+                Log.e("Adapter delete", "Adapter list index error: " + err.message)
+                return@setPositiveButton
+            }
+            callbacks.deleteSymIcon(
+                view.context,
+                generatedIconWithAllImageData as GeneratedIconWithAllImageData
+            )
+            //  viewModel.symImageListAll
+            //Hack needed because the notifies happen too quickly I think.
+            (viewModel.symImageListAll.value as MutableList<GeneratedIconWithAllImageData>)
+                .removeAt(absoluteAdapterPosition)
+            notifyItemRemoved(this.absoluteAdapterPosition)
+            //  notifyItemRangeChanged(absoluteAdapterPosition, itemCount-absoluteAdapterPosition)
+            notifyDataSetChanged()
+            //  bindingAdapter?.notifyItemRangeChanged(absoluteAdapterPosition, itemCount-absoluteAdapterPosition)
+
+        }
+            .setNegativeButton("No", DialogInterface.OnClickListener { dialog, id ->
+                Log.d("long click listener", "no")
+            })
+        builder.create()
+        builder.show()
     }
 
 }

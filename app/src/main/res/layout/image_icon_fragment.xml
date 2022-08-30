@@ -54,6 +54,7 @@
         android:id="@+id/goBigButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:tooltipText="@string/go_big_hint"
         android:text="Go Big"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

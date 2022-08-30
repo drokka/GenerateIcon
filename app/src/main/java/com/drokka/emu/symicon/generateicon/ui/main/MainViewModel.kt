@@ -108,13 +108,13 @@ class MainViewModel() : ViewModel() {
     var clrFunction:String = "default"
     var colourChanged = false
     //The C++ library uses inverted alpha so 0 is opaque?? or something weird.
-    var bgClrInt:IntArray = intArrayOf(255,50,50,255)
-    var minClrInt:IntArray = intArrayOf(255,127,0,255)
-    var maxClrInt:IntArray = intArrayOf(255,255,127,255)
+    var bgClrInt:IntArray = intArrayOf(50,0,0,255)
+    var minClrInt:IntArray = intArrayOf(0,255,25,200)
+    var maxClrInt:IntArray = intArrayOf(50,255,255,255)
 
-    var bgClr = doubleArrayOf(1.0,0.0,0.0,0.36)
-    var minClr = doubleArrayOf(0.0,0.9,0.6, 0.8)
-    var maxClr = doubleArrayOf(0.8, 0.999, 1.0, 1.0)
+    var bgClr = doubleArrayOf(0.2,0.0,0.0,1.0)
+    var minClr = doubleArrayOf(0.0,0.9,0.1, 0.8)
+    var maxClr = doubleArrayOf(0.2, 0.999, 1.0, 1.0)
     var generatedTinyIAD:GeneratedIconAndImageData? = null
     var generatedTinyImage:GeneratedImage? = null
     var generatedLargeImage:GeneratedImage? = null

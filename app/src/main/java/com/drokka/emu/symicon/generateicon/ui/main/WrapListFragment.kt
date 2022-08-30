@@ -6,12 +6,15 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.transition.TransitionInflater
 import com.drokka.emu.symicon.generateicon.MainActivity
 import com.drokka.emu.symicon.generateicon.R
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // TODO: Rename parameter arguments, choose names that match
@@ -27,8 +30,8 @@ private const val ARG_PARAM2 = "param2"
 class WrapListFragment : Fragment() {
     // TODO: Rename and change types of parameters
    // private var symIconListFragment:SymIconListFragment? = null
-    var floatingActionButton:FloatingActionButton? = null
-    var viewBigsFloatingActionButton: FloatingActionButton? = null
+    var floatingActionButton: ExtendedFloatingActionButton? = null
+    var viewBigsFloatingActionButton: ExtendedFloatingActionButton? = null
     private val viewModel:MainViewModel by activityViewModels()
 
     interface Callbacks{
@@ -75,10 +78,23 @@ class WrapListFragment : Fragment() {
         viewBigsFloatingActionButton?.setOnClickListener {
             callbacks?.viewBigsFloatingActionClicked()
         }
+    //    if(viewModel.getSymBigsList().isEmpty()){
+      //      viewBigsFloatingActionButton?.visibility = GONE
+      //  }
         return view
     }
 
-    companion object {
+  //  override fun onResume() {
+    //    super.onResume()
+      //  if(viewModel.getSymBigsList().isEmpty()){
+          //  viewBigsFloatingActionButton?.visibility = GONE
+        //}
+        //else {
+          //  viewBigsFloatingActionButton?.visibility = VISIBLE
+        //}
+  //  }
+
+      companion object {
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.

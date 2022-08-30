@@ -22,7 +22,6 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import com.drokka.emu.symicon.generateicon.R
 import com.drokka.emu.symicon.generateicon.data.*
-import com.drokka.emu.widgets.FloatInView
 import com.google.android.material.slider.Slider
 import kotlinx.coroutines.*
 import java.util.*
@@ -62,6 +61,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
     private lateinit var busyBar: ProgressBar
     private  lateinit var labelTextView: TextView
 
+    private lateinit var textViewDegreeSymLabel: TextView
     /*** callback interface for fragment management by the hosting activity *********/
     interface Callbacks {
 
@@ -134,7 +134,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         selectTypeSpinner.adapter = arrayAdapter
 
         //restoreState(savedInstanceState)
-
+        textViewDegreeSymLabel = view.findViewById(R.id.textViewDegreeSymLabel)
         return view
     }
 
@@ -194,27 +194,27 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
   */
      //   maText.onSelectedValueChanged = {oldie,newie -> viewModel.setMa(newie);doQuickDraw()}
         maText.addOnChangeListener { slider, value, fromUser ->
-            viewModel.setMa(value.toDouble())
+            viewModel.setMa(jitter(value.toDouble()))
             doQuickDraw()
         }
         lambdaText.addOnChangeListener { slider, value, fromUser ->
-            viewModel.setLambda(value.toDouble())
+            viewModel.setLambda(jitter(value.toDouble()))
             doQuickDraw()
         }
         alphaText.addOnChangeListener { slider, value, fromUser ->
-            viewModel.setAlpha(value.toDouble())
+            viewModel.setAlpha(jitter(value.toDouble()))
             doQuickDraw()
         }
         betaText.addOnChangeListener { slider, value, fromUser ->
-            viewModel.setBeta(value.toDouble())
+            viewModel.setBeta(jitter(value.toDouble()))
             doQuickDraw()
         }
         gammaText.addOnChangeListener { slider, value, fromUser ->
-            viewModel.setGamma(value.toDouble())
+            viewModel.setGamma(jitter(value.toDouble()))
             doQuickDraw()
         }
         omegaText.addOnChangeListener { slider, value, fromUser ->
-            viewModel.setOmega(value.toDouble())
+            viewModel.setOmega(jitter(value.toDouble()))
             doQuickDraw()
         }
 
@@ -248,6 +248,10 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         checkStorage()
     }
 
+    private fun jitter(x:Double):Double{
+        val xj = Random().nextDouble()*(1.0 - x)*0.0001 + x
+        return xj
+    }
 
     private fun doQuickDraw() {
         if(viewModel.isLoading) return
@@ -260,7 +264,18 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        viewModel.setIconType(parent?.getItemAtPosition(position).toString())
+        val itemType = parent?.getItemAtPosition(position).toString()
+        when (itemType){
+            "Fractal" -> {
+                degSymText.visibility = View.VISIBLE
+                textViewDegreeSymLabel.visibility = View.VISIBLE
+            }
+            else -> {
+                degSymText.visibility = View.GONE
+                textViewDegreeSymLabel.visibility = View.GONE
+            }
+        }
+        viewModel.setIconType(itemType)
         doQuickDraw()
     }
 

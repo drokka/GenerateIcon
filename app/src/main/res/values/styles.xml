@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="Widget.Theme.GenerateIcon.ButtonBar.Fullscreen" parent="">
+    <!--style name="Widget.Theme.GenerateIcon.ButtonBar.Fullscreen" parent="">
         <item name="android:background">@color/black_overlay</item>
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
@@ -8,7 +8,7 @@
     <style name="Widget.Theme.GenerateIcon.MyView" parent="">
         <item name="android:background">@color/gray_400</item>
         <item name="exampleColor">@color/light_blue_400</item>
-    </style>
+    </style-->
 
     <style name="Theme.App.Starting" id="theme_starting" parent="Theme.SplashScreen">
         // Set the splash screen background, animated icon, and animation duration.

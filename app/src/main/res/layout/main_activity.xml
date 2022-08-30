@@ -10,8 +10,8 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/light_blue_50"
+        android:layout_height="0dp"
+        android:background="@color/light_blue_A200"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
@@ -37,8 +37,14 @@
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Symmetry"
-                android:textSize="36sp"
+                android:layout_marginStart="8dp"
+                android:fontFamily="casual"
+                android:includeFontPadding="true"
+                android:text="@string/app_name"
+                android:textColor="@color/purple_700"
+                android:textFontWeight="33"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>

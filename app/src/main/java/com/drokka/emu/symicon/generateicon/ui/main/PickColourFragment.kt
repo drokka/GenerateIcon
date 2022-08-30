@@ -16,8 +16,6 @@ import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.drokka.emu.symicon.generateicon.R
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 
