@@ -60,7 +60,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
 
     private lateinit var quickDrawImageButton: ImageButton
     private lateinit var busyBar: ProgressBar
-    private  lateinit var labelTextView: TextView
+   // private  lateinit var labelTextView: TextView
 
     private lateinit var textViewDegreeSymLabel: TextView
     /*** callback interface for fragment management by the hosting activity *********/
@@ -118,7 +118,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         quickDrawImageButton = view.findViewById(R.id.imageButtonQuickDraw)
         busyBar = view.findViewById(R.id.progressBar)
 
-        labelTextView = view.findViewById(R.id.labelTextView)
+      //  labelTextView = view.findViewById(R.id.labelTextView)
       //  greyOverlay = view.findViewById(R.id.waitOverlay)
        // greyOverlay.alpha = 0.05f
       //  greyOverlay.visibility = View.VISIBLE
@@ -241,7 +241,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
 
         degSymText.doAfterTextChanged { viewModel.setDegSym(degSymText.text);doQuickDraw()}
 
-        labelTextView.doAfterTextChanged { viewModel.symIcon.label = labelTextView.text.toString() }
+      //  labelTextView.doAfterTextChanged { viewModel.symIcon.label = labelTextView.text.toString() }
 
         //  retainInstance = true
       //  restoreState(savedInstanceState)
