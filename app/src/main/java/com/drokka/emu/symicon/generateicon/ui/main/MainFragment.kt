@@ -24,6 +24,7 @@ import com.drokka.emu.symicon.generateicon.R
 import com.drokka.emu.symicon.generateicon.data.*
 import com.google.android.material.slider.Slider
 import kotlinx.coroutines.*
+import java.lang.Math.random
 import java.util.*
 
 class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon type spinner*/ {
@@ -140,30 +141,31 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         busyBar.isIndeterminate
 
         // greyOverlay.alpha = 0f
         // GENERATE button - make a bigger icon with more iterations
         quickDrawImageButton.setOnClickListener {
+            if (viewModel.tinyIm == null) return@setOnClickListener
+
             busyBar.visibility = View.VISIBLE
             view.refreshDrawableState()
-        //    it.parent.refreshDrawableState()
-          //  context?.let { it1 ->
-               // busyBar.isShown = View.
-
-                    val job = callbacks?.onGenerateClicked(requireContext())
+            //    it.parent.refreshDrawableState()
+            //  context?.let { it1 ->
+            // busyBar.isShown = View.
 
 
-       // }
+                val job = callbacks?.onGenerateClicked(requireContext())
 
-            // can't sleep prevents UI thread showing busy.
-            // FIX this generated image will be null now
-            job?.invokeOnCompletion {
-                viewModel.saveSymi()
-                displayImageIcon()
-            }
 
-         //   busyBar.visibility = View.INVISIBLE
+                // FIX this generated image will be null now
+                job?.invokeOnCompletion {
+                    viewModel.saveSymi()
+                    displayImageIcon()
+                }
+
+                //   busyBar.visibility = View.INVISIBLE
 
             }
 
@@ -258,10 +260,16 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         var generateJob:Job? = null
         context?.let { it1 -> generateJob = callbacks!!.doQuickDraw(it1) }
         generateJob?.invokeOnCompletion {
-            quickDrawImageButton.setImageBitmap(context?.let { it1 ->
-                viewModel.tinyIm
-            }) }
+            if(viewModel.tinyIm != null) {
+                quickDrawImageButton.setImageBitmap(context?.let { it1 ->
+                    viewModel.tinyIm
+                })
+            }else {
+                quickDrawImageButton.setImageResource(R.drawable.range_error3)
+                }
+        }
     }
+
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val itemType = parent?.getItemAtPosition(position).toString()
@@ -269,10 +277,28 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
             "Fractal" -> {
                 degSymText.visibility = View.VISIBLE
                 textViewDegreeSymLabel.visibility = View.VISIBLE
+                alphaText.value = kotlin.random.Random.nextDouble(-1.0, 1.0).toFloat()
+                betaText.value = kotlin.random.Random.nextDouble(-1.0, 1.0).toFloat()
+                gammaText.value = kotlin.random.Random.nextDouble(-1.0, 1.0).toFloat()
+                alphaText.valueFrom = -1.0f
+                alphaText.valueTo = 1.0f
+                betaText.valueFrom = -1.0f
+                betaText.valueTo = 1.0f
+                gammaText.valueFrom = -1.0f
+                gammaText.valueTo = 1.0f
+
             }
             else -> {
                 degSymText.visibility = View.GONE
                 textViewDegreeSymLabel.visibility = View.GONE
+
+                alphaText.valueFrom = -20.0f
+                alphaText.valueTo = 20.0f
+                betaText.valueFrom = -20.0f
+                betaText.valueTo = 20.0f
+                gammaText.valueFrom = -20.0f
+                gammaText.valueTo = 20.0f
+
             }
         }
         viewModel.setIconType(itemType)

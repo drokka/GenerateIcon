@@ -538,7 +538,7 @@ class MainViewModel() : ViewModel() {
                                medIm,
                                MEDIUM,
                                imCounter.toString()+"_"+Date().time.toString()+"MED.png",
-                               ""
+                               symIcon.label
                            )
 
                        }
@@ -586,11 +586,11 @@ class MainViewModel() : ViewModel() {
 
     fun saveDataFile(context: Context, savedData:String, size: Int, fname:String){
         when(size) {
-            TINY -> generatedTinyIcon.generatedDataFileName = fname
-            MEDIUM ->generatedMedIcon.generatedDataFileName = fname
-            LARGE -> generatedLargeIcon.generatedDataFileName = fname
+            TINY -> generatedTinyIcon.generatedDataFileName = symIcon.label +fname
+            MEDIUM ->generatedMedIcon.generatedDataFileName = symIcon.label +fname
+            LARGE -> generatedLargeIcon.generatedDataFileName = symIcon.label +fname
         }
-        generatedIcon.generatedDataFileName = fname
+        generatedIcon.generatedDataFileName = symIcon.label +fname
 
         val oStream = context.openFileOutput(fname, Context.MODE_PRIVATE)
 
@@ -753,7 +753,7 @@ fun saveTinySymi(context: Context): String{
         tinyIm,
         TINY,
         imCounter.toString()+"_"+Date().time.toString()+".png",
-        ""
+        symIcon.label
     )
 
         if (generatedTinyIAD != null) {
@@ -787,7 +787,7 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
                     medIm,
                     MEDIUM,
                     imCounter.toString() + "_RCLR_" + Date().time.toString() + ".png",
-                    ""
+                    symIcon.label
                 )
                 // JUST the image!!!!
                 var generatedImageData = generatedMedIAD?.generatedImageData!!

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
 
       android:id="@+id/custom_spinner"
-        android:textSize="18sp"
+        android:textSize="24sp"
         android:text="HELLO"
         android:padding="10dp"
     android:background="@android:color/transparent"

@@ -5,23 +5,23 @@
         <item>Hex</item>
         <item>Fractal</item>
     </array>
-    <string name="about_app">Generate symmetric patterns. Uses mathematical algorithms described in Symmetry in Chaos: A Search for Pattern in Mathematics, Art and Nature
+    <string name="about_app" translatable="false">Generate symmetric patterns. Uses mathematical algorithms described in Symmetry in Chaos: A Search for Pattern in Mathematics, Art and Nature
 Field, by Michael J. and Golubitsky, M.</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
-    <string name="show_image">View image</string>
-    <string name="generate_large_image">Go Bigger</string>
+    <string name="show_image" translatable="false">View image</string>
+    <string name="generate_large_image" translatable="false">Go Bigger</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="icon_image_text">\"small generated image\"</string>
-    <string name="big_images_floating_action_button">View large images (after Go Big)</string>
+    <string name="icon_image_text" translatable="false">\"small generated image\"</string>
+    <string name="big_images_floating_action_button" translatable="false">View large images (after Go Big)</string>
         <string name="leak_canary_test_class_name">assertk.Assert</string>
     <string name="background">Background</string>
-    <string name="quick_view_of_pattern_created">Quick view of pattern created.</string>
-    <string name="symi_name">name</string>
-    <string name="go_big_hint">Generate a finer image using more iterations. And repeat.</string>
-    <string name="generate_new_symicon">Generate new symicon</string>
-    <string name="view_large_images_generated">View large images generated.</string>
-    <string name="create_new">Create new!</string>
-    <string name="create">CREATE</string>
-    <string name="view_large_images_generated_label">View bigs</string>
+    <string name="quick_view_of_pattern_created" translatable="false">Quick view of pattern created.</string>
+    <string name="symi_name" translatable="false">symi</string>
+    <string name="go_big_hint" translatable="false">Generate a finer image using more iterations. And repeat.</string>
+    <string name="generate_new_symicon" translatable="false">Generate new symicon</string>
+    <string name="view_large_images_generated" translatable="false">View large images generated.</string>
+    <string name="create_new" translatable="false">Create new!</string>
+    <string name="create" translatable="false">CREATE</string>
+    <string name="view_large_images_generated_label" translatable="false">View bigs</string>
 </resources>

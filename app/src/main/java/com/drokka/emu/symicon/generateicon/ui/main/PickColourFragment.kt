@@ -215,8 +215,8 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
     private fun setMixin(mixinIn: Mixin){
         mixin = mixinIn
-        val selectedClr = Color.argb(255,255,255,255)
-        val unSelectedClr = Color.argb(255,0,255,100)
+        val selectedClr = argb(255,255,255,255)
+        val unSelectedClr = argb(255,0,255,100)
         when(mixin){
             Mixin.BG_CLR -> {
                 textView3.setTextColor(selectedClr)
@@ -236,7 +236,7 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
                 textView3.setTextColor(unSelectedClr)
             }
         }
-
+        setColourDisplay()
     }
     fun setBgClr(){
         rgbValueInt.forEachIndexed{ i, vv -> bgClrArray[i] = vv}
@@ -261,9 +261,8 @@ fun setColourDisplay() {
         Mixin.MIN_CLR -> minColourView
         Mixin.MAX_CLR -> maxColourView
     }
-    val clr = Color.argb(rgbValueInt[3],
-        rgbValueInt[0],rgbValueInt[1], rgbValueInt[2])
-        btnView.setBackgroundColor(clr)
+    val clr = argb(rgbValueInt[3], rgbValueInt[0],rgbValueInt[1], rgbValueInt[2])
+    btnView.setBackgroundColor(clr)
     btnView.invalidate()
 
     colourDisplay.setBackgroundColor(clr)

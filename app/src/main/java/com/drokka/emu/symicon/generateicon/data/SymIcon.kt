@@ -12,13 +12,13 @@ enum class QuiltType(val label: String) {
 const val TINY = 281
 const val SMALL = 381  /* 385 is  0.75 of max Google Play icon size (512), which is recommended to accommodate rounding etc. But is it dp not px? */
 const val MEDIUM = 841
-const val LARGE = 1081
+const val LARGE = 1041
 const val XLARGE =2001
 
 const val QUICK_LOOK = 5000
 const val GO        = 50000
 const val GO_GO     = 200000
-const val GO_GO_GO  = 1000000
+const val GO_GO_GO  = 1200000
 
 //@Entity(primaryKeys = ["lambda","alpha","beta","gamma","omega","ma","quiltType"])
 @Entity
