@@ -68,6 +68,28 @@ fun GeneratedImage.getGeneratedData(context: Context):String{
     return dataString
 }
 
+fun GeneratedIconWithAllImageData.getGeneratedData(context: Context):String{
+    var dataString =""
+    try{
+
+        val filesPath = context.filesDir
+        val dataFile = File(filesPath, generatedDataFileName)
+
+        val zipFile = ZipFile(dataFile)
+        val entry = zipFile.getEntry(generatedDataFileName)
+
+        val zipInputStream = zipFile.getInputStream(entry)
+        dataString = zipInputStream.bufferedReader().readText()
+
+        zipInputStream.close()
+        zipFile.close()
+    }catch ( xx:Exception){
+        Log.e("getGeneratedData", "ERROR msg is: " + xx.message)
+        return ""
+    }
+    return dataString
+}
+
 fun GeneratedImage.clear(){
     iconImageFileName =""
     len = 0
@@ -270,11 +292,11 @@ class SymiRepo   private constructor(context: Context) {
     fun addGeneratedImageDataForDef(dataFileName:String, iconImageFileName: String, bgClr:String,
                                     minClr:String,
                                     maxClr:String,
-                                    clrFunction:String, len: Int){
+                                    clrFunction:String, clrFunExp:Double, len: Int){
         return symiDao.addGeneratedImageDataForDef(dataFileName, iconImageFileName, bgClr,
                                         minClr,
                                         maxClr,
-                                        clrFunction, len)
+                                        clrFunction, clrFunExp, len)
     }
     fun getGeneratedIcon(genIconId: UUID): GeneratedIcon {
         return symiDao.getGeneratedIcon(genIconId)

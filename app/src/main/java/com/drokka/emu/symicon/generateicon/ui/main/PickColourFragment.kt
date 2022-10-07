@@ -10,28 +10,39 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.drokka.emu.symicon.generateicon.R
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlin.math.absoluteValue
 
 
 class PickColourFragment : Fragment() {
 
     companion object {
-        fun newInstance() = PickColourFragment()
+        fun newInstance(bgClrArray: IntArray, minClrArray: IntArray, maxClrArray: IntArray) = PickColourFragment().apply {
+            this.bgClrArray = bgClrArray.clone()
+            this.minClrArray = minClrArray.clone()
+            this.maxClrArray = maxClrArray.clone()
+
+            rgbValueInt = bgClrArray.clone()
+        }
     }
 interface Callbacks{
     fun pickedColours(
         context: Context,
         bgClrArray: IntArray,
         minClrArray: IntArray,
-        maxClrArray: IntArray
-    ): Deferred<Unit?>
+        maxClrArray: IntArray,
+        clrFunction: String,
+        clrFunExp: Double
+    ) : Deferred<Unit?>
     fun cancelPickColours()
     fun redisplayMedImage()
     fun doQuickReColour(
@@ -39,8 +50,10 @@ interface Callbacks{
         imageView: ImageView,
         bgClrArray: IntArray,
         minClrArray: IntArray,
-        maxClrArray: IntArray
-    ): Job //, bgClrIntArray: IntArray, minClrIntArray: IntArray, maxClrIntArray: IntArray ): Job
+        maxClrArray: IntArray,
+        clrFunction: String,
+        clrFunExp:Double
+    ) : Job //, bgClrIntArray: IntArray, minClrIntArray: IntArray, maxClrIntArray: IntArray ): Job
 }
 
 private var callbacks:Callbacks? = null
@@ -54,7 +67,8 @@ override fun onDetach() {
     super.onDetach()
     callbacks = null
 }
-    private val viewModel:MainViewModel by activityViewModels()
+
+private val viewModel:MainViewModel by activityViewModels()
 private lateinit var redSeekBar: SeekBar
 private lateinit var greenSeekBar: SeekBar
 private lateinit var blueSeekBar: SeekBar
@@ -71,11 +85,15 @@ private lateinit var textView3: TextView
     private lateinit var textView4:TextView
     private lateinit var textView5:TextView
 
-    private var bgClrArray = intArrayOf(0,0,0,255)
-    private var minClrArray = intArrayOf(0,0,0,255)
-    private var maxClrArray = intArrayOf(0,0,0,255)
-    private var rgbValueInt = intArrayOf(0,0,0,255)
+    private lateinit var clrFunEditText:EditText
 
+
+    private var bgClrArray = IntArray(4)
+    private var minClrArray = IntArray(4)
+    private var maxClrArray = IntArray(4)
+    private var rgbValueInt = IntArray(4)
+
+    private var clrFun = 1.0
     private lateinit var colourRecyclerView:RecyclerView
 
     enum class Mixin {BG_CLR, MIN_CLR, MAX_CLR}
@@ -101,6 +119,7 @@ override fun onCreateView(
     textView4 = view.findViewById(R.id.textView4)
     textView5 = view.findViewById(R.id.textView5)
     colourRecyclerView = view.findViewById(R.id.idColourRecyclerView)
+    clrFunEditText = view.findViewById(R.id.editTextNumberClrFunction)
     return view
 }
 private fun setClr(clrArray: IntArray){
@@ -114,16 +133,21 @@ private fun setClr(clrArray: IntArray){
     rgbValueInt[3] = clrArray[3]
 
 }
-override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    bgClrArray = viewModel.bgClrInt
-    minClrArray = viewModel.minClrInt
-    maxClrArray = viewModel.maxClrInt
 
-    setMixin( Mixin.BG_CLR)
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+      Log.d("pick colour fragment onViewCreated", "viewModel.bgClrInt[0] " + viewModel.bgClrInt[0])
+    bgClrArray = viewModel.bgClrInt.clone()
+    minClrArray = viewModel.minClrInt.clone()
+    maxClrArray = viewModel.maxClrInt.clone()
+    rgbValueInt = viewModel.bgClrInt.clone()
+    clrFun = viewModel.clrFunctionExp
     setClr(bgClrArray)
 
-    setColourDisplay()
+    setMixin( Mixin.BG_CLR)
+
+
+   // setColourDisplay()
 
 
     imageView.setImageBitmap(viewModel.tinyIm)
@@ -197,13 +221,18 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     maxColourView.setOnClickListener { setMixin( Mixin.MAX_CLR )}
     textView5.setOnClickListener { setMixin( Mixin.MAX_CLR )}
 
+    clrFunEditText.doAfterTextChanged { text -> try {
 
+        clrFun = text.toString().toDouble().absoluteValue
+    }catch (xx:java.lang.NumberFormatException){ /* just skip */}
+    }
     okButton.setOnClickListener{
-        val job = callbacks?.pickedColours(requireContext(), bgClrArray, minClrArray, maxClrArray)
+         val job =  callbacks?.pickedColours(requireContext(), bgClrArray, minClrArray, maxClrArray, "default", clrFun)
 
         job?.invokeOnCompletion{
 
              //   viewModel.saveSymi()
+
             viewModel.saveMedSymImage(context)
             callbacks?.redisplayMedImage()
         }
@@ -277,7 +306,8 @@ fun setColourDisplay() {
     refreshImageView()
 }
     private fun refreshImageView(){
-            var generateJob = callbacks!!.doQuickReColour(requireContext(), imageView,  bgClrArray, minClrArray, maxClrArray)
+             var generateJob =  callbacks!!.doQuickReColour(requireContext(), imageView,
+                bgClrArray, minClrArray, maxClrArray,"default", clrFun)
 
             generateJob.invokeOnCompletion {
                 imageView.invalidate()

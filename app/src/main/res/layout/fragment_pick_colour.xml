@@ -168,7 +168,8 @@
             app:layout_constraintBottom_toTopOf="@+id/pickClrImageView"
             app:layout_constraintEnd_toStartOf="@+id/divider3"
             app:layout_constraintStart_toEndOf="@id/divider2"
-            app:layout_constraintTop_toBottomOf="@+id/blueSeekBar" />
+            app:layout_constraintTop_toBottomOf="@+id/blueSeekBar"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/blueTextView"
@@ -196,7 +197,8 @@
             app:layout_constraintBottom_toTopOf="@+id/pickClrImageView"
             app:layout_constraintEnd_toStartOf="@id/divider2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/blueTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/blueTextView"
+            app:layout_constraintVertical_bias="0.17000002" />
 
         <View
             android:id="@+id/divider2"
@@ -261,14 +263,12 @@
             android:id="@+id/pickClrImageView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
             android:src="@drawable/symi_200px"
+            app:layout_constraintBottom_toTopOf="@id/idColourRecyclerView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/alphaSeekBar"
-            app:layout_constraintBottom_toTopOf="@id/idColourRecyclerView"
-            />
+            app:layout_constraintTop_toBottomOf="@id/editTextNumberClrFunction" />
 
         <View
             android:id="@+id/divider3"
@@ -297,6 +297,34 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/pickClrImageView"
             app:layout_constraintVertical_bias="1.0" />
+
+        <EditText
+            android:id="@+id/editTextNumberClrFunction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="80dp"
+            android:layout_marginBottom="8dp"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:text="1.0"
+            app:layout_constraintBottom_toTopOf="@+id/pickClrImageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/alphaTextView" />
+
+        <TextView
+            android:id="@+id/textViewLabelClrFn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="24dp"
+            android:text="Colour function"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toTopOf="@+id/pickClrImageView"
+            app:layout_constraintEnd_toStartOf="@+id/editTextNumberClrFunction"
+            app:layout_constraintHorizontal_bias="0.108"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

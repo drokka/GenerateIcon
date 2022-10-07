@@ -2,18 +2,13 @@ package com.drokka.emu.symicon.generateicon.nativewrap
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.database.SymiTypeConverters
 import com.drokka.emu.symicon.generateicon.ui.main.MainViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -30,6 +25,8 @@ class MoreIterWorker( val context: Context, params: WorkerParameters) : Coroutin
         val bgClr = inputData.getDoubleArray("bgClr")
         val minClr = inputData.getDoubleArray("minClr")
         val maxClr = inputData.getDoubleArray("maxClr")
+        val clrFunction = inputData.getString("clrFuncion")?:"default"
+        val clrFunExp = inputData.getDouble("clrFunExp", 0.0)
 
         if(bgClr != null && minClr!=null && maxClr!=null) {
             Log.d("doWork", "colours are: ${bgClr[0]} ${bgClr[1]} ${bgClr[2]} ${bgClr[3]}  , " +
@@ -50,7 +47,9 @@ class MoreIterWorker( val context: Context, params: WorkerParameters) : Coroutin
                                 imageFileName,
                                 bgClr,
                                 minClr,
-                                maxClr
+                                maxClr,
+                                clrFunction,
+                                clrFunExp
                             )
                         }
                       Log.d("MoreIterWorker", "on thread::  " + Thread.currentThread().id.toString())
@@ -71,7 +70,8 @@ class MoreIterWorker( val context: Context, params: WorkerParameters) : Coroutin
                                                 imageFileName,SymiTypeConverters.JSONArrayfromDoubleArray(bgClr),
                                             SymiTypeConverters.JSONArrayfromDoubleArray(minClr),
                                             SymiTypeConverters.JSONArrayfromDoubleArray(maxClr),
-                                            "default",
+                                            clrFunction,
+                                            clrFunExp,
                                             generatedData.bitmap.height * generatedData.bitmap.width *4 //assuming alpha
                                         )
                                     }

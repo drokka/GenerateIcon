@@ -252,7 +252,9 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     override fun reColour(){  //Call from reColour button to open colours dialog
         if (pickColourFragment == null) {
-            pickColourFragment = PickColourFragment.newInstance()
+            pickColourFragment = PickColourFragment.newInstance(viewModel.bgClrInt, viewModel.minClrInt, viewModel.maxClrInt)
+            Log.d("main activity recolour", "pickColurfragment newInstance() called. " +
+            " viewModel.bgClr[0] " + viewModel.bgClr[0] + " viewModel.bgClrInt[0] " + viewModel.bgClrInt[0])
         }
         if(navController?.currentDestination?.id == R.id.imageIconFragment) {
             navController?.navigate(action_imageIconFragment_to_pickColourFragment)
@@ -477,7 +479,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     override fun onSymIconItemSelected(generatedImageAndImageData: GeneratedIconWithAllImageData) {
-        Log.i("MainActivity ", "onSymIconItemSelected called")
+        Log.d("MainActivity ", "onSymIconItemSelected called")
        // if(mainFragment == null) {
          //   mainFragment = MainFragment.newInstance()
        // }
@@ -491,7 +493,9 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     //    if (generatedImageAndImageData != null) {
             viewModel.isLoadingFromData = true
             viewModel.setSymiData(applicationContext, generatedImageAndImageData)
-     //   }
+
+        Log.d("MainActivity onSymIconItemSelected", "viewModel.bgClr[0] " + viewModel.bgClr[0])
+            //   }
 
          /***********
         supportFragmentManager.beginTransaction().replace(id.container, mainFragment!!)
@@ -547,11 +551,13 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         context: Context,
         bgClrArray: IntArray,
         minClrArray: IntArray,
-        maxClrArray: IntArray
-    ): Deferred<Unit?> {
+        maxClrArray: IntArray,
+        clrFunction:String,
+        clrFunExp:Double
+    )  : Deferred<Unit?>  {
 
 
-        val deferredJob =  viewModel.runReColour(context, bgClrArray, minClrArray,maxClrArray)
+        val deferredJob =  viewModel.runReColour(context, bgClrArray, minClrArray,maxClrArray,  clrFunExp)
 
         return deferredJob
     }
@@ -569,13 +575,16 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         }
     }
 
-    override fun doQuickReColour( context: Context,
+    override fun doQuickReColour(
+        context: Context,
         imageView: ImageView,
         bgClrArray: IntArray,
         minClrArray: IntArray,
-        maxClrArray: IntArray
-    ): Job {
-        return viewModel.quickRecolour(context, imageView,  bgClrArray, minClrArray, maxClrArray)
+        maxClrArray: IntArray,
+        clrFunction: String,
+        clrFunExp: Double
+    ) : Job  {
+       return  viewModel.quickRecolour(context, imageView,  bgClrArray, minClrArray, maxClrArray, clrFunExp)
     }
 
     override fun cancelPickColours() {

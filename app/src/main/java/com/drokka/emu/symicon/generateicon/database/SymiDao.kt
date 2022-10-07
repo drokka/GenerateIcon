@@ -248,7 +248,7 @@ interface SymiDao {
     fun addGeneratedImageDataForDef(dataFileName:String, iconImageFileName: String, bgClr:String,
                                      minClr:String,
                                      maxClr:String,
-                                     clrFunction:String, len: Int){
+                                     clrFunction:String, clrFunExp:Double, len: Int){
         if(existsImageFile(iconImageFileName).isNotEmpty()){
             return
         }
@@ -257,7 +257,7 @@ interface SymiDao {
         genDefId?.let {
 
             addGeneratedImageData(GeneratedImageData(UUID.randomUUID(),genDefId,iconImageFileName,
-                                    bgClr,minClr,maxClr,clrFunction,len))
+                                    bgClr,minClr,maxClr,clrFunction,clrFunExp, len))
         }
     }
     @SuppressLint("SuspiciousIndentation")

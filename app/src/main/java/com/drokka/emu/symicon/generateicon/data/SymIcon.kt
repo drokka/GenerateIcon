@@ -15,10 +15,10 @@ const val MEDIUM = 841
 const val LARGE = 1041
 const val XLARGE =2001
 
-const val QUICK_LOOK = 5000
+const val QUICK_LOOK = 10000
 const val GO        = 50000
 const val GO_GO     = 200000
-const val GO_GO_GO  = 1200000
+const val GO_GO_GO  = 1600000
 
 //@Entity(primaryKeys = ["lambda","alpha","beta","gamma","omega","ma","quiltType"])
 @Entity
@@ -92,6 +92,7 @@ data class GeneratedImageData(
     var minClr:String,
     var maxClr:String,
     var clrFunction:String,
+    var clrFunExp:Double,
 
     var len: Int
 ) {
@@ -109,6 +110,7 @@ data class GeneratedImageData(
         if(!minClr.contentEquals(other.minClr)) return false
         if(!maxClr.contentEquals(other.maxClr)) return false
         if(clrFunction != other.clrFunction) return false
+        if(clrFunExp != other.clrFunExp) return false
 
         if (len != other.len) return false
 
@@ -123,8 +125,8 @@ data class GeneratedImageData(
         return result
     }
 }
-@DatabaseView("select bgClr, minClr, maxClr from GeneratedImageData")
-data class ClrPalette(val bgClr: String, val minClr: String, val maxClr: String)
+@DatabaseView("select bgClr, minClr, maxClr , clrFunction, clrFunExp from GeneratedImageData")
+data class ClrPalette(val bgClr: String, val minClr: String, val maxClr: String, val clrFunction:String, val clrFunExp:Double)
 
 //-----------
 // Get all the  images data. Every symi should have at least a TINY entry
@@ -138,7 +140,8 @@ data class ClrPalette(val bgClr: String, val minClr: String, val maxClr: String)
                                         /* " GeneratedIcon.generatedData,*/ " GeneratedIcon.generatedDataFileName,"+
         " GeneratedImageData.gid_id as generatedImageDataId, GeneratedImageData.iconImageFileName, "
         +     //"GeneratedImageData.byteArray, "+
-        "GeneratedImageData.bgClr, GeneratedImageData.minClr, GeneratedImageData.maxClr, GeneratedImageData.clrFunction, "+
+        "GeneratedImageData.bgClr, GeneratedImageData.minClr, GeneratedImageData.maxClr, GeneratedImageData.clrFunction, " +
+        "GeneratedImageData.clrFunExp,"+
         " GeneratedImageData.len"+
         " from IconDef inner join SymIcon on IconDef.icon_def_id = SymIcon.icon_def_id "+
     "inner join GeneratorDef on GeneratorDef.sym_icon_id = SymIcon.sym_icon_id" +
@@ -176,6 +179,7 @@ data class GeneratedIconWithAllImageData
     @TypeConverters
     var maxClr: String,
     var clrFunction: String,
+    var clrFunExp: Double,
  //   @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
   //  var byteArray: ByteArray?,
     var len: Int
@@ -216,6 +220,7 @@ data class GeneratedIconWithAllImageData
         if (!minClr.contentEquals(other.minClr)) return false
         if (!maxClr.contentEquals(other.maxClr)) return false
         if (clrFunction != other.clrFunction) return false
+        if(clrFunExp != other.clrFunExp) return false
         if (len != other.len) return false
 
         return true
@@ -244,6 +249,7 @@ data class GeneratedIconWithAllImageData
         result = 31 * result + minClr.hashCode()
         result = 31 * result + maxClr.hashCode()
         result = 31 * result + clrFunction.hashCode()
+        result = (31 * result) + clrFunExp.hashCode()
         result = 31 * result + len
         return result
     }

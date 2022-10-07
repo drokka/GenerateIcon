@@ -65,6 +65,7 @@ class SymiTypeConverters {
             minClr = JSONArrayfromDoubleArray(doubleArrayOf(0.9, 0.9, 0.9, 0.0)),
             maxClr = JSONArrayfromDoubleArray(doubleArrayOf(0.9, 0.9, 0.9, 0.0)),
             clrFunction = "default",
+            clrFunExp = 0.0,
             //   byteArray = null,
             len = 0,
             generatedImageDataId = UUID.randomUUID()

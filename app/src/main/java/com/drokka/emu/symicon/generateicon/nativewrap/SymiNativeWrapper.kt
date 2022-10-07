@@ -20,12 +20,21 @@ external fun callMoreIterSampleFromJNI(
     imageFileName: String?,
     bgClr: DoubleArray?,
     minClr: DoubleArray?,
-    maxClr: DoubleArray?
+    maxClr: DoubleArray?,
+    clrFunction: String,
+    clrFunExp: Double
 ): OutputData
 
-external fun callRunSampleFromJNI( intArgs:IntArray, type:Byte,  dArgs:DoubleArray): OutputData
+external fun callRunSampleFromJNI(
+    intArgs: IntArray,
+    type: Byte,
+    dArgs: DoubleArray,
+    clrFunction: String,
+    clrFunExp: Double
+): OutputData
 
-external fun callReColourBufFromJNI(symIn:String,sz:Int, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray):OutputData
+external fun callReColourBufFromJNI(symIn:String,sz:Int, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray,
+                                    clrFunction:String, clrFunExp: Double):OutputData
 
 class SymiNativeWrapper (mainViewModel:MainViewModel){
 
@@ -36,12 +45,15 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
         var mainViewModel:MainViewModel? = null
     }
 
-    suspend fun reColourSym(symData:String,sz:Int, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray):Deferred<OutputData>{
+    suspend fun reColourSym(symData:String,sz:Int, bgClr:DoubleArray,  minClr:DoubleArray,  maxClr:DoubleArray,
+                           clrFunction: String, clrFunExp: Double):Deferred< OutputData> {
+
+        Log.d("callReColourBufFromJNI", "clrFunction is " + clrFunction  +"  clrFunExp is " + clrFunExp)
 
         return coroutineScope {
             async {
-                callReColourBufFromJNI(symData, sz, bgClr, minClr,maxClr)
-            }
+                callReColourBufFromJNI(symData, sz, bgClr, minClr,maxClr, clrFunction, clrFunExp)
+           }
         }
     }
 
@@ -83,7 +95,9 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
         imageFileName: String,
         bgClr: DoubleArray,
         minClr: DoubleArray,
-        maxClr: DoubleArray):UUID{
+        maxClr: DoubleArray,
+    clrFunction: String,
+    clrFunExp: Double):UUID{
 
         Log.d("runMoreIterWorker", "colours are: $bgClr , $minClr , $maxClr")
         val params =   Data.Builder().putLong("iterations", iterations)
@@ -92,6 +106,8 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
             .putDoubleArray("bgClr", bgClr)
             .putDoubleArray("minClr", minClr)
             .putDoubleArray("maxClr", maxClr)
+            .putString("clrFunction", clrFunction)
+            .putDouble("clrFunExp", clrFunExp)
             .build()
         val symiWorkRequest: WorkRequest = OneTimeWorkRequestBuilder<MoreIterWorker>()
                 .setInputData(params)
@@ -107,7 +123,8 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
     }
 
     suspend fun runSample(generatorDef: GeneratorDef, iconDef: IconDef, bgClr: DoubleArray,
-                          minClr: DoubleArray, maxClr: DoubleArray): Deferred<OutputData> {
+                          minClr: DoubleArray, maxClr: DoubleArray, clrFunction: String,
+                          clrFunExp: Double): Deferred<OutputData> {
         var iconImageType: Byte
         val dArgs = DoubleArray(18)
 
@@ -144,12 +161,12 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
 
         return coroutineScope {
             async {
-                callRunSampleFromJNI(intArgs, iconImageType, dArgs)
+                callRunSampleFromJNI(intArgs, iconImageType, dArgs, clrFunction, clrFunExp)
             }
         }
     }
         fun runSampleWorker(context:Context,dataFileName:String, imageFileName:String, generatorDef: GeneratorDef, iconDef: IconDef, bgClr: DoubleArray,
-                              minClr: DoubleArray, maxClr: DoubleArray): Pair<UUID,String> {
+                              minClr: DoubleArray, maxClr: DoubleArray, clrFunction: String, clrFunExp: Double): Pair<UUID,String> {
             var iconImageType: Byte
             val dArgs = DoubleArray(18)
 
@@ -188,6 +205,8 @@ class SymiNativeWrapper (mainViewModel:MainViewModel){
                 .putDoubleArray(D_ARGS, dArgs)
                 .putString("dataFileName", dataFileName)
                 .putString("imageFileName", imageFileName)
+                .putString("clrFunction", clrFunction)
+                .putDouble("clrFunExp", clrFunExp)
                 .build()
             val symiWorkRequest: WorkRequest =
                 OneTimeWorkRequestBuilder<SymiWorker>()

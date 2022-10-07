@@ -277,27 +277,27 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
             "Fractal" -> {
                 degSymText.visibility = View.VISIBLE
                 textViewDegreeSymLabel.visibility = View.VISIBLE
-                alphaText.value = kotlin.random.Random.nextDouble(-1.0, 1.0).toFloat()
-                betaText.value = kotlin.random.Random.nextDouble(-1.0, 1.0).toFloat()
-                gammaText.value = kotlin.random.Random.nextDouble(-1.0, 1.0).toFloat()
-                alphaText.valueFrom = -1.0f
-                alphaText.valueTo = 1.0f
-                betaText.valueFrom = -1.0f
-                betaText.valueTo = 1.0f
-                gammaText.valueFrom = -1.0f
-                gammaText.valueTo = 1.0f
+    //            alphaText.value = kotlin.random.Random.nextDouble(-1.0, 1.0).toFloat()
+      //          betaText.value = kotlin.random.Random.nextDouble(-1.0, 1.0).toFloat()
+        //        gammaText.value = kotlin.random.Random.nextDouble(-1.0, 1.0).toFloat()
+          //      alphaText.valueFrom = -1.0f
+            //    alphaText.valueTo = 1.0f
+              //  betaText.valueFrom = -1.0f
+      //          betaText.valueTo = 1.0f
+        //        gammaText.valueFrom = -1.0f
+          //      gammaText.valueTo = 1.0f
 
             }
             else -> {
                 degSymText.visibility = View.GONE
                 textViewDegreeSymLabel.visibility = View.GONE
 
-                alphaText.valueFrom = -20.0f
-                alphaText.valueTo = 20.0f
-                betaText.valueFrom = -20.0f
-                betaText.valueTo = 20.0f
-                gammaText.valueFrom = -20.0f
-                gammaText.valueTo = 20.0f
+//                alphaText.valueFrom = -20.0f
+  //              alphaText.valueTo = 20.0f
+    //            betaText.valueFrom = -20.0f
+      //          betaText.valueTo = 20.0f
+        //        gammaText.valueFrom = -20.0f
+          //      gammaText.valueTo = 20.0f
 
             }
         }

@@ -2,6 +2,7 @@ package com.drokka.emu.symicon.generateicon.ui.main
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +30,8 @@ class ColourRecyclerViewAdapter(
             val minClr = SymiTypeConverters.JSONArrayToDoubleArray(clrPaletteList!![position].minClr)
             val maxClr = SymiTypeConverters.JSONArrayToDoubleArray(clrPaletteList!![position].maxClr)
 
+            val clrFunction = clrPaletteList!![position].clrFunction
+            val clrFunExp = clrPaletteList!![position].clrFunExp
             val bgClrInt = SymiTypeConverters.doubleArrayToClrInt(bgClr)
             val minClrInt = SymiTypeConverters.doubleArrayToClrInt(minClr)
             val maxClrInt = SymiTypeConverters.doubleArrayToClrInt(maxClr)
@@ -38,6 +41,12 @@ class ColourRecyclerViewAdapter(
             holder.maxClrView.setBackgroundColor(maxClrInt)
 
             holder.bgClr = bgClrInt; holder.minClr = minClrInt; holder.maxClr = maxClrInt
+
+            holder.clrFunExpTextView.text = clrFunExp.toString()
+            holder.clrFunctionTextView.text = clrFunction
+            holder.clrFunction = clrFunction
+            holder.clrFunExp = clrFunExp
+
 
         }
     }
@@ -65,6 +74,10 @@ class ColourRecyclerViewAdapter(
         var minClr: Int = Color.GREEN
 
         var maxClr: Int = Color.RED
+        val clrFunctionTextView = binding.textViewFnClrPalette
+        val clrFunExpTextView = binding.textViewExpClrPalette
+        var clrFunction = "default"
+        var clrFunExp = 0.0
 
         val res = binding.also {
             this.bgClrView.setOnClickListener {
@@ -84,19 +97,23 @@ class ColourRecyclerViewAdapter(
 
 
         override fun onClick(v: View?) {
-            val job = callbacks?.pickedColours(
+            val job =  callbacks?.pickedColours(
                 context,
                 SymiTypeConverters.clrIntToIntArray(bgClr),
                 SymiTypeConverters.clrIntToIntArray(minClr),
-                SymiTypeConverters.clrIntToIntArray(maxClr)
+                SymiTypeConverters.clrIntToIntArray(maxClr),
+                this.clrFunction,
+                 this.clrFunExp
             )
             job?.invokeOnCompletion {
-
-                //   viewModel.saveSymi()
-                viewModel.saveMedSymImage(context)
-                callbacks?.redisplayMedImage()
+                if(job.isCancelled == true){
+                    Log.e("ColourRecyclerViewAdapter onClick", "Job was cancelled, must be null bitmap from jni")
+                }else {
+                    //   viewModel.saveSymi()
+                    viewModel.saveMedSymImage(context)
+                    callbacks?.redisplayMedImage()
+               }
             }
-
         }
     }
 }

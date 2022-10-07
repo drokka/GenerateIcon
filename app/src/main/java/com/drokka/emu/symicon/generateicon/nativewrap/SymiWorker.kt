@@ -2,7 +2,6 @@ package com.drokka.emu.symicon.generateicon.nativewrap
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -91,12 +90,14 @@ class SymiWorker(context: Context, params:WorkerParameters) : CoroutineWorker(co
 
             val dataFileName = inputData.getString("dataFileName")
             val imageFileName = inputData.getString("imageFileName")
+            val clrFunction = inputData.getString("clrFunction")?:"default"
+            val clrFunExp = inputData.getDouble("clrFunExp", 0.0)
       //      var job: Deferred<OutputData>
             dArgs?.let {
      //           withContext(Dispatchers.IO) {
        //              job = coroutineScope {
          //               async {
-                   val   generatedData:OutputData =    callRunSampleFromJNI(intArgs, iconImageType, dArgs)
+                   val   generatedData:OutputData =    callRunSampleFromJNI(intArgs, iconImageType, dArgs, clrFunction, clrFunExp)
                 Log.d("SymiWorker", "on thread::  " + Thread.currentThread().id.toString())
 
                 //              }
@@ -112,7 +113,8 @@ class SymiWorker(context: Context, params:WorkerParameters) : CoroutineWorker(co
                     if (!generatedData?.savedData!!.startsWith("Error")) {
                         if (imageFileName != null) {
                             if (dataFileName != null) {
-                                storeWork(applicationContext,dataFileName, imageFileName,  generatedData!!, iconImageType, intArgs, dArgs)
+                                storeWork(applicationContext,dataFileName, imageFileName,  generatedData!!,
+                                    iconImageType, intArgs, dArgs, clrFunction, clrFunExp)
                             }
                         }
                         return Result.success() // outData)
@@ -139,7 +141,7 @@ class SymiWorker(context: Context, params:WorkerParameters) : CoroutineWorker(co
     }
 
     fun storeWork(context:Context, dataFileName:String, imageFileName:String, generatedData: OutputData, iconImageType:Byte,
-                  intArray: IntArray, iconDefData:DoubleArray) {
+                  intArray: IntArray, iconDefData:DoubleArray, clrFunction:String, clrFunExp:Double) {
         val quiltType = when(iconImageType){
             'S'.toByte() -> QuiltType.SQUARE
             'H'.toByte() -> QuiltType.HEX
@@ -198,7 +200,10 @@ class SymiWorker(context: Context, params:WorkerParameters) : CoroutineWorker(co
         val generatedImageDataW = GeneratedImageData(UUID.randomUUID(), generatedIconW.id, imageFileName,
             SymiTypeConverters.JSONArrayfromDoubleArray( bgClr),
             SymiTypeConverters.JSONArrayfromDoubleArray( minClr),
-            SymiTypeConverters.JSONArrayfromDoubleArray( maxClr) , "default",generatedData.pngBufferLen)
+            SymiTypeConverters.JSONArrayfromDoubleArray( maxClr) ,
+            "default",
+            clrFunExp,
+            generatedData.pngBufferLen)
 
         val bigIADW = GeneratedIconAndImageData(generatedIconW, generatedImageDataW)
 

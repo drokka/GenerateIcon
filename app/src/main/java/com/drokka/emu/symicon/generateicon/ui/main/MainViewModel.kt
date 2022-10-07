@@ -31,6 +31,7 @@ class MainViewModel() : ViewModel() {
 
     }
 
+    var clrFunctionExp: Double = 0.0
     val symiNativeWrapper = SymiNativeWrapper(this).also {
         Log.d("MainViewModel create SymiNativeWrapper", "wrapper on thread::  " + Thread.currentThread().id.toString())
     }
@@ -108,13 +109,13 @@ class MainViewModel() : ViewModel() {
     var clrFunction:String = "default"
     var colourChanged = false
     //The C++ library uses inverted alpha so 0 is opaque?? or something weird.
-    var bgClrInt:IntArray = intArrayOf(50,0,0,255)
-    var minClrInt:IntArray = intArrayOf(0,255,25,200)
-    var maxClrInt:IntArray = intArrayOf(50,255,255,255)
+    var bgClrInt:IntArray = intArrayOf(255,255,255,255)
+    var minClrInt:IntArray = intArrayOf(255,0,25,25)
+    var maxClrInt:IntArray = intArrayOf(0,0,255,255)
 
-    var bgClr = doubleArrayOf(0.2,0.0,0.0,1.0)
-    var minClr = doubleArrayOf(0.0,0.9,0.1, 0.8)
-    var maxClr = doubleArrayOf(0.2, 0.999, 1.0, 1.0)
+    var bgClr = doubleArrayOf(1.0,1.0,1.0,1.0)
+    var minClr = doubleArrayOf(0.99,0.0,0.1, 0.2)
+    var maxClr = doubleArrayOf(0.0, 0.0, 1.0, 1.0)
     var generatedTinyIAD:GeneratedIconAndImageData? = null
     var generatedTinyImage:GeneratedImage? = null
     var generatedLargeImage:GeneratedImage? = null
@@ -345,12 +346,13 @@ class MainViewModel() : ViewModel() {
 
             val generatedImageData = GeneratedImageData(
                 allImageData.generatedImageDataId, generatedIcon.id,
-               generatedImage.iconImageFileName,allImageData.bgClr, allImageData.minClr, allImageData.maxClr, clrFunction, generatedImage.len
+               generatedImage.iconImageFileName,allImageData.bgClr, allImageData.minClr, allImageData.maxClr, clrFunction,
+                clrFunctionExp, generatedImage.len
             )
             bgClr = SymiTypeConverters.JSONArrayToDoubleArray(allImageData.bgClr)
         minClr = SymiTypeConverters.JSONArrayToDoubleArray(allImageData.minClr)
         maxClr = SymiTypeConverters.JSONArrayToDoubleArray(allImageData.maxClr)
-
+        setIntColourArrays()
         genIAD = GeneratedIconAndImageData(generatedIcon, generatedImageData)
      //   }
 
@@ -364,7 +366,9 @@ class MainViewModel() : ViewModel() {
                 generatedImage.getBitmap(context)?.let{tinyIm = it}
                     tinySymDataString = generatedTinyImage!!.getGeneratedData(context)
                     Log.d("setSymiData", "adding TINY symi.width = " + symi.width.toString() +
-                            " allImageData.width = " +allImageData.width.toString())
+                            " allImageData.width = " +allImageData.width.toString() +
+                    " bgClr " + bgClr[0] +" allImageData.bgClr " + allImageData.bgClr[0] +
+                    "bgClrInt[0] " + bgClrInt[0])
               //  }
             }
             MEDIUM -> {
@@ -412,7 +416,7 @@ class MainViewModel() : ViewModel() {
             val generatedMedImageData = GeneratedImageData(
                 symiMedList[0].generatedImageDataId, generatedMedIcon.id,
                 symiMedList[0].iconImageFileName, symiMedList[0].bgClr, symiMedList[0].minClr, symiMedList[0].maxClr,
-                symiMedList[0].clrFunction, symiMedList[0].len
+                symiMedList[0].clrFunction, symiMedList[0].clrFunExp, symiMedList[0].len
             )
             generatedMedIAD = GeneratedIconAndImageData(generatedMedIcon, generatedMedImageData)
          //   medIm = getIconBitmap(context = generatedMedIcon.id)
@@ -443,7 +447,7 @@ class MainViewModel() : ViewModel() {
                         symiSizedDataList[0].generatedImageDataId, generatedIcon.id,
                         symiSizedDataList[0].iconImageFileName, symiSizedDataList[0].bgClr,
                         symiSizedDataList[0].minClr, symiSizedDataList[0].maxClr,
-                        symiSizedDataList[0].clrFunction, symiSizedDataList[0].len
+                        symiSizedDataList[0].clrFunction,symiSizedDataList[0].clrFunExp, symiSizedDataList[0].len
                     )
                 )
                 val bitmap = generatedImage.getBitmap(context)
@@ -505,7 +509,7 @@ class MainViewModel() : ViewModel() {
         var outputData:OutputData? = null
        val generateJob = CoroutineScope(Dispatchers.Main).async {
            Log.d(TAG, "runSymiExample: symi.lambda " + iconDef.lambda.toString())
-           val outputDataJob = symiNativeWrapper.runSample(symi, iconDef, bgClr, minClr, maxClr)
+           val outputDataJob = symiNativeWrapper.runSample(symi, iconDef, bgClr, minClr, maxClr, clrFunction, clrFunctionExp)
            outputDataJob.await()
            outputData = outputDataJob.getCompleted()
 
@@ -674,7 +678,7 @@ fun saveImage(
                         generatedImage.iconImageFileName!!,
                        SymiTypeConverters.JSONArrayfromDoubleArray( bgClr),
                         SymiTypeConverters.JSONArrayfromDoubleArray(  minClr),
-                            SymiTypeConverters.JSONArrayfromDoubleArray( maxClr),clrFunction, generatedImage?.len!!
+                            SymiTypeConverters.JSONArrayfromDoubleArray( maxClr),clrFunction, clrFunctionExp, generatedImage?.len!!
                     )
                     generatedTinyIAD = GeneratedIconAndImageData(generatedTinyIcon, generatedImageData)
                     generatedTinyImage = generatedImage
@@ -686,7 +690,7 @@ fun saveImage(
                         generatedImage?.iconImageFileName!!,
                         SymiTypeConverters.JSONArrayfromDoubleArray( bgClr),
                             SymiTypeConverters.JSONArrayfromDoubleArray( minClr),
-                                SymiTypeConverters.JSONArrayfromDoubleArray( maxClr),clrFunction, generatedImage?.len!!
+                                SymiTypeConverters.JSONArrayfromDoubleArray( maxClr),clrFunction, clrFunctionExp, generatedImage?.len!!
                     )
 
                     generatedMedIAD = GeneratedIconAndImageData(generatedMedIcon, generatedImageData)
@@ -703,6 +707,7 @@ fun saveImage(
                         SymiTypeConverters.JSONArrayfromDoubleArray(minClr),
                         SymiTypeConverters.JSONArrayfromDoubleArray(maxClr),
                         clrFunction,
+                        clrFunctionExp,
                         generatedImage.len
                     )
 
@@ -719,7 +724,7 @@ fun saveImage(
                         UUID.randomUUID(), generatedIcon.id,
                         generatedImage.iconImageFileName, SymiTypeConverters.JSONArrayfromDoubleArray( bgClr),
                         SymiTypeConverters.JSONArrayfromDoubleArray( minClr),
-                        SymiTypeConverters.JSONArrayfromDoubleArray( maxClr),clrFunction,generatedImage.len
+                        SymiTypeConverters.JSONArrayfromDoubleArray( maxClr),clrFunction,clrFunctionExp, generatedImage.len
                     )
 
 
@@ -818,23 +823,31 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         context: Context,
         bgClrArray: IntArray,
         minClrArray: IntArray,
-        maxClrArray: IntArray
-    ): Deferred<Unit?> {
+        maxClrArray: IntArray,
+        clrFun: Double
+    ) : Deferred<Unit?> {
+        setColours(bgClrArray, minClrArray, maxClrArray, clrFun)
+
         var symDataStr: String? = medSymDataString
         if (symDataStr == "") {
-            symDataStr = generatedMedImage?.getGeneratedData(context)
+            val genData = symiRepo.getGeneratedIconWithAllImageDataSize(iconDef, MEDIUM) // generatedMedImage?.getGeneratedData(context)
+            if(genData.isNotEmpty()){
+                symDataStr = genData[0].getGeneratedData(context)
+            }
+
         }
-        setColours(bgClrArray, minClrArray, maxClrArray)
 
         // generatedMedIAD?.generatedImageData?.gid_id = UUID.randomUUID()
         // doReColour used for quick recolour, where this values not set.
-        return doReColour(context, null,MEDIUM, symDataStr, bgClrArray, minClrArray, maxClrArray)
+      return   doReColour(context, null,MEDIUM, symDataStr, bgClrArray, minClrArray, maxClrArray,
+            clrFun)
     }
 
     private fun setColours(
         bgClrArray: IntArray,
         minClrArray: IntArray,
-        maxClrArray: IntArray
+        maxClrArray: IntArray,
+        clrFun: Double
     ) {
         colourChanged = true
         bgClrArray.forEachIndexed { i, vali ->
@@ -850,53 +863,89 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         bgClr = convItoD(bgClrInt)
         minClr = convItoD(minClrInt)
         maxClr = convItoD((maxClrInt))
+        clrFunctionExp = clrFun
     }
+    private fun setIntColourArrays(){
+        bgClrInt = convDtoI(bgClr)
+        minClrInt = convDtoI(minClr)
+        maxClrInt = convDtoI(maxClr)
+        }
 
     fun quickRecolour(context: Context, imageView: ImageView?,bgClrArray: IntArray,
-                      minClrArray: IntArray, maxClrArray: IntArray ): Deferred<Unit?>{
+                      minClrArray: IntArray, maxClrArray: IntArray,
+                      clrFun: Double ) : Deferred< Unit?>  {
         var symDataStr: String? = tinySymDataString
         if (symDataStr == "") {
             symDataStr = generatedTinyImage?.getGeneratedData(context)
         }
-        return doReColour(context, imageView, TINY, symDataStr, bgClrArray, minClrArray, maxClrArray)
+       return  doReColour(context, imageView, TINY, symDataStr, bgClrArray, minClrArray, maxClrArray,
+            clrFun)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun doReColour(context: Context,
                    imageView: ImageView?, sz:Int, symDataStr: String?, bgClrArray: IntArray,
-                   minClrArray: IntArray, maxClrArray: IntArray): Deferred<Unit?> {
+                   minClrArray: IntArray, maxClrArray: IntArray,
+                   clrFun: Double): Deferred<Unit?> {
+        val bgClr = convItoD(bgClrArray)
+        val minClr = convItoD(minClrArray)
+        val maxClr = convItoD(maxClrArray)
 
+        val reColrJob = CoroutineScope(Dispatchers.Main).async {
 
+                        val rcOutDeferred = symDataStr?.let {symiNativeWrapper.reColourSym(
+                            it,
+                            sz,
+                            bgClr,
+                            minClr,
+                            maxClr,
+                            "default",
+                            clrFun
+                        ) }
+                            rcOutDeferred?.await()
+                          val outputData = rcOutDeferred?.getCompleted()
 
-            val reColrJob = CoroutineScope(Dispatchers.Main).async {
-                 val bgClr = convItoD(bgClrArray)
-                  val minClr = convItoD(minClrArray)
-                val maxClr = convItoD(maxClrArray)
-                val rcOutDeferred =
-                    symDataStr?.let { symiNativeWrapper.reColourSym(it,sz, bgClr, minClr, maxClr) }
-                rcOutDeferred?.await()
-                val outputData = rcOutDeferred?.getCompleted()
+                        val date = Date().time.toString()
+                        rcOutDeferred?.isCompleted.let {
+                        val image = outputData?.bitmap //bitmapFromBytes(outputData)
 
-                val date = Date().time.toString()
-                rcOutDeferred?.isCompleted?.let {
-                    val image = outputData?.bitmap //bitmapFromBytes(outputData)
-                if ( imageView==null && sz == MEDIUM) { // doing MEDIUM or LARGE
-              //      saveImage(context, bitmap, date+".png")
-                  //  saveSymi() doesn't seem to happen when expected
-                    medIm = image
-                }
-                else { //quick recolour for display only
-                    image?.let {
-                        if (imageView != null) {
-                            imageView.setImageBitmap(image)
+                        if (image == null || outputData?.savedData?.startsWith(
+                                "Error",
+                                true
+                            ) == true
+                        ) {
+                             this.cancel("reColourSym: There was a problem creating bitmap")
+                         /*   Log.e(
+                                "recolour",
+                                "null image returned from jni " + outputData?.savedData?.substring(
+                                    100
+                                )
+
+                            )
+
+                            */
+                        } else {
+                            if (imageView == null && sz == MEDIUM) { // doing MEDIUM or LARGE
+                                //      saveImage(context, bitmap, date+".png")
+                                //  saveSymi() doesn't seem to happen when expected
+                                medIm = image
+                            } else { //quick recolour for display only
+                                image?.let {
+                                    if (imageView != null) {
+                                        imageView.setImageBitmap(image)
+                                    }
+                                }
+                            }
+                            //   }  //else { Log.e("reColour", "returned error: " + outputData?.savedData)}
                         }
                     }
                 }
-                    outputData?.bitmap = null
-                    outputData?.savedData = ""
+                  //  outputData?.bitmap = null
+                 //   outputData?.savedData = ""
 
-                }
-        }
+              //  }
+               //
+      //  }
         System.gc()
     return reColrJob
     }
@@ -905,6 +954,12 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         var doubleArray:DoubleArray = DoubleArray(4)
         clr.forEachIndexed { index, i ->  doubleArray[index] = i/255.0 }
         return doubleArray
+    }
+
+    private fun convDtoI(clr: DoubleArray): IntArray{
+        var intArray = IntArray(4)
+        clr.forEachIndexed{ i, dval -> intArray[i] = (255*dval).toInt()}
+        return  intArray
     }
 
     fun deleteSymiData(context: Context,generatedIconWithAllImageData: GeneratedIconWithAllImageData) {
@@ -960,7 +1015,9 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
                         GO_GO_GO.toLong(),
                         fname,
                         imageFileName,
-                        bgClr, minClr, maxClr
+                        bgClr, minClr, maxClr,
+                        clrFunction,
+                        clrFunctionExp
                     )
 
                   //  outputDataJob.await()
@@ -975,7 +1032,8 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         // MUST BE NEW BIG
         val dataFileName = "symdata"+"BIG" + tt +".txt"
         val idFname =
-                symiNativeWrapper.runSampleWorker(context, dataFileName, imageFileName, symi, iconDef, bgClr, minClr, maxClr)
+                symiNativeWrapper.runSampleWorker(context, dataFileName, imageFileName, symi, iconDef,
+                    bgClr, minClr, maxClr, clrFunction, clrFunctionExp)
         System.gc()
 
         return idFname

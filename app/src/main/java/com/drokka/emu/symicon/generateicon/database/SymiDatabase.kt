@@ -9,7 +9,7 @@ import com.drokka.emu.symicon.generateicon.data.*
 @Database(entities = [IconDef::class , SymIcon::class,
     GeneratorDef::class, GeneratedIcon::class, GeneratedImageData::class],
     views = [GeneratedIconWithAllImageData::class,SymImageDefinition::class, ClrPalette::class],
-    version = 4 /*give up storing images and data for Android and SQLite. gotchas keep coming with the limited cursor size.*/
+    version = 5
 )
 @TypeConverters(SymiTypeConverters::class)
 abstract class SymiDatabase: RoomDatabase() {
