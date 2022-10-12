@@ -24,4 +24,6 @@ Field, by Michael J. and Golubitsky, M.</string>
     <string name="create_new" translatable="false">Create new!</string>
     <string name="create" translatable="false">CREATE</string>
     <string name="view_large_images_generated_label" translatable="false">View bigs</string>
+    <string name="clrFunExpLabel">Exponent</string>
+    <string name="clrFunExpDefaultValue">0.3</string>
 </resources>

@@ -37,7 +37,7 @@ class ImageIconFragment() : Fragment() {
     }
 
     interface Callbacks {
-        fun saveImageToGallery( imFileName: String, context: Context?)
+        fun saveImageToGallery(imFileName: String, context: Context?)
         fun generateLargeIcon(requireContext: Context, goBigButton: Button)
         fun showBigImage()
         fun reColour()

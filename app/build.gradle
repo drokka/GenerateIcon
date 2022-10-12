@@ -28,7 +28,7 @@ android {
         }
     }
     compileSdk 33
-    kotlinOptions.useIR = true
+    //kotlinOptions.useIR = true
 
     packagingOptions {
         resources.excludes.add("META-INF/*")
@@ -36,10 +36,10 @@ android {
     
     defaultConfig {
         applicationId "com.drokka.emu.symicon.generateicon"
-        minSdkVersion 30
+        minSdkVersion 28
         targetSdkVersion 33
-        versionCode 9
-        versionName "4.0"
+        versionCode 10
+        versionName "4.1"
 
      //   testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -59,6 +59,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            jniDebuggable true
         }
     }
     dataBinding{

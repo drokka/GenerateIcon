@@ -243,13 +243,13 @@
             android:id="@+id/okClrButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="120dp"
             android:layout_marginBottom="8dp"
             android:text="@android:string/ok"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <Button
+        <!--Button
             android:id="@+id/cancelClrButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -257,7 +257,7 @@
             android:text="@android:string/cancel"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/okClrButton" />
+            app:layout_constraintStart_toEndOf="@+id/okClrButton" /-->
 
         <ImageView
             android:id="@+id/pickClrImageView"
@@ -305,11 +305,16 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="80dp"
             android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/white"
             android:ems="10"
+            android:foregroundTint="@color/white"
+            android:foregroundTintMode="src_over"
             android:inputType="numberDecimal"
-            android:text="1.0"
+            android:text="@string/clrFunExpDefaultValue"
+            android:textColor="@color/white"
             app:layout_constraintBottom_toTopOf="@+id/pickClrImageView"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/textViewLabelClrFn"
             app:layout_constraintTop_toBottomOf="@id/alphaTextView" />
 
         <TextView
@@ -317,9 +322,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="24dp"
-            android:text="Colour function"
+            android:text="@string/clrFunExpLabel"
             android:textColor="@color/white"
             app:layout_constraintBottom_toTopOf="@+id/pickClrImageView"
             app:layout_constraintEnd_toStartOf="@+id/editTextNumberClrFunction"

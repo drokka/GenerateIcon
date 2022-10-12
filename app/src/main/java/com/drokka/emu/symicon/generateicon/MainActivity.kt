@@ -1,10 +1,13 @@
 package com.drokka.emu.symicon.generateicon
 
 import android.annotation.SuppressLint
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Environment.DIRECTORY_PICTURES
 import android.os.StrictMode
 import android.provider.MediaStore
@@ -16,6 +19,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -28,11 +32,14 @@ import androidx.work.WorkManager
 import com.drokka.emu.symicon.generateicon.R.id.*
 import com.drokka.emu.symicon.generateicon.data.*
 import com.drokka.emu.symicon.generateicon.ui.main.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
+
 
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener, MainFragment.Callbacks , ImageIconFragment.Callbacks,
     SymIconListFragment.Callbacks, WrapListFragment.Callbacks,
@@ -61,6 +68,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
  var navController:NavController? = null   //
     /** data access using Room **/
 
+    private var imageFileToSave:String? = null
     // private lateinit var  symiRepo:SymiRepo
  //   private lateinit var symIconList :LiveData<List<GeneratedIconAndImageData>>
     /*********************/
@@ -266,84 +274,145 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
         return generateJob
     }
-
-    /*
-    private fun galleryAddPic2(imageUri:Uri, title:String) {
-
-    val bitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), imageUri)
-    val savedImageURL = MediaStore.Images.Media.insertImage(
-        requireContext().contentResolver,
-        bitmap,
-        title,
-        "Image of $title"
-    )
-    Toast.makeText(requireContext(), "Picture Added to Gallery", Toast.LENGTH_SHORT).show()
-}
-     */
     override fun saveImageToGallery(
         imFileName: String,
         context: Context?
     ) {
+        if (context!= null && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ) {
+            Log.d("save image", "bulid version < Q about to saveFile legacy " + imFileName)
+            saveFileToGalleryLegacy(imFileName, context)
+            return
+        }
+        // SDK >28
         context?.let {
-                val imPath = File(context?.filesDir, "images/")
-                val imFile = File(imPath, imFileName)
+            val imPath = File(context?.filesDir, "images/")
+            val imFile = File(imPath, imFileName)
+            val resolver = context.contentResolver
 
-          //  val newFile: File = File(MediaStore.Images.Media.EXTERNAL_CONTENT_URI., generatedImage.iconImageFileName)
-         //  imFile.copyTo(newFile)
-
-    //        Log.d("saveImageToGallery", "saved to " + newFile.absolutePath)
-
-                var imageUri = FileProvider.getUriForFile(
-                    it,
-                    "com.drokka.emu.symicon",
-                    imFile
-                )
-
-
-
-            // Add a media item that other apps shouldn't see until the item is
-// fully written to the media store.
-
-// Find all audio files on the primary external storage device.
-            val imageCollection =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    MediaStore.Images.Media.getContentUri(
-                        MediaStore.VOLUME_EXTERNAL_PRIMARY
-                    )
-                } else {
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                }
-
-                 val resolver = context.contentResolver
-
+            Log.d("saveImageToGallery", "saving  " + imFileName)
+            val tt = System.currentTimeMillis()
             val cvals = ContentValues().apply {
+                put(TITLE, imFileName)
                 put(DISPLAY_NAME, imFileName)
                 put(MIME_TYPE, "image/png")
-                put(RELATIVE_PATH, DIRECTORY_PICTURES)
+                put(RELATIVE_PATH, DIRECTORY_PICTURES)      // NO relative_path sdk 28
+                put( DATE_ADDED , tt)
                 put(IS_PENDING, 1)
             }
+            val uri = resolver.insert( MediaStore.Images.Media.getContentUri(
+                MediaStore.VOLUME_EXTERNAL_PRIMARY) , cvals)    //(imageUri, cvals)
+            Log.d("save image sdk >28", "got cvals , uri " + cvals.toString() + " , " + uri.toString())
+            uri?.let {
+                resolver.openOutputStream(uri).use { medStr ->
+                    // Write data into the pending image file.
 
-                val uri = resolver.insert(imageCollection, cvals)    //(imageUri, cvals)
-               uri?.let {
-                   resolver.openOutputStream(uri).use { medStr ->
-                       // Write data into the pending image file.
+                    val imStr = FileInputStream(imFile)
+                    medStr?.let { it1 ->
+                        val len = imStr.copyTo(it1)
+                        imStr.close()
+                        medStr.close()
+                        Log.d("save image", "save to store seemingly done len = " + len)
+                    }
+                }
 
-                       val imStr = FileInputStream(imFile)
-                       medStr?.let { it1 ->
-                           imStr.copyTo(it1)
-                           imStr.close()
-                           medStr.close()
-                       }
-                   }
+                cvals.clear()
+                cvals.put(IS_PENDING, 0)
+                resolver.update(uri, cvals, null, null)
+            }
+        }
+        }
 
-                   cvals.clear()
-                   cvals.put(IS_PENDING, 0)
-                   resolver.update(uri, cvals, null, null)
-               }
+ fun saveFileToGalleryLegacy(imFileName: String, context: Context){
+     val resolver = applicationContext.contentResolver
 
+     val imageCollection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+     var permission = PackageManager.PERMISSION_GRANTED
+
+     val permissionsStorage =
+         arrayOf<String>(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+     permission = ActivityCompat.checkSelfPermission(
+         this,
+         android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+     )
+     if (permission != PackageManager.PERMISSION_GRANTED) {
+         Log.d("save image legacy", "permission not granted, calling getWrite Permission")
+         getWritePermission(permissionsStorage)
+         imageFileToSave = imFileName
+         Log.d("save image legacy", "after get permission call ")
+         return // SKIP OUT IF GET PERMISSION ASKED FOR the callback will re-call this function
+     }
+     val directory = context.getExternalFilesDir(DIRECTORY_PICTURES)
+     val tt = System.currentTimeMillis()
+     val cvals = ContentValues().apply {
+                put(TITLE, imFileName)
+                put(DISPLAY_NAME, imFileName)
+                put(MIME_TYPE, "image/png")
+         //       put(RELATIVE_PATH, DIRECTORY_PICTURES)      // NO relative_path sdk 28
+        put( DATE_ADDED , tt)
+         put(DATA, directory.toString()+imFileName)
+      //   put(IS_PENDING, 1)                               // NO such for sdk 28
+            }
+     Log.d("save image legacy", "before resolver insert cvals " +cvals.toString())
+      val PROJECTION = arrayOf(MediaStore.Video.Media._ID)
+      val QUERY = MediaStore.Video.Media.DISPLAY_NAME + " = ?"
+
+     resolver.insert(imageCollection, cvals)
+     Log.d("save image legacy","after resolver insert")
+
+     val cursor =resolver.query(imageCollection, PROJECTION, QUERY, arrayOf(imFileName), null)
+     Log.d("save image legacy", "after cursor call cursor " +cursor.toString())
+
+         if(cursor != null && cursor.count > 0) {
+
+             cursor.moveToFirst()
+       val uri =      ContentUris.withAppendedId(
+                 imageCollection,
+                 cursor.getLong(0)
+             )
+        cursor.close()
+        Log.d("save image legacy", "after uri we got " +uri.toString())
+        val imPath = File(context?.filesDir,  "images/")
+        val imFile = File(imPath, imFileName)
+
+     Log.d("save image", "got cvals , uri " + cvals.toString() + " , " + uri.toString())
+         uri.let {
+             resolver.openOutputStream(uri).use { medStr ->
+                 // Write data into the pending image file.
+                 val imStr = FileInputStream(imFile)
+                 medStr?.let { it1 ->
+                     val len = imStr.copyTo(it1)
+                     imStr.close()
+                     medStr.close()
+                     Log.d("save image", "save to store seemingly done len = " + len)
+                 }
+             }
+         }
+     } // if cursor not null
+        }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.d("req permissions callback", "callback called")
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED && imageFileToSave != null){
+            saveFileToGalleryLegacy(imageFileToSave!!, applicationContext)
+            imageFileToSave = null
         }
     }
+ fun getWritePermission(permissionsStorage:Array<String>) {
+     Log.d("getWritePermission", "get permission pre")
+          ActivityCompat.requestPermissions(
+                this@MainActivity,
+                permissionsStorage,
+                1
+            )
+     Log.d("getWritePermission", "get permission post")
 
+ }
     override fun onFloatingActionButtonClicked() {
         Log.d("MainActivity", "onFloatingActionButtonClicked is CALLED" )
         if(mainFragment == null) {
@@ -586,12 +655,14 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     ) : Job  {
        return  viewModel.quickRecolour(context, imageView,  bgClrArray, minClrArray, maxClrArray, clrFunExp)
     }
-
+/*
     override fun cancelPickColours() {
         navController?.navigate(R.id.action_pickColourFragment_to_imageIconFragment)
         navController?.popBackStack(R.id.imageIconFragment,false)
 
     }
+
+ */
 
    /* override fun saveBigImageToGallery(bitmap: Bitmap?, context: Context) {
 

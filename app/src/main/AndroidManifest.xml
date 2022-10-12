@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:installLocation="preferExternal">
+    android:installLocation="preferExternal"
+    android:requestLegacyExternalStorage="true">
 
     <queries>
         <intent>
@@ -12,6 +13,11 @@
             <category android:name="android.intent.category.APP_FILES" />
         </intent>
     </queries>
+    <!-- If your app doesn't need to access media files that other apps created,
+         set the "maxSdkVersion" attribute to "28" instead. -->
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
 
     <application
@@ -22,9 +28,12 @@
         android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GenerateIcon">
+        android:theme="@style/Theme.GenerateIcon"
+        android:requestLegacyExternalStorage="true">
         <profileable android:shell="true"
             android:enabled="true"/>
+
+
         <!--
           <service
             android:name="SymiService"

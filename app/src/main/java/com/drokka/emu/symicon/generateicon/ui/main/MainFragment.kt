@@ -387,20 +387,20 @@ fun restoreState(savedInstanceState: Bundle?) {
     } else {
 
         var savedVal = savedInstanceState?.getDouble("alpha")?.toFloat()
-        alphaText.value = savedVal
+        alphaText.value = savedVal?:0.5f
 
         savedVal = savedInstanceState?.getDouble("omega")?.toFloat()
-        omegaText.value = savedVal
+        omegaText.value = savedVal?:0.5f
 
         savedVal = savedInstanceState?.getDouble("gamma")?.toFloat()
-        gammaText.value = savedVal
+        gammaText.value = savedVal?:0.5f
         savedVal = savedInstanceState?.getDouble("lambda")?.toFloat()
-        lambdaText.value = savedVal
+        lambdaText.value = savedVal?:0.5f
         savedVal = savedInstanceState?.getDouble("ma")?.toFloat()
-        maText.value = savedVal
+        maText.value = savedVal?:0.5f
       //  maText.setProgress((savedVal * maText.max).toInt())
         savedVal = savedInstanceState?.getDouble("beta")?.toFloat()
-        betaText.value = savedVal
+        betaText.value = savedVal?:0.5f
         var savedIntVal = savedInstanceState.getInt("degreeSym",3)
         degSymText.setText(savedIntVal)
 

@@ -31,7 +31,8 @@ class MoreIterWorker( val context: Context, params: WorkerParameters) : Coroutin
         if(bgClr != null && minClr!=null && maxClr!=null) {
             Log.d("doWork", "colours are: ${bgClr[0]} ${bgClr[1]} ${bgClr[2]} ${bgClr[3]}  , " +
                     "${minClr[0]} ${minClr[1]} ${minClr[2]} ${minClr[3]}  ${minClr[3]} , " +
-                    "${maxClr[0]} ${maxClr[1]} ${maxClr[2]} ${maxClr[3]}  ${maxClr[3]} ")
+                    "${maxClr[0]} ${maxClr[1]} ${maxClr[2]} ${maxClr[3]}  ${maxClr[3]} "+
+                    "\n clrFunction " + clrFunction +" clrFunExp "+ clrFunExp)
         }else{
             Log.e("doWork", "colour arrays  are null")
         }
@@ -53,8 +54,8 @@ class MoreIterWorker( val context: Context, params: WorkerParameters) : Coroutin
                             )
                         }
                       Log.d("MoreIterWorker", "on thread::  " + Thread.currentThread().id.toString())
-
-                      if (generatedData?.savedData?.isNotEmpty() == true) {
+                      Log.d("MoreIterWorker", "clrFunExp " +clrFunExp)
+                          if (generatedData?.savedData?.isNotEmpty() == true) {
                             //  generatedIcon.generatedData = generatedData!!.savedData
 
                             if (!generatedData?.savedData!!.startsWith("Error")) {
@@ -62,9 +63,7 @@ class MoreIterWorker( val context: Context, params: WorkerParameters) : Coroutin
                                   val resy =   storeWork(
                                         applicationContext,
                                         fname,
-                                        imageFileName,
-                                        generatedData
-                                   )
+                                        imageFileName, generatedData)
                                     if(resy && bgClr!=null && minClr != null && maxClr!= null){
                                         MainViewModel.symiRepo.addGeneratedImageDataForDef(fname,
                                                 imageFileName,SymiTypeConverters.JSONArrayfromDoubleArray(bgClr),

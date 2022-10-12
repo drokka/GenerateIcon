@@ -43,7 +43,7 @@ interface Callbacks{
         clrFunction: String,
         clrFunExp: Double
     ) : Deferred<Unit?>
-    fun cancelPickColours()
+ //   fun cancelPickColours()
     fun redisplayMedImage()
     fun doQuickReColour(
         context: Context,
@@ -78,7 +78,7 @@ private lateinit var bgColourView: View
 private lateinit var minColourView: View
 private lateinit var maxColourView: View
 private lateinit var okButton: Button
-private lateinit var cancelButton: Button
+//private lateinit var cancelButton: Button
 private lateinit var imageView: ImageView
 
 private lateinit var textView3: TextView
@@ -112,7 +112,7 @@ override fun onCreateView(
     minColourView = view.findViewById(R.id.viewMinClr)
     maxColourView = view.findViewById(R.id.viewMaxClr)
     okButton = view.findViewById(R.id.okClrButton)
-    cancelButton = view.findViewById(R.id.cancelClrButton)
+  //  cancelButton = view.findViewById(R.id.cancelClrButton)
     imageView = view.findViewById(R.id.pickClrImageView)
 
     textView3 = view.findViewById(R.id.textView3)
@@ -237,7 +237,7 @@ private fun setClr(clrArray: IntArray){
             callbacks?.redisplayMedImage()
         }
     }
-    cancelButton.setOnClickListener { callbacks?.cancelPickColours() }
+    //cancelButton.setOnClickListener { callbacks?.cancelPickColours() }
 
     colourRecyclerView.adapter = ColourRecyclerViewAdapter(viewModel, callbacks)
 }
