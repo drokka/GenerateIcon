@@ -146,6 +146,7 @@ class SymiWorker(context: Context, params:WorkerParameters) : CoroutineWorker(co
             'S'.toByte() -> QuiltType.SQUARE
             'H'.toByte() -> QuiltType.HEX
             'F'.toByte() -> QuiltType.FRACTAL
+            'I'.toByte() -> QuiltType.SQUARE_ICON
             else -> QuiltType.SQUARE
         }
 

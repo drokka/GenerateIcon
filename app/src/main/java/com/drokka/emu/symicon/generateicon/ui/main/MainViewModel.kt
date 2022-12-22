@@ -33,7 +33,7 @@ class MainViewModel() : ViewModel() {
 
     var clrFunctionExp: Double = 0.0
     val symiNativeWrapper = SymiNativeWrapper(this).also {
-        Log.d("MainViewModel create SymiNativeWrapper", "wrapper on thread::  " + Thread.currentThread().id.toString())
+          Log.d("MainViewModel create SymiNativeWrapper", "wrapper on thread::  " + Thread.currentThread().id.toString())
     }
 
 
@@ -67,7 +67,7 @@ class MainViewModel() : ViewModel() {
 
     val paletteList: LiveData<List<ClrPalette>> = symiRepo.getAllClrPalette()
     fun getSymBigsList():List<GeneratedIconWithAllImageData>{
-        return  symiRepo.getAllGeneratedIconWithAllImageDataSize(LARGE)
+        return  symiRepo.getAllGeneratedIconWithAllImageDataSize(LARGE).reversed()
     }
     var workItemsList = mutableMapOf<UUID, String>()
     //var symiMedList = List<GeneratedIconWithAllImageData>(0)
@@ -167,6 +167,7 @@ class MainViewModel() : ViewModel() {
   //  }
 
      fun setIconType(iconType:String) {
+          Log.d("MVM setIconType", "iconType is $iconType")
         when (iconType.substring(0,1)) {
             QuiltType.SQUARE.label -> {
                 iconDef.quiltType = QuiltType.SQUARE
@@ -178,6 +179,10 @@ class MainViewModel() : ViewModel() {
             QuiltType.FRACTAL.label -> {
                 iconDef.quiltType = QuiltType.FRACTAL
             }
+            QuiltType.SQUARE_ICON.label -> {
+                iconDef.quiltType = QuiltType.SQUARE_ICON
+            }
+
         }
          clearGeneratedImage()
     }
@@ -365,7 +370,7 @@ class MainViewModel() : ViewModel() {
                     generatedTinyIAD = genIAD
                 generatedImage.getBitmap(context)?.let{tinyIm = it}
                     tinySymDataString = generatedTinyImage!!.getGeneratedData(context)
-                    Log.d("setSymiData", "adding TINY symi.width = " + symi.width.toString() +
+                      Log.d("setSymiData", "adding TINY symi.width = " + symi.width.toString() +
                             " allImageData.width = " +allImageData.width.toString() +
                     " bgClr " + bgClr[0] +" allImageData.bgClr " + allImageData.bgClr[0] +
                     "bgClrInt[0] " + bgClrInt[0])
@@ -375,7 +380,7 @@ class MainViewModel() : ViewModel() {
                         generatedMedImage = generatedImage
                     generatedMedIAD = genIAD
                 medIm = generatedImage.getBitmap(context)
-                Log.d("setSymiData", "adding MEDIUM width = " + symi.width.toString())
+                  Log.d("setSymiData", "adding MEDIUM width = " + symi.width.toString())
 
                 medSymDataString = generatedImage.getGeneratedData(context)
         }
@@ -383,7 +388,7 @@ class MainViewModel() : ViewModel() {
             generatedLargeImage = generatedImage
            // generatedLargeIAD = genIAD
             largeIm = generatedImage.getBitmap(context)
-            Log.d("setSymiData", "adding  width = " + symi.width.toString())
+              Log.d("setSymiData", "adding  width = " + symi.width.toString())
 
            // medSymDataString = generatedImage.getGeneratedData(context)
         }
@@ -456,7 +461,7 @@ class MainViewModel() : ViewModel() {
                         TINY -> {
                             generatedTinyImage = generatedImage
                             generatedTinyIAD = genIAD
-                            Log.d("imageExists", "adding TINY sz = " + sz.toString() + " ")
+                              Log.d("imageExists", "adding TINY sz = " + sz.toString() + " ")
                             tinyIm = bitmap
                         }
                         MEDIUM -> {
@@ -464,7 +469,7 @@ class MainViewModel() : ViewModel() {
                             generatedMedIAD = genIAD
 
                             medIm = bitmap
-                            Log.d("setSymiData", "adding MEDIUM width sz = " + sz.toString())
+                              Log.d("setSymiData", "adding MEDIUM width sz = " + sz.toString())
 
                             medSymDataString = generatedImage.getGeneratedData(context)
                         }
@@ -508,7 +513,7 @@ class MainViewModel() : ViewModel() {
         colourChanged = false
         var outputData:OutputData? = null
        val generateJob = CoroutineScope(Dispatchers.Main).async {
-           Log.d(TAG, "runSymiExample: symi.lambda " + iconDef.lambda.toString())
+             Log.d(TAG, "runSymiExample: icon TYPE ${iconDef.quiltType} symi.lambda " + iconDef.lambda.toString())
            val outputDataJob = symiNativeWrapper.runSample(symi, iconDef, bgClr, minClr, maxClr, clrFunction, clrFunctionExp)
            outputDataJob.await()
            outputData = outputDataJob.getCompleted()
@@ -531,7 +536,7 @@ class MainViewModel() : ViewModel() {
                            if(tinyIm == null){
                                Log.e("MainViewModel runSymiExMPLE", "TINY just extracted BUT IS NULL bitmap")
                            }
-                           Log.d("MainViewModel runSymiExMPLE", "TINY just set tinyIm size is " + tinyIm?.height)
+                             Log.d("MainViewModel runSymiExMPLE", "TINY just set tinyIm size is " + tinyIm?.height)
                        }
                        MEDIUM -> {
                            medSymDataString = outputData!!.savedData
@@ -547,7 +552,7 @@ class MainViewModel() : ViewModel() {
 
                        }
                        else -> {
-                           Log.d("runSymiExample","size not TINY or MEDIUM")
+                             Log.d("runSymiExample","size not TINY or MEDIUM")
 
                        }
 
@@ -570,7 +575,7 @@ class MainViewModel() : ViewModel() {
         }
 
     private fun bitmapFromBytes(outputData: OutputData?): Bitmap? {
-        Log.d("bitmapFromBytes", outputData!!.pngBuffer.slice(0..200).toString())
+          Log.d("bitmapFromBytes", outputData!!.pngBuffer.slice(0..200).toString())
 
        // val options = BitmapFactory.Options()
       //  options.inPreferredConfig = Bitmap.Config.ARGB_8888
@@ -584,7 +589,7 @@ class MainViewModel() : ViewModel() {
     }
 
     private fun rgbaToArgb(bytes: ByteArray): ByteArray {
-     //  Log.d("rgbaToArgb", bytes.slice(0..200).toString())
+     //    Log.d("rgbaToArgb", bytes.slice(0..200).toString())
         return bytes
     }
 
@@ -662,7 +667,7 @@ fun saveImage(
     } catch (xx: Exception) {
         xx.message?.let { Log.e("saveImage", it) }
     }
-        Log.d(
+          Log.d(
             "saveImage",
             " saveImage completed after JNI call seeemingly OK size = " + size
         )
@@ -742,9 +747,9 @@ fun saveTinySymi(context: Context): String{
         val tag = "saveTinySymi"
     if(tinySymDataString.isNullOrEmpty()){
         if(symi.width == TINY){
-            Log.d("saveTinySymi", "tinySymDataString NO DATA but symi width TINY")
+              Log.d("saveTinySymi", "tinySymDataString NO DATA but symi width TINY")
         }
-        Log.d("saveTinySymi", "tinySymDataString NO DATA")
+          Log.d("saveTinySymi", "tinySymDataString NO DATA")
 
         return "no data string"
     }
@@ -762,12 +767,12 @@ fun saveTinySymi(context: Context): String{
     )
 
         if (generatedTinyIAD != null) {
-            Log.d(tag,"generatedTinyAD not null" )
+              Log.d(tag,"generatedTinyAD not null" )
 
             generatedTinyIAD!!.generatedIcon.generatedDataFileName = fname
 
             symiRepo.addGeneratedIconAndData(iconDef, symIcon, symiTiny, generatedTinyIAD!!)
-Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (generatedTinyIAD!!.generatedImageData?.len
+  Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (generatedTinyIAD!!.generatedImageData?.len
     ?: 0))
             return "TINY_SAVED"
         }
@@ -811,7 +816,7 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
         // image id updated in recolour call
         generatedMedIAD?.let {
             symiRepo.addGeneratedIconAndData(iconDef, symIcon,  symiMed, it)
-            Log.d("save symi", "done repo add. Width is "+ symiMed.width + " length is " + (it.generatedImageData?.len
+              Log.d("save symi", "done repo add. Width is "+ symiMed.width + " length is " + (it.generatedImageData?.len
                 ?: 0) + " MED image file is " + (generatedMedIAD?.generatedImageData?.iconImageFileName
                 ?: "no medIAD or icon image file name")
             )
@@ -997,7 +1002,7 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
          //   val symData = generatedIcon.getGeneratedData(context)
             val fname = generatedIcon.generatedDataFileName
          //   if(symData.isNotEmpty()) {
-            Log.d(TAG, "generatedLargeImage not null doing reiter")
+              Log.d(TAG, "generatedLargeImage not null doing reiter")
 
             val ity = workItemsList.filterValues { v -> v==fname }
             if(!ity.isEmpty()){
@@ -1006,10 +1011,10 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
                 return ity.toList()[0]
                 }
                // var outputData: OutputData? = null
-//                    Log.d(TAG, "runSymiExample: symi.lambda " + iconDef.lambda.toString())
+//                      Log.d(TAG, "runSymiExample: symi.lambda " + iconDef.lambda.toString())
 
 
-                Log.d(TAG, "colours[0] are: ${bgClr[0]} , ${minClr[0]} , ${maxClr[0]}")
+                  Log.d(TAG, "colours[0] are: ${bgClr[0]} , ${minClr[0]} , ${maxClr[0]}")
                     workerId = symiNativeWrapper.runMoreIterWorker(
                         context,
                         GO_GO_GO.toLong(),
@@ -1095,7 +1100,7 @@ Log.d(tag, "done repo add TINY. Width is "+ symiTiny.width + " length is " + (ge
 
                     }
                     else -> {
-                        Log.d("runSymiExample", "size not TINY or MEDIUM or LARGE")
+                          Log.d("runSymiExample", "size not TINY or MEDIUM or LARGE")
 
                         bitmap?.height?.let {
                             saveDataFile(

@@ -197,11 +197,11 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         } else if (workInfo?.state == WorkInfo.State.ENQUEUED) {
             Toast.makeText(applicationContext, "Go Big  task queued."  , Toast.LENGTH_SHORT)
                 .show()
-            Log.d("Go Big checkWI", "queued")
+              Log.d("Go Big checkWI", "queued")
         } else if (workInfo?.state == WorkInfo.State.RUNNING) {
             Toast.makeText(applicationContext, "Go Big task running." , Toast.LENGTH_SHORT)
                 .show()
-            Log.d("Go Big checkWI", "running" +id +" " )
+              Log.d("Go Big checkWI", "running" +id +" " )
         } else if(workInfo.state.isFinished) {
             Toast.makeText(
                 applicationContext, "Go Big generation did not complete.",
@@ -261,7 +261,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     override fun reColour(){  //Call from reColour button to open colours dialog
         if (pickColourFragment == null) {
             pickColourFragment = PickColourFragment.newInstance(viewModel.bgClrInt, viewModel.minClrInt, viewModel.maxClrInt)
-            Log.d("main activity recolour", "pickColurfragment newInstance() called. " +
+              Log.d("main activity recolour", "pickColurfragment newInstance() called. " +
             " viewModel.bgClr[0] " + viewModel.bgClr[0] + " viewModel.bgClrInt[0] " + viewModel.bgClrInt[0])
         }
         if(navController?.currentDestination?.id == R.id.imageIconFragment) {
@@ -279,7 +279,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         context: Context?
     ) {
         if (context!= null && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ) {
-            Log.d("save image", "bulid version < Q about to saveFile legacy " + imFileName)
+              Log.d("save image", "bulid version < Q about to saveFile legacy " + imFileName)
             saveFileToGalleryLegacy(imFileName, context)
             return
         }
@@ -289,7 +289,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             val imFile = File(imPath, imFileName)
             val resolver = context.contentResolver
 
-            Log.d("saveImageToGallery", "saving  " + imFileName)
+              Log.d("saveImageToGallery", "saving  " + imFileName)
             val tt = System.currentTimeMillis()
             val cvals = ContentValues().apply {
                 put(TITLE, imFileName)
@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             }
             val uri = resolver.insert( MediaStore.Images.Media.getContentUri(
                 MediaStore.VOLUME_EXTERNAL_PRIMARY) , cvals)    //(imageUri, cvals)
-            Log.d("save image sdk >28", "got cvals , uri " + cvals.toString() + " , " + uri.toString())
+              Log.d("save image sdk >28", "got cvals , uri " + cvals.toString() + " , " + uri.toString())
             uri?.let {
                 resolver.openOutputStream(uri).use { medStr ->
                     // Write data into the pending image file.
@@ -311,7 +311,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                         val len = imStr.copyTo(it1)
                         imStr.close()
                         medStr.close()
-                        Log.d("save image", "save to store seemingly done len = " + len)
+                          Log.d("save image", "save to store seemingly done len = " + len)
                     }
                 }
 
@@ -335,10 +335,10 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
          android.Manifest.permission.WRITE_EXTERNAL_STORAGE
      )
      if (permission != PackageManager.PERMISSION_GRANTED) {
-         Log.d("save image legacy", "permission not granted, calling getWrite Permission")
+           Log.d("save image legacy", "permission not granted, calling getWrite Permission")
          getWritePermission(permissionsStorage)
          imageFileToSave = imFileName
-         Log.d("save image legacy", "after get permission call ")
+           Log.d("save image legacy", "after get permission call ")
          return // SKIP OUT IF GET PERMISSION ASKED FOR the callback will re-call this function
      }
      val directory = context.getExternalFilesDir(DIRECTORY_PICTURES)
@@ -352,15 +352,15 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
          put(DATA, directory.toString()+imFileName)
       //   put(IS_PENDING, 1)                               // NO such for sdk 28
             }
-     Log.d("save image legacy", "before resolver insert cvals " +cvals.toString())
+       Log.d("save image legacy", "before resolver insert cvals " +cvals.toString())
       val PROJECTION = arrayOf(MediaStore.Video.Media._ID)
       val QUERY = MediaStore.Video.Media.DISPLAY_NAME + " = ?"
 
      resolver.insert(imageCollection, cvals)
-     Log.d("save image legacy","after resolver insert")
+       Log.d("save image legacy","after resolver insert")
 
      val cursor =resolver.query(imageCollection, PROJECTION, QUERY, arrayOf(imFileName), null)
-     Log.d("save image legacy", "after cursor call cursor " +cursor.toString())
+       Log.d("save image legacy", "after cursor call cursor " +cursor.toString())
 
          if(cursor != null && cursor.count > 0) {
 
@@ -370,11 +370,11 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                  cursor.getLong(0)
              )
         cursor.close()
-        Log.d("save image legacy", "after uri we got " +uri.toString())
+          Log.d("save image legacy", "after uri we got " +uri.toString())
         val imPath = File(context?.filesDir,  "images/")
         val imFile = File(imPath, imFileName)
 
-     Log.d("save image", "got cvals , uri " + cvals.toString() + " , " + uri.toString())
+       Log.d("save image", "got cvals , uri " + cvals.toString() + " , " + uri.toString())
          uri.let {
              resolver.openOutputStream(uri).use { medStr ->
                  // Write data into the pending image file.
@@ -383,7 +383,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                      val len = imStr.copyTo(it1)
                      imStr.close()
                      medStr.close()
-                     Log.d("save image", "save to store seemingly done len = " + len)
+                       Log.d("save image", "save to store seemingly done len = " + len)
                  }
              }
          }
@@ -397,24 +397,24 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.d("req permissions callback", "callback called")
+          Log.d("req permissions callback", "callback called")
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED && imageFileToSave != null){
             saveFileToGalleryLegacy(imageFileToSave!!, applicationContext)
             imageFileToSave = null
         }
     }
  fun getWritePermission(permissionsStorage:Array<String>) {
-     Log.d("getWritePermission", "get permission pre")
+       Log.d("getWritePermission", "get permission pre")
           ActivityCompat.requestPermissions(
                 this@MainActivity,
                 permissionsStorage,
                 1
             )
-     Log.d("getWritePermission", "get permission post")
+       Log.d("getWritePermission", "get permission post")
 
  }
     override fun onFloatingActionButtonClicked() {
-        Log.d("MainActivity", "onFloatingActionButtonClicked is CALLED" )
+          Log.d("MainActivity", "onFloatingActionButtonClicked is CALLED" )
         if(mainFragment == null) {
             mainFragment = MainFragment.newInstance()
         }
@@ -436,7 +436,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         ***************************/
 
         navController?.navigate(R.id.action_wrapListFragment_to_mainFragment)
-        Log.d("MainActivity", "after action_wrapListFragment_to_mainFragment call")
+          Log.d("MainActivity", "after action_wrapListFragment_to_mainFragment call")
        // supportFragmentManager.findFragmentByTag(blankTag)?.let { transaction?.hide(it) }
 
        // viewModel.clearGeneratedData()
@@ -548,7 +548,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     override fun onSymIconItemSelected(generatedImageAndImageData: GeneratedIconWithAllImageData) {
-        Log.d("MainActivity ", "onSymIconItemSelected called")
+          Log.d("MainActivity ", "onSymIconItemSelected called")
        // if(mainFragment == null) {
          //   mainFragment = MainFragment.newInstance()
        // }
@@ -563,7 +563,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             viewModel.isLoadingFromData = true
             viewModel.setSymiData(applicationContext, generatedImageAndImageData)
 
-        Log.d("MainActivity onSymIconItemSelected", "viewModel.bgClr[0] " + viewModel.bgClr[0])
+          Log.d("MainActivity onSymIconItemSelected", "viewModel.bgClr[0] " + viewModel.bgClr[0])
             //   }
 
          /***********
@@ -574,7 +574,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     override fun deleteSymIcon(context: Context, generatedIconWithAllImageData: GeneratedIconWithAllImageData) {
-        Log.d("MainActivity", "deleteSymIcon called")
+          Log.d("MainActivity", "deleteSymIcon called")
         viewModel.deleteSymiData(context , generatedIconWithAllImageData)
       //  wrapListFragment.
     }
@@ -612,7 +612,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
               //  navController?.popBackStack(R.id.wrapListFragment, true)
             }
             R.id.image_icon_fragment -> currentFragment = CurrentFragmet.ICON_DISPLAY
-            else -> Log.d("onDestinationCanged", "ID not handled id=$destId")
+            else ->   Log.d("onDestinationCanged", "ID not handled id=$destId")
         }
     }
 

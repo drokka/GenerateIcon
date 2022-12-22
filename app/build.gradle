@@ -38,8 +38,8 @@ android {
         applicationId "com.drokka.emu.symicon.generateicon"
         minSdkVersion 28
         targetSdkVersion 33
-        versionCode 12
-        versionName "4.3"
+        versionCode 16
+        versionName "4.7"
 
      //   testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

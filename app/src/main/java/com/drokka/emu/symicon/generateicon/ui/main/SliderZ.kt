@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import com.drokka.emu.symicon.generateicon.BuildConfig
 import com.google.android.material.slider.Slider
 import kotlin.math.abs
 
@@ -53,7 +52,7 @@ class SliderZ : Slider {
     // NOTE overiding onLongKeyPress, performKEYPress etc seems to have no effect.
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if(BuildConfig.DEBUG) Log.d("onTouchEvent", "touch event " + event.toString())
+          Log.d("onTouchEvent", "touch event " + event.toString())
 
         when(event.action){
             MotionEvent.ACTION_DOWN -> {
@@ -63,12 +62,12 @@ class SliderZ : Slider {
 
             }
             MotionEvent.ACTION_UP -> {
-                if(BuildConfig.DEBUG) Log.d("onTouchEvent", "ACTION_UP")
+                  Log.d("onTouchEvent", "ACTION_UP")
 
                 val timePressed = System.currentTimeMillis() - lastDownTime
                 if (lastIsDown &&  timePressed > 1000 && timePressed < 5000
                     && abs((value - lastDownValue).toDouble()) > (valueFrom - valueTo)/25) {
-                    if(BuildConfig.DEBUG) Log.d("onTouchEvent", "ACTION_UP doing zoom move diff is " + (value - lastDownValue))
+                      Log.d("onTouchEvent", "ACTION_UP doing zoom move diff is " + (value - lastDownValue))
                     doZoom()
 
                 }
@@ -80,16 +79,16 @@ class SliderZ : Slider {
             MotionEvent.ACTION_MOVE -> {
                 val diff = abs(value - lastDownValue)
                 val grubble = abs(valueFrom - valueTo)/20
-                if(BuildConfig.DEBUG) Log.d("onTouchEvent", "ACTION_MOVE $diff and $grubble" )
+                  Log.d("onTouchEvent", "ACTION_MOVE $diff and $grubble" )
                 if(diff > grubble){
                     lastIsDown = false
-                    if(BuildConfig.DEBUG) Log.d("onTouchEvent", "ACTION_MOVE  set lastIsDown to false $diff and $grubble" )
+                      Log.d("onTouchEvent", "ACTION_MOVE  set lastIsDown to false $diff and $grubble" )
 
                 }
                 // else leave lastIsDown possibly true so long press processed with smallish change in thumb position ie value.
             }
             else -> {
-                if(BuildConfig.DEBUG) Log.d("onTouchEvent", "event is ${event.action}")
+                  Log.d("onTouchEvent", "event is ${event.action}")
                     lastIsDown = false
             }
         }
@@ -103,7 +102,7 @@ class SliderZ : Slider {
         valueFrom = initialValueFrom
         Toast.makeText(context, "Zoom level reset.", Toast.LENGTH_SHORT).show()
 
-        if(BuildConfig.DEBUG) Log.d("resetZoom", "resetZoom called")
+          Log.d("resetZoom", "resetZoom called")
     }
 
     private fun doZoom() {
@@ -117,7 +116,7 @@ class SliderZ : Slider {
         this.value = currentValue  // try to get thumb position to middle
         this.refreshDrawableState()
        // isActivated
-        if(BuildConfig.DEBUG) Log.d("onLongKeyPress" , "got it zoom = $zoomLevel")
+          Log.d("onLongKeyPress" , "got it zoom = $zoomLevel")
         Toast.makeText(context, "Zoom level $zoomLevel", Toast.LENGTH_SHORT).show()
     }
 

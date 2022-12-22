@@ -6,7 +6,7 @@ import java.io.Serializable
 import java.util.*
 
 enum class QuiltType(val label: String) {
-    SQUARE("S"), HEX("H"), FRACTAL("F")
+    SQUARE("S"), HEX("H"), FRACTAL("F"), SQUARE_ICON("I")
 }
 // width / height constants in pixels - odd since (0,0) is in the middle and centre of symmetry
 const val TINY = 281
@@ -327,7 +327,7 @@ fun defaultSimyDef(quiltType: QuiltType):SymImageDefinition{
     when(quiltType){
         QuiltType.SQUARE -> return SymImageDefinition( lambda = 0.6,
                             alpha = 0.3, beta =0.2,gamma = 0.4, omega = 0.2,
-                            ma = 0.3, quiltType = QuiltType.SQUARE, degreeSym = 3,
+                            ma = 3.0, quiltType = QuiltType.SQUARE, degreeSym = 3,
                         label = "Square default",
                          width = TINY, height = TINY, iterations = QUICK_LOOK )
         QuiltType.HEX -> return SymImageDefinition( lambda = 0.6,
@@ -339,6 +339,11 @@ fun defaultSimyDef(quiltType: QuiltType):SymImageDefinition{
             alpha = 0.3, beta =0.02,gamma = 0.9, omega = 0.02,
             ma = 0.3, quiltType = QuiltType.FRACTAL,degreeSym = 3,
             label = "Square default",
+            width = TINY, height = TINY, iterations = QUICK_LOOK )
+        QuiltType.SQUARE_ICON -> return SymImageDefinition( lambda = 0.6,
+            alpha = 0.3, beta =0.2,gamma = 0.4, omega = 0.2,
+            ma = 3.0, quiltType = QuiltType.SQUARE, degreeSym = 3,
+            label = "SquareIcon default",
             width = TINY, height = TINY, iterations = QUICK_LOOK )
     }
 }}

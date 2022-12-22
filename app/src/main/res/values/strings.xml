@@ -4,6 +4,7 @@
         <item>Square</item>
         <item>Hex</item>
         <item>Fractal</item>
+        <item>Icon</item>
     </array>
     <string name="about_app" translatable="false">Generate symmetric patterns. Uses mathematical algorithms described in Symmetry in Chaos: A Search for Pattern in Mathematics, Art and Nature
 Field, by Michael J. and Golubitsky, M.</string>

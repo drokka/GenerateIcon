@@ -198,6 +198,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
         maText.addOnChangeListener { slider, value, fromUser ->
             viewModel.setMa(jitter(value.toDouble()))
             doQuickDraw()
+
         }
         lambdaText.addOnChangeListener { slider, value, fromUser ->
             viewModel.setLambda(jitter(value.toDouble()))
@@ -301,6 +302,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
 
             }
         }
+        Log.d("onItemSelected", "setting icon type $itemType")
         viewModel.setIconType(itemType)
         doQuickDraw()
     }
@@ -367,6 +369,7 @@ class MainFragment() : Fragment(),  AdapterView.OnItemSelectedListener /*icon ty
             QuiltType.SQUARE -> selectTypeSpinner.setSelection(0)
             QuiltType.HEX -> selectTypeSpinner.setSelection(1)
             QuiltType.FRACTAL -> selectTypeSpinner.setSelection(2)
+            QuiltType.SQUARE_ICON -> selectTypeSpinner.setSelection(3)
             else -> selectTypeSpinner.setSelection(0)
         }
         degSymText.setText( ""+viewModel.iconDef.degreeSym)
